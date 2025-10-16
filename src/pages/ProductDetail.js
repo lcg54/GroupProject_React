@@ -1,4 +1,4 @@
-import { Card, Col, Container, Row } from "react-bootstrap";
+import { Card, Col, Container, Row, Table } from "react-bootstrap";
 import { API_BASE_URL } from "../config/config";
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
                     style={{ width: "100%", height: "400px", objectFit: "cover" }}
                     />
                 </Col>
-
+                </Row>
                 {/* 상품 정보 */}
                 <Col md={7}>
                     <Card.Body>
@@ -28,7 +28,28 @@ function App() {
                     <p>{product.description}</p>
                     </Card.Body>
                 </Col>
-                </Row>
+
+                {/* 대여 정보 */}
+                <Table className="my-3">
+                    <tbody>
+                        <tr>
+                            <td><strong>총 재고</strong></td>
+                            <td>{product.totalStock}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>예약 중</strong></td>
+                            <td>{product.reservedStock}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>대여 중</strong></td>
+                            <td>{product.rentedStock}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>수리 중</strong></td>
+                            <td>{product.repairStock}</td>
+                        </tr>
+                    </tbody>
+                </Table>
             </Card>
     </Container>
     );

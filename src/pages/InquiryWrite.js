@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { API_BASE_URL } from '../config/config';
+import { useNavigate } from 'react-router-dom';
 
 /* 
     문의사항 페이지
@@ -10,6 +12,41 @@ import React from 'react';
 */
 
 function App({ user }) {
+
+    const [loading, setLoading] = useState(true);
+    const [inquiry, setInquiry] = useState('');
+    const navigate = useNavigate();
+
+    const [title, setTitle] = useState('');
+    const [content, setContent] = useState('');
+    const [type, setType] = useState("");
+
+    useEffect(() => {
+        if (!user) {
+            alert('로그인이 필요한 서비스입니다.');
+            navigate(-1); // 로그인 페이지로 이동
+            return;
+        }
+
+        axios.get(`${API_BASE_URL}/inquiry/write`, { withCredentials: true })
+            .then(response => {
+                setInquiry(response.data);
+                setLoading(false);
+            })
+            .catch((error) => {
+                console.log(error);
+
+                if (error.response && error.response.status === 401) {
+                    alert('로그인이 필요한 서비스입니다.');
+                    navigate(-1);
+                } else {
+                    alert('상품 정보를 불러 오는 중에 오류가 발생하였습니다.');
+                    navigate(-1);
+                }
+            })
+
+    }, [user]);
+
     return (
         <div>
             InquiryWrite

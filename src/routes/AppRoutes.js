@@ -7,7 +7,7 @@ import ProductDetail from './../pages/ProductDetail';
 function App() {
     return(
         <Routes>
-            <Route path='/product/detail/:id' element={ <ProductDetail /> } />
+            <Route path='/' element={ <ProductDetail /> } />
 
         </Routes>
 

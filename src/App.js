@@ -4,6 +4,7 @@ import AppRoutes from './routes/AppRoutes';
 import Footer from './ui/Footer';
 
 export default function App() {
+
   return (
     <>
       <Header />

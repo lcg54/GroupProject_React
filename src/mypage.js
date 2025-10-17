@@ -2,6 +2,11 @@ import React, { useState } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+import ServiceDate from './pages/mypage/ServiceDate';
+import ExtensionOrReturn from './pages/mypage/EOR/ExtensionOrReturn';
+import CartList from './pages/CartList';
+import Receipt from './pages/mypage/Receipt';
+
 const MyPage = () => {
   const userName = "000";
   const userGrade = "골드";
@@ -20,8 +25,29 @@ const MyPage = () => {
     setClickedButton(button); // 클릭된 버튼 정보 저장
   };
 
+  function renderContent(button) {
+    switch (button.text) {
+      case '내 카트':
+        return <CartList />;
+      // 이렇게 간의 페이지처럼 보여주던지 경로로 아에 넘기든 할 생각
+      case '결제 내역':
+        return <Receipt />;
+      case '서비스 알림':
+        return <ServiceDate />;
+      case '내 문의사항':
+        return <p>메뉴4 전용 내용</p>;
+      case '내 정보 수정':
+        return <p>메뉴5 전용 내용</p>;
+      case '연장/반납':
+        return <ExtensionOrReturn />;
+      default:
+        return <p>기본 내용</p>;
+    }
+  }
+
+
   return (
-    <Container className="mt-4" style={{ maxWidth: "600px" }}>
+    <Container className="mt-4" style={{ maxWidth: "750px" }}>
       {/* 인사말 */}
       <div className="mb-4 d-flex justify-content-between align-items-center">
         <h3>안녕하세요 {userName}님</h3>
@@ -51,11 +77,11 @@ const MyPage = () => {
       {clickedButton?.text && (
         <div className="mt-4 p-3 border rounded bg-light">
           <h5>🔍 선택한 메뉴: {clickedButton.text}</h5>
-
+          {renderContent(clickedButton)}
         </div>
       )}
 
-      {/* 1개~3개정도 주문내역 */}
+      {/* 1개~3개정도 주문내역 생각중 */}
 
 
 

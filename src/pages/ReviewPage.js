@@ -44,7 +44,7 @@ export default function App() {
         <Container style={{ maxWidth: '800px' }}>
             <h2 className="mb-3 text-center">상품 후기</h2>
             <div className="text-end mb-3">
-                <button>문의 작성</button>
+                <button>후기 작성</button>
             </div>
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>전체 {reviews.length}</span>

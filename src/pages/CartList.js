@@ -3,6 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Button, Form, Card } from 'react-bootstrap';
 
 export default function CartList() {
+
   const [products, setProducts] = useState([
     {
       id: 1,
@@ -34,6 +35,7 @@ export default function CartList() {
     },
   ]);
 
+
   const handleSelectAll = (e) => {
     const checked = e.target.checked;
     setProducts(products.map(p => ({ ...p, selected: checked })));
@@ -42,6 +44,8 @@ export default function CartList() {
   const handleProductChange = (updatedProduct) => {
     setProducts(products.map(p => p.id === updatedProduct.id ? updatedProduct : p));
   };
+  // product.id만 넘기기
+
 
   const handleDeleteSelected = () => {
     setProducts(products.filter(p => !p.selected));

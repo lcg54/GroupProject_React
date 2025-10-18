@@ -8,8 +8,13 @@ import CartList from './pages/CartList';
 import Receipt from './pages/mypage/Receipt';
 
 const MyPage = () => {
-  const userName = "000";
-  const userGrade = "골드";
+  const [users, setUser] = useState([
+    {
+      userName: "000",
+      userGrade: "골드"
+    }
+  ]);
+
   const [clickedButton, setClickedButton] = useState(null);
 
   const buttons = [
@@ -50,9 +55,9 @@ const MyPage = () => {
     <Container className="mt-4" style={{ maxWidth: "750px" }}>
       {/* 인사말 */}
       <div className="mb-4 d-flex justify-content-between align-items-center">
-        <h3>안녕하세요 {userName}님</h3>
+        <h3>안녕하세요 {users.userName}님</h3>
         <span className="badge bg-warning text-dark" style={{ fontSize: "1rem" }}>
-          {userGrade} 등급
+          {users.userGrade} 등급
         </span>
       </div>
 

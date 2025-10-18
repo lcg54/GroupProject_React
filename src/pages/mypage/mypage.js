@@ -7,7 +7,7 @@ import ExtensionOrReturn from './EOR/ExtensionOrReturn';
 import CartList from '../CartList';
 import Receipt from './Receipt';
 
-const MyPage = () => {
+const MyPage = ({ user }) => {
   const [users, setUser] = useState([
     {
       userName: "000",

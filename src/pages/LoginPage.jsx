@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SignupPage.css";
 
+const API_BASE_URL = "http://localhost:9000";
+
 export default function LoginPage({ setUser }) {
   const navigate = useNavigate();
 
@@ -29,7 +31,7 @@ export default function LoginPage({ setUser }) {
 
     try {
       setLoading(true);
-      const res = await fetch("/api/members/login", {
+      const res = await fetch(`${API_BASE_URL}/api/members/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
@@ -42,7 +44,13 @@ export default function LoginPage({ setUser }) {
       }
 
       const userData = await res.json();
-      setUser(userData);
+
+      // setUser 함수 호출 (App.js의 handleLoginSuccess로 전달됨)
+      if (setUser) {
+        setUser(userData);
+      }
+
+      // 로그인 성공 후 홈으로 이동
       navigate("/");
     } catch (err) {
       setError(err.message || "로그인 중 오류가 발생했습니다.");

@@ -1,31 +1,19 @@
-import axios from "axios";
-import { useEffect } from "react";
-import { API_BASE_URL } from "../config/config";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-function LogoutPage({ onLogout }) {
+export default function LogoutPage({ onLogout }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const url = `${API_BASE_URL}/member/logout`;
+    if (onLogout) {
+      onLogout();
+    }
+    navigate('/member/login');
+  }, [onLogout, navigate]);
 
-    axios.post(url)
-      .then(() => {
-        localStorage.removeItem('user');
-        console.log('로그아웃 성공');
-
-        if (onLogout) {
-          onLogout();
-        }
-
-        navigate(`/member/login`);
-      })
-      .catch((error) => {
-        console.log('로그아웃 실패', error);
-      });
-  }, []);
-
-  return <>로그아웃 중...</>;
+  return (
+    <div style={{ textAlign: 'center', padding: '50px' }}>
+      <h2>로그아웃 중...</h2>
+    </div>
+  );
 }
-
-export default LogoutPage;

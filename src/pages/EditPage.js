@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./SignupPage.css";
 
+const API_BASE_URL = "http://localhost:9000";
+
 export default function EditPage({ user, setUser }) {
   const navigate = useNavigate();
 
@@ -42,7 +44,8 @@ export default function EditPage({ user, setUser }) {
 
     // 기존 프로필 이미지가 있으면 표시
     if (user.profileImage) {
-      setProfilePreview(user.profileImage);
+      // 서버의 이미지 경로로 변환
+      setProfilePreview(`${API_BASE_URL}/images/${user.profileImage}`);
     }
   }, [user, navigate]);
 
@@ -57,7 +60,7 @@ export default function EditPage({ user, setUser }) {
       setProfileFile(null);
       // 기존 이미지 유지
       if (user?.profileImage) {
-        setProfilePreview(user.profileImage);
+        setProfilePreview(`${API_BASE_URL}/images/${user.profileImage}`);
       } else {
         setProfilePreview(null);
       }
@@ -100,6 +103,7 @@ export default function EditPage({ user, setUser }) {
     }
 
     const fd = new FormData();
+    fd.append("username", form.username); // 수정 API에서 사용자 식별용
     fd.append("name", form.name);
     fd.append("email", form.email);
     fd.append("phone", form.phone);
@@ -117,10 +121,9 @@ export default function EditPage({ user, setUser }) {
 
     try {
       setLoading(true);
-      const res = await fetch("/api/members/edit", {
+      const res = await fetch(`${API_BASE_URL}/api/members/edit`, {
         method: "PUT",
         body: fd,
-        credentials: "include", // 쿠키 포함
       });
 
       if (!res.ok) {
@@ -131,8 +134,9 @@ export default function EditPage({ user, setUser }) {
 
       const updatedUser = await res.json();
 
-      // 사용자 정보 업데이트
-      setUser(updatedUser);
+      // 비밀번호 제거 후 사용자 정보 업데이트
+      const { password, ...userWithoutPassword } = updatedUser;
+      setUser(userWithoutPassword);
 
       setSuccessMsg("정보가 성공적으로 수정되었습니다.");
       setTimeout(() => navigate("/"), 1500);

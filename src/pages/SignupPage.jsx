@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../config/config";
 import "./SignupPage.css";
+
 
 export default function SignupPage() {
   const navigate = useNavigate();
@@ -76,7 +78,8 @@ export default function SignupPage() {
 
     try {
       setLoading(true);
-      const res = await fetch("/api/members", {
+      // API_BASE_URL 사용하여 전체 URL 구성
+      const res = await fetch(`${API_BASE_URL}/api/members`, {
         method: "POST",
         body: fd,
       });

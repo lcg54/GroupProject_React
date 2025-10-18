@@ -265,10 +265,15 @@ export default function ProductList({ user }) {
       </Row>
 
       {loading && (
-        <div className="text-center my-3"><Spinner animation="border" /></div>
+        <div className="text-center">
+          <Spinner animation="border" />
+          <h4>상품 정보를 불러오는 중입니다...</h4>
+        </div>
       )}
       {!hasMore && 
-        <div className="text-center my-3">모든 상품을 불러왔습니다.</div>
+        <div className="text-center">
+          모든 상품을 불러왔습니다.
+        </div>
       }
     </Container>
   );

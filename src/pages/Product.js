@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Carousel, Nav } from "react-bootstrap";
+import { Button, Col, Container, Row, Carousel, Nav, Spinner } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/config";
 import axios from "axios";
+import InquiryList from './InquiryList';
+import ReviewPage from './ReviewPage';
 
 export default function Product({ user }) {
   const { id } = useParams(); // 상품아이디
@@ -29,7 +31,7 @@ export default function Product({ user }) {
     }
   };
 
-  // 월 요금 계산 함수 (rentalService에 있는 것과 동일)
+  // 월 요금 계산 함수 (임시) (rentalService에 있는 것과 동일)
   const getMonthlyPrice = () => {
     if (!product) return 0;
     return product.price / (selectedPeriod * 10) - 1100;
@@ -59,16 +61,17 @@ export default function Product({ user }) {
 
   if (loading) {
     return (
-      <Container className="my-5 text-center">
-        <h3>상품 정보를 불러오는 중입니다...</h3>
+      <Container className="mt-4 text-center">
+        <Spinner animation="border" />
+        <h4>상품 정보를 불러오는 중입니다...</h4>
       </Container>
     );
   }
 
   if (!product) {
     return (
-      <Container className="my-5 text-center">
-        <h3>상품 정보를 찾을 수 없습니다.</h3>
+      <Container className="mt-4 text-center">
+        <h4>상품 정보를 찾을 수 없습니다.</h4>
       </Container>
     );
   }
@@ -162,14 +165,12 @@ export default function Product({ user }) {
       )}
       {activeTab === "review" && (
         <div className="p-3 border rounded">
-          <h5>상품 후기</h5>
-          <p>아직 등록된 후기가 없습니다.</p>
+          <ReviewPage />
         </div>
       )}
       {activeTab === "inquiry" && (
         <div className="p-3 border rounded">
-          <h5>상품 문의</h5>
-          <p>문의 내역이 없습니다. 로그인 후 문의를 작성해보세요.</p>
+          <InquiryList />
         </div>
       )}
     </Container>

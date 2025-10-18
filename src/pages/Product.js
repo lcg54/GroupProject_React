@@ -42,6 +42,12 @@ export default function Product({ user }) {
       alert("로그인이 필요합니다.");
       return;
     }
+    if (!window.confirm(`
+      상품명: ${product.name}
+      대여기간: ${selectedPeriod}년
+      월 납부액: ${getMonthlyPrice()}원\n
+      대여를 신청하시겠습니까?
+    `)) return;
     try {
       const res = await axios.post(`${API_BASE_URL}/rental/${id}`, {
         memberId: user.id,
@@ -49,15 +55,25 @@ export default function Product({ user }) {
         periodYears: selectedPeriod
       });
       alert(`대여 신청이 완료되었습니다.\n월 요금: ${res.data.monthlyPrice.toLocaleString()}원`);
+      // 추가할것: navigate(주문내역페이지)
     } catch (err) {
-      console.error(err);
-      if (err.response?.status === 403) {
-        alert("권한이 없습니다. 다시 로그인해주세요.");
-      } else {
-        alert("대여 신청 중 오류가 발생했습니다.");
-      }
+      alert("대여 신청 중 오류가 발생했습니다.");
     }
   };
+
+  const handleCart = () => {
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      return;
+    }
+    if (!window.confirm(`
+      상품명: ${product.name}
+      대여기간: ${selectedPeriod}년\n
+      장바구니에 추가하시겠습니까?
+    `)) return;
+    // 추가할것: try {카트아이템 추가하는 axios} catch
+    navigate(`/member/cart`);
+  }
 
   if (loading) {
     return (
@@ -128,7 +144,7 @@ export default function Product({ user }) {
 
           {/* 버튼 영역 */}
           <div className="d-flex gap-3">
-            <Button variant="outline-primary" size="lg" onClick={handleRental}>
+            <Button variant="outline-primary" size="lg" onClick={handleCart}>
               🛒 장바구니
             </Button>
             <Button variant="outline-danger" size="lg" onClick={handleRental}>

@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import ServiceDate from './pages/mypage/ServiceDate';
-import ExtensionOrReturn from './pages/mypage/EOR/ExtensionOrReturn';
-import CartList from './pages/CartList';
-import Receipt from './pages/mypage/Receipt';
+import ServiceDate from './ServiceDate';
+import ExtensionOrReturn from './EOR/ExtensionOrReturn';
+import CartList from '../CartList';
+import Receipt from './Receipt';
 
 const MyPage = () => {
   const [users, setUser] = useState([

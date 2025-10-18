@@ -5,6 +5,8 @@ import Product from '../pages/Product';
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
+import MyPage from "../pages/MyPage";
+import CartList from "../pages/CartList";
 
 export default function AppRoutes({ user }) {
   return (
@@ -15,6 +17,8 @@ export default function AppRoutes({ user }) {
       <Route path="/inquiry/list" element={<InquiryList />} />
       <Route path="/inquiry/write" element={<InquiryWrite />} />
       <Route path="/review" element={<ReviewPage />} />
+      <Route path="/member/mypage" element={<MyPage/>} />
+      <Route path="/member/cart" element={<CartList/>} />
 
     </Routes>
   );

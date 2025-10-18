@@ -17,8 +17,8 @@ export default function AppRoutes({ user }) {
       <Route path="/inquiry/list" element={<InquiryList />} />
       <Route path="/inquiry/write" element={<InquiryWrite />} />
       <Route path="/review" element={<ReviewPage />} />
-      <Route path="/member/mypage" element={<MyPage/>} />
-      <Route path="/member/cart" element={<CartList/>} />
+      <Route path="/mypage" element={<MyPage user={user} />} />
+      <Route path="/cart" element={<CartList user={user} />} />
 
     </Routes>
   );

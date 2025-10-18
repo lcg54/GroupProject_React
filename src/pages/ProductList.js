@@ -81,6 +81,7 @@ export default function ProductList({ user }) {
         },
       });
       const newProducts = res.data.products.map(p => ({
+          // 월 요금 계산 함수 (임시) (rentalService에 있는 것과 동일)
         ...p, monthlyPrice:p.price / (6 * 10) - 1100
       }));
       if (newProducts.length === 0) setHasMore(false);

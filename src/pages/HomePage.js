@@ -10,8 +10,8 @@ export default function HomePage() {
       <button onClick={() => navigate(`/product/list`)}>상품목록</button><br />
       <button onClick={() => navigate(`/inquiry/list`)}>문의게시판</button><br />
       <button onClick={() => navigate(`/review`)}>후기게시판</button><br />
-      <button onClick={() => navigate(`/member/mypage`)}>마이페이지</button><br />
-      <button onClick={() => navigate(`/member/cart`)}>장바구니</button><br />
+      <button onClick={() => navigate(`/mypage`)}>마이페이지</button><br />
+      <button onClick={() => navigate(`/cart`)}>장바구니</button><br />
     </Container>
   );
 }

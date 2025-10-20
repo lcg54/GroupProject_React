@@ -93,7 +93,7 @@ export const SelectedFilter = ({ category, setCategory, brand, setBrand, availab
       {category.map(c => (
         <Button
           key={c}
-          variant="info"
+          variant="secondary"
           size="sm"
           className="rounded-pill px-3 py-0"
           onClick={() => setCategory(prev => prev.filter(v => v !== c))}
@@ -105,7 +105,7 @@ export const SelectedFilter = ({ category, setCategory, brand, setBrand, availab
       {brand.map(b => (
         <Button
           key={b}
-          variant="success"
+          variant="secondary"
           size="sm"
           className="rounded-pill px-3 py-0"
           onClick={() => setBrand(prev => prev.filter(v => v !== b))}
@@ -116,7 +116,7 @@ export const SelectedFilter = ({ category, setCategory, brand, setBrand, availab
     
       {available !== null && (
         <Button
-          variant="warning"
+          variant="secondary"
           size="sm"
           className="rounded-pill px-3 py-0"
           onClick={() => setAvailable(null)}
@@ -126,7 +126,7 @@ export const SelectedFilter = ({ category, setCategory, brand, setBrand, availab
       )}
       {sortBy && (
         <Button
-          variant="primary"
+          variant="secondary"
           size="sm"
           className="rounded-pill px-3 py-0"
           onClick={() => setSortBy(null)}

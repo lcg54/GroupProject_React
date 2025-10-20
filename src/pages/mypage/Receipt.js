@@ -12,7 +12,10 @@ export default function Receipt() {
 
     return (
         <Container>
+
             <h2>000님의 결제내역</h2>
+
+            {/* 디폴트가 최근 임대 시작, 옵션 3개로 {반납일 임박/ 첫 임대시작한 제품} {가격 높은순/ 낮은순} {제품 이름 검색} */}
 
             {products.length === 0 ? (
                 <Alert variant="secondary">주문 내역이 없습니다.</Alert>

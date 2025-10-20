@@ -5,24 +5,28 @@ import Product from '../pages/product/Product';
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
-import MyPage from "../pages/mypage/MyPage";
+import AppWrapper from "./AppWrapper";
+import MyPage from "../pages/mypage/Mypage";
 import CartList from "../pages/CartList";
 import AdminProductRegister from "../pages/AdminProductRegister";
+import Login from "../pages/Login";
 
-export default function AppRoutes({ user }) {
+export default function AppRoutes({ user, setUser }) {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/product/list" element={<ProductList user={user} />} />
-      <Route path="/product/:id" element={<Product user={user} />} />
-      <Route path="/inquiry/list" element={<InquiryList />} />
-      <Route path="/inquiry/write" element={<InquiryWrite />} />
-      <Route path="/review" element={<ReviewPage />} />
-      <Route path="/mypage" element={<MyPage user={user} />} />
-      <Route path="/cart" element={<CartList user={user} />} />
+    <AppWrapper>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/product/list" element={<ProductList user={user} />} />
+        <Route path="/product/:id" element={<Product user={user} />} />
+        <Route path="/inquiry/list" element={<InquiryList />} />
+        <Route path="/inquiry/write" element={<InquiryWrite />} />
+        <Route path="/review" element={<ReviewPage />} />
+        <Route path="/mypage" element={<MyPage user={user} />} />
+        <Route path="/cart" element={<CartList user={user} />} />
+        <Route path="/admin/product/register" element={<AdminProductRegister />} />
+        <Route path="/login" element={<Login user={user} setUser={setUser} />} />
 
-      <Route path="/admin/product/register" element={<AdminProductRegister />} />
-
-    </Routes>
+      </Routes>
+    </AppWrapper>
   );
 }

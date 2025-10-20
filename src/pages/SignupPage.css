@@ -16,18 +16,19 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f5f5f5 100%);
   overflow: hidden;
 }
 
 .container {
   border-radius: 20px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
   position: absolute;
   width: 900px;
   min-height: 800px;
   overflow: hidden;
   background: #ffffff;
+  border: 1px solid #e8e8e8;
 }
 
 form {
@@ -42,27 +43,28 @@ form {
 }
 
 form input {
-  background: #f5f7fa;
+  background: #fafafa;
   padding: 12px 20px;
   margin: 6px 0;
   width: 85%;
-  border: 2px solid transparent;
+  border: 2px solid #e8e8e8;
   outline: none;
   border-radius: 12px;
   font-size: 14px;
   transition: all 0.3s ease;
+  color: #000;
 }
 
 form input:focus {
   background: #ffffff;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  border-color: #000;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.05);
 }
 
 form input:disabled {
-  background: #e9ecef;
+  background: #f0f0f0;
   cursor: not-allowed;
-  color: #6c757d;
+  color: #999;
 }
 
 button {
@@ -80,38 +82,41 @@ button {
 }
 
 .form_btn {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: #000000;
   color: #ffffff;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 .form_btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+  background: #1a1a1a;
 }
 
 .form_btn:active {
   transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
 }
 
 .form_btn:disabled {
-  background: #cccccc;
+  background: #e0e0e0;
+  color: #999;
   cursor: not-allowed;
   box-shadow: none;
 }
 
 .overlay_btn {
-  background: #ffffff;
-  color: #667eea;
-  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  background: transparent;
+  color: #ffffff;
+  box-shadow: none;
+  border: 2px solid #ffffff;
 }
 
 .overlay_btn:hover {
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff;
+  color: #000;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 15px rgba(255, 255, 255, 0.3);
 }
 
 .sign-in-container {
@@ -145,7 +150,7 @@ button {
 }
 
 .overlay {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
   color: #ffffff;
   position: relative;
   left: -100%;
@@ -155,38 +160,31 @@ button {
   transition: transform 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.overlay-left {
-  display: flex;
-  flex-direction: column;
-  padding: 0 50px;
-  justify-content: center;
-  align-items: center;
-  position: absolute;
-  left: 0;
-  width: 50%;
-  height: 100%;
-  opacity: 0;
-  color: #fff;
-  transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  transform: translateX(0);
-}
-
+.overlay-left,
 .overlay-right {
   display: flex;
   flex-direction: column;
   padding: 0 50px;
   justify-content: center;
   align-items: center;
-  position: absolute;
-  right: 0;
   width: 50%;
   height: 100%;
-  color: #fff;
+  color: #ffffff;
   transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  transform: translateX(0);
 }
 
-/* 냉장고 문처럼 옆으로 밀리는 애니메이션 */
+.overlay-left {
+  position: absolute;
+  left: 0;
+  opacity: 0;
+}
+
+.overlay-right {
+  position: absolute;
+  right: 0;
+}
+
+/* 전환 애니메이션 */
 .container.right-panel-active .sign-in-container {
   transform: translateX(100%);
   opacity: 0;
@@ -225,7 +223,7 @@ button {
 form h1 {
   font-weight: 700;
   margin: 0 0 10px 0;
-  color: #2d3748;
+  color: #000;
   font-size: 32px;
 }
 
@@ -235,11 +233,12 @@ p {
   letter-spacing: 0.3px;
   margin: 15px 0 25px;
   line-height: 1.6;
+  color: #ffffff;
 }
 
 span {
   font-size: 13px;
-  color: #4a5568;
+  color: #666;
   letter-spacing: 0.3px;
   margin-bottom: 15px;
   font-weight: 500;
@@ -253,15 +252,17 @@ span {
   align-items: center;
   margin: 0 8px;
   border-radius: 50%;
-  background: #f5f7fa;
+  background: #f5f5f5;
   cursor: pointer;
   transition: all 0.3s ease;
+  border: 1px solid #e8e8e8;
 }
 
 .social-links div:hover {
-  background: #667eea;
+  background: #000;
+  border-color: #000;
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
 .social-links div:hover a {
@@ -269,17 +270,13 @@ span {
 }
 
 .social-links a {
-  color: #667eea;
+  color: #000;
   font-size: 18px;
   transition: color 0.3s ease;
 }
 
-.social-links div:active {
-  transform: translateY(-1px);
-}
-
 label {
-  color: #4a5568;
+  color: #333;
   font-weight: 500;
 }
 

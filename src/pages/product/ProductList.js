@@ -1,42 +1,9 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { Button, Card, Col, Container, Dropdown, Form, Row, Spinner } from "react-bootstrap";
-import { API_BASE_URL } from "../config/config";
+import { Card, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../../config/url";
+import { SelectedFilter, CategoryDropdown, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
 import axios from "axios";
-
-const FILTER_OPTIONS = {
-  category: [
-    { value: null, label: "전체" },
-    { value: "REFRIGERATOR", label: "냉장고" },
-    { value: "WASHER", label: "세탁기" },
-    { value: "DRYER", label: "건조기" },
-    { value: "AIRCON", label: "에어컨" },
-    { value: "TV", label: "티비" },
-    { value: "OVEN", label: "오븐" },
-    { value: "MICROWAVE", label: "전자레인지" },
-    { value: "OTHER", label: "기타" },
-  ],
-  brand: [
-    { value: null, label: "전체" },
-    { value: "SAMSUNG", label: "삼성" },
-    { value: "LG", label: "LG" },
-    { value: "DAEWOO", label: "대우" },
-    { value: "WINIA", label: "위니아" },
-    { value: "CUCKOO", label: "쿠쿠" },
-    { value: "SK_MAGIC", label: "SK MAGIC" },
-  ],
-  available: [
-    { value: null, label: "전체" },
-    { value: true, label: "대여가능" },
-    { value: false, label: "대여불가" },
-  ],
-  sortBy: [
-    { value: null, label: "등록순" },
-    { value: "POPULAR", label: "인기순" },
-    { value: "PRICE_ASC", label: "가격 낮은순" },
-    { value: "PRICE_DESC", label: "가격 높은순" },
-  ]
-};
 
 export default function ProductList({ user }) {
   const [products, setProducts] = useState([]);
@@ -82,7 +49,7 @@ export default function ProductList({ user }) {
       });
       const newProducts = res.data.products.map(p => ({
           // 월 요금 계산 함수 (임시) (rentalService에 있는 것과 동일)
-        ...p, monthlyPrice:p.price / (6 * 10) - 1100
+        ...p, monthlyPrice:p.price / (6 * 10) - 2100
       }));
       if (newProducts.length === 0) setHasMore(false);
       else setProducts(prev => [...prev, ...newProducts]);
@@ -152,58 +119,18 @@ export default function ProductList({ user }) {
             />
           </Col>
         </Row>
-            
-        <div className="d-flex flex-wrap gap-2 mt-2">
-          {category.map(c => (
-            <Button
-              key={c}
-              variant="info"
-              size="sm"
-              className="rounded-pill px-3 py-0"
-              onClick={() => setCategory(prev => prev.filter(v => v !== c))}
-            >
-              {FILTER_OPTIONS.category.find(o => o.value === c)?.label} ✕
-            </Button>
-          ))}
-
-          {brand.map(b => (
-            <Button
-              key={b}
-              variant="success"
-              size="sm"
-              className="rounded-pill px-3 py-0"
-              onClick={() => setBrand(prev => prev.filter(v => v !== b))}
-            >
-              {FILTER_OPTIONS.brand.find(o => o.value === b)?.label} ✕
-            </Button>
-          ))}
-        
-          {available !== null && (
-            <Button
-              variant="warning"
-              size="sm"
-              className="rounded-pill px-3 py-0"
-              onClick={() => setAvailable(null)}
-            >
-              {FILTER_OPTIONS.available.find(o => o.value === available)?.label} ✕
-            </Button>
-          )}
-          {sortBy && (
-            <Button
-              variant="primary"
-              size="sm"
-              className="rounded-pill px-3 py-0"
-              onClick={() => setSortBy(null)}
-            >
-              {FILTER_OPTIONS.sortBy.find(o => o.value === sortBy)?.label} ✕
-            </Button>
-          )}
-        </div>
+        <SelectedFilter
+          category={category} setCategory={setCategory}
+          brand={brand} setBrand={setBrand}
+          available={available} setAvailable={setAvailable}
+          sortBy={sortBy} setSortBy={setSortBy}
+        />
       </div>
  
       <Row>
         {products.map((product, idx) => {
-          const availableStock = (product.totalStock ?? 0) - (product.reservedStock ?? 0) - (product.rentedStock ?? 0) - (product.repairStock ?? 0);
+          const availableStock = 
+          (product.totalStock ?? 0) - (product.reservedStock ?? 0) - (product.rentedStock ?? 0) - (product.repairStock ?? 0);
           const isAvailable = availableStock > 0;
           return (
             <Col
@@ -232,12 +159,12 @@ export default function ProductList({ user }) {
                   />
                   <Card.Body>
                     <Card.Title>{product.name}</Card.Title>
-                    <Card.Text>{product.monthlyPrice.toLocaleString()} ₩ / 월</Card.Text>
-                    {/* 평점/리뷰 테이블 추가 예정 */}⭐{product.rate !== null ? product.rate : 0.0}({product.rentedStock})
+                    <p className="mb-1">{/* 평점/리뷰 가져오기 */}⭐평점(리뷰갯수)</p>
+                    <Card.Text>월 {product.monthlyPrice.toLocaleString()} ₩</Card.Text>
                     {user?.role === 'ADMIN' && (
                       <div className="d-flex gap-2 mt-2">
-                        <Button variant="warning" onClick={e => { e.stopPropagation(); navigate(`/product/update/${product.id}`); }}>수정</Button>
-                        <Button variant="danger" onClick={e => { e.stopPropagation(); handleDelete(product); }}>삭제</Button>
+                        <button onClick={e => { e.stopPropagation(); navigate(`/product/update/${product.id}`); }}>수정</button>
+                        <button onClick={e => { e.stopPropagation(); handleDelete(product); }}>삭제</button>
                       </div>
                     )}
                   </Card.Body>
@@ -279,79 +206,3 @@ export default function ProductList({ user }) {
     </Container>
   );
 }
-
-const CategoryDropdown = ({ category, setCategory }) => {
-  const options = FILTER_OPTIONS.category;
-  const toggleCategory = (value) => {
-    if (value === null) { setCategory([]); return; }
-    setCategory(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  };
-  return (
-    <Dropdown>
-      <Dropdown.Toggle variant="outline-primary">카테고리</Dropdown.Toggle>
-      <Dropdown.Menu>
-        {options.map(o => (
-          <Dropdown.Item
-            key={o.value}
-            active={o.value === null ? category.length === 0 : category.includes(o.value)}
-            onClick={() => toggleCategory(o.value)}
-          >
-            {o.label}
-          </Dropdown.Item>
-        ))}
-      </Dropdown.Menu>
-    </Dropdown>
-  );
-};
-
-const BrandDropdown = ({ brand, setBrand }) => {
-  const options = FILTER_OPTIONS.brand;
-  const toggleBrand = (value) => {
-    if (value === null) { setBrand([]); return; }
-    setBrand(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  };
-  return (
-    <Dropdown>
-      <Dropdown.Toggle variant="outline-primary">브랜드</Dropdown.Toggle>
-      <Dropdown.Menu>
-        {options.map(o => (
-          <Dropdown.Item
-            key={o.value}
-            active={o.value === null ? brand.length === 0 : brand.includes(o.value)}
-            onClick={() => toggleBrand(o.value)}
-          >
-            {o.label}
-          </Dropdown.Item>
-        ))}
-      </Dropdown.Menu>
-    </Dropdown>
-  );
-};
-
-const AvailabilityDropdown = ({ available, setAvailable }) => {
-  const options = FILTER_OPTIONS.available;
-  return (
-    <Dropdown>
-      <Dropdown.Toggle variant="outline-primary">대여 가능 여부</Dropdown.Toggle>
-      <Dropdown.Menu>
-        {options.map(o => (
-          <Dropdown.Item key={o.value} active={o.value === available} onClick={() => setAvailable(o.value)}>{o.label}</Dropdown.Item>
-        ))}
-      </Dropdown.Menu>
-    </Dropdown>
-  );
-};
-
-const SortDropdown = ({ sortBy, setSortBy }) => {
-  const options = FILTER_OPTIONS.sortBy;
-  return (
-    <Dropdown>
-      <Dropdown.Toggle variant="outline-primary">정렬 기준</Dropdown.Toggle>
-      <Dropdown.Menu>
-        {options.map(o => (
-          <Dropdown.Item key={o.value} active={o.value === sortBy} onClick={() => setSortBy(o.value)}>{o.label}</Dropdown.Item>
-        ))}
-      </Dropdown.Menu>
-    </Dropdown>
-  );  
-};

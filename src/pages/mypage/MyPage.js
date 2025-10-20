@@ -2,10 +2,10 @@ import React, { useState } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import ServiceDate from './mypage/ServiceDate';
-import ExtensionOrReturn from './mypage/EOR/ExtensionOrReturn';
-import CartList from './CartList';
-import Receipt from './mypage/Receipt';
+import ServiceDate from './ServiceDate';
+import ExtensionOrReturn from './EOR/ExtensionOrReturn';
+import CartList from '../CartList';
+import Receipt from './Receipt';
 
 const MyPage = ({ user }) => {
   const [clickedButton, setClickedButton] = useState(null);

@@ -1,11 +1,11 @@
 import { Route, Routes } from "react-router-dom";
 import HomePage from './../pages/HomePage';
-import ProductList from './../pages/ProductList';
-import Product from '../pages/Product';
+import ProductList from '../pages/product/ProductList';
+import Product from '../pages/product/Product';
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
-import MyPage from "../pages/MyPage";
+import MyPage from "../pages/mypage/MyPage";
 import CartList from "../pages/CartList";
 
 export default function AppRoutes({ user }) {

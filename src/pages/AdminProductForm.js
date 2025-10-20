@@ -14,9 +14,6 @@ const BRAND_OPTIONS = [
   "SAMSUNG", "LG", "DAEWOO", "WINIA", "CUCKOO", "SK_MAGIC"
 ];
 
-const RENTAL_PERIODS = [
-  "3년(36개월)", "4년(48개월)", "5년(60개월)", "6년(72개월)"
-];
 
 export default function AdminProductForm({ user }) {
   const navigate = useNavigate();

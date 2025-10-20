@@ -1,11 +1,9 @@
-<<<<<<< HEAD
-=======
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Navbar, Nav, Button } from 'react-bootstrap';
 import './Header.css';
 
->>>>>>> develop
+
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
@@ -58,9 +56,6 @@ export default function Header() {
   const headerClass = `header ${isHidden ? 'header-hidden' : 'header-visible'}`;
 
   return (
-<<<<<<< HEAD
-    <>header</>
-=======
     <>
       <Navbar className={headerClass}>
         <Button
@@ -145,6 +140,6 @@ export default function Header() {
         />
       )}
     </>
->>>>>>> develop
+ 
   );
 }

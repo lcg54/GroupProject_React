@@ -19,7 +19,7 @@ const HeroSection = () => {
       className="my-5"
     >
       <Row className="align-items-start">
-        <Col md={6} className="d-flex flex-column align-items-start">
+        <Col md={6} className="d-flex flex-column align-items-start pe-6">
 
           <div style={{ marginBottom: '1.5rem' }}>
             <DoubleCircle />
@@ -30,7 +30,7 @@ const HeroSection = () => {
           </h1>
           <p>당신의 삶의 질을 높히기 위해<br />저희는 편안함을 대여해 드립니다.</p>
         </Col>
-        <Col md={6} className="text-center">
+        <Col md={6} className="text-center ps-6">
           <Image
             src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=900&q=80"
             fluid

@@ -4,16 +4,17 @@ import AppRoutes from './routes/AppRoutes';
 import Footer from './ui/Footer';
 import { useState } from 'react';
 
-
 export default function App() {
-  const [user, setUser] = useState(null); // 로그인 로그아웃
-
+  const [user, setUser] = useState(null);
 
   return (
     <>
       <Header user={user} />
-      <AppRoutes user={user} />
+      <div className="main-content">
+        <AppRoutes user={user} />
+      </div>
       <Footer />
     </>
   );
 }
+

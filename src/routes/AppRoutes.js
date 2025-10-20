@@ -7,7 +7,7 @@ import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
 import MyPage from "../pages/MyPage";
 import CartList from "../pages/CartList";
-import AdminProductRegister from "../pages/AdminProductRegister";
+import AdminProductForm from "../pages/AdminProductForm";
 
 export default function AppRoutes({ user }) {
   return (
@@ -22,7 +22,8 @@ export default function AppRoutes({ user }) {
       <Route path="/member/cart" element={<CartList/>} />
 
       {/* 관리자 페이지 */}
-      <Route path="/admin/product/register" element={<AdminProductRegister />} />
+      <Route path="/admin/product/register" element={<AdminProductForm />} />
+      <Route path="/admin/product/edit/:id" element={<AdminProductForm />} />
 
     </Routes>
   );

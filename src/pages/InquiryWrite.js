@@ -27,7 +27,7 @@ function App({ }) {
         <Container className="mb-3">
             <Form.Group as={Row}>
                 <Form.Label column sm={1}>문의 제목</Form.Label>
-                <Col sm={10}><Form.Control placeholder="제목 작성" value={title} onChange={(e) => setTitle(e.target.value)}></Form.Control></Col>
+                <Col sm={10}><Form.Control placeholder="제목 작성" value={title} maxLength={35} onChange={(e) => setTitle(e.target.value)}></Form.Control></Col>
             </Form.Group>
             <Form.Group as={Row}>
                 <Form.Label column sm={1}>문의 사유</Form.Label>

@@ -1,243 +1,336 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Container, Form, Button } from "react-bootstrap";
+import { Container, Form, Button, Alert } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/config";
 
-const CATEGORY_OPTIONS = ["REFRIGERATOR", "WASHER", "DRYER", "AIRCON", "TV", "OVEN", "MICROWAVE", "OTHER"];
-const BRAND_OPTIONS = ["SAMSUNG", "LG", "DAEWOO", "WINIA", "CUCKOO", "SK_MAGIC"];
-const RENTAL_PERIODS = ["3년(36개월)", "4년(48개월)", "5년(60개월)", "6년(72개월)"]; // 필요 없으면 제거 가능
+// Configuration constants
+const CATEGORY_OPTIONS = [
+  "REFRIGERATOR", "WASHER", "DRYER", "AIRCON", 
+  "TV", "OVEN", "MICROWAVE", "OTHER"
+];
+
+const BRAND_OPTIONS = [
+  "SAMSUNG", "LG", "DAEWOO", "WINIA", "CUCKOO", "SK_MAGIC"
+];
+
+const RENTAL_PERIODS = [
+  "3년(36개월)", "4년(48개월)", "5년(60개월)", "6년(72개월)"
+];
 
 export default function AdminProductForm({ user }) {
   const navigate = useNavigate();
-  const { id } = useParams(); // 상품 id (수정 시 존재)
+  const { id } = useParams();
 
-  
-  useEffect(() => {
-    // 로그인 및 관리자 권한 체크 삭제 또는 비활성화
-  }, []);
+  // Form state management
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "",
+    brand: "",
+    description: "",
+    price: 0,
+    totalStock: 0,
+    available: true
+  });
 
-  // 상태 관리
-  const [name, setName] = useState("");
-  const [category, setCategory] = useState("");
-  const [brand, setBrand] = useState("");
-  const [description, setDescription] = useState("");
-  const [price, setPrice] = useState(0);
-  const [totalStock, settotalStock] = useState(0);
-  const [available, setAvailable] = useState(true);
-  const [existingImages, setExistingImages] = useState([]); // 수정 시 기존 이미지 보여주기
-  const [newImages, setNewImages] = useState([]); // 새로 업로드할 이미지 파일 목록
+  const [existingImages, setExistingImages] = useState([]);
+  const [newImages, setNewImages] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  // 수정 모드일 경우 기존 상품 정보 불러오기
+  // Load existing product data for edit mode
   useEffect(() => {
     if (id) {
-      axios
-        .get(`${API_BASE_URL}/product/${id}`)
-        .then((res) => {
-          const p = res.data;
-          setName(p.name || "");
-          setCategory(p.category || "");
-          setBrand(p.brand || "");
-          setDescription(p.description || "");
-          setPrice(p.price || 0);
-          settotalStock(p.totalStock || 0);
-          setAvailable(p.available !== undefined ? p.available : true);
-          setExistingImages(p.images?.map(img => img.url || img) || []);
-        })
-        .catch(() => {
-          alert("상품 정보를 불러오는데 실패했습니다.");
-          navigate("/admin/products");
-        });
+      loadProductData();
     }
   }, [id, navigate]);
 
-  // 이미지 삭제 (기존 이미지에서 제거)
-  const removeExistingImage = (url) => {
-    setExistingImages(existingImages.filter((img) => img !== url));
+  const loadProductData = async () => {
+    try {
+      setLoading(true);
+      const response = await axios.get(`${API_BASE_URL}/product/${id}`);
+      const product = response.data;
+      
+      setFormData({
+        name: product.name || "",
+        category: product.category || "",
+        brand: product.brand || "",
+        description: product.description || "",
+        price: product.price || 0,
+        totalStock: product.totalStock || 0,
+        available: product.available !== undefined ? product.available : true
+      });
+      
+      setExistingImages(product.images?.map(img => img.url || img) || []);
+    } catch (error) {
+      setError("상품 정보를 불러오는데 실패했습니다.");
+      navigate("/admin/products");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // 새 이미지 선택
+  // Handle form input changes
+  const handleInputChange = (field, value) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  // Remove existing image
+  const removeExistingImage = (url) => {
+    setExistingImages(prev => prev.filter(img => img !== url));
+  };
+
+  // Handle new image selection
   const handleNewImagesChange = (e) => {
     setNewImages([...e.target.files]);
   };
 
-  // 제출 처리
+  // Form validation
+  const validateForm = () => {
+    if (!formData.name.trim()) return "상품명을 입력하세요.";
+    if (!formData.category) return "카테고리를 선택하세요.";
+    if (!formData.brand) return "브랜드를 선택하세요.";
+    if (formData.price <= 0) return "가격은 0보다 커야 합니다.";
+    if (!id && newImages.length === 0) return "상품 등록 시 이미지는 최소 1개 이상 필요합니다.";
+    return null;
+  };
+
+  // Form submission handler
   const handleSubmit = async (e) => {
     e.preventDefault();
     const action = e.nativeEvent.submitter?.name;
+    
+    // Validation
+    const validationError = validateForm();
+    if (validationError) {
+      setError(validationError);
+      return;
+    }
 
-    // 간단 유효성 체크
-    if (!name.trim()) {
-      alert("상품명을 입력하세요.");
-      return;
-    }
-    if (!category) {
-      alert("카테고리를 선택하세요.");
-      return;
-    }
-    if (!brand) {
-      alert("브랜드를 선택하세요.");
-      return;
-    }
-    if (price <= 0) {
-      alert("가격은 0보다 커야 합니다.");
-      return;
-    }
-    if (!id && newImages.length === 0) {
-      alert("상품 등록 시 이미지는 최소 1개 이상 필요합니다.");
-      return;
-    }
+    setLoading(true);
+    setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("name", name.trim());
-      formData.append("category", category);
-      formData.append("brand", brand);
-      formData.append("description", description.trim());
-      formData.append("price", price.toString());
-      formData.append("available", available.toString());
-      formData.append("totalStock", totalStock.toString());
-      formData.append("existingImages", JSON.stringify(existingImages)); // 기존 이미지 리스트 (수정 시)
+      const formDataToSend = new FormData();
+      
+      // Append form fields
+      Object.keys(formData).forEach(key => {
+        formDataToSend.append(key, formData[key].toString());
+      });
+      
+      formDataToSend.append("existingImages", JSON.stringify(existingImages));
+      
+      // Append new images
+      newImages.forEach(img => formDataToSend.append("mainImage", img));
 
-      newImages.forEach((img) => formData.append("mainImage", img)); // 새로 추가된 이미지들
+      const config = {
+        headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
+      };
 
       if (action === "update" && id) {
-        // 수정 모드
-        await axios.put(`${API_BASE_URL}/product/${id}`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        });
+        await axios.put(`${API_BASE_URL}/product/${id}`, formDataToSend, config);
         alert("상품 수정 완료");
       } else if (action === "register") {
-        // 등록 모드
-        await axios.post(`${API_BASE_URL}/product/register`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-          withCredentials: true,
-        });
+        await axios.post(`${API_BASE_URL}/product/register`, formDataToSend, config);
         alert("상품 등록 완료");
       }
 
       navigate("/admin/products");
     } catch (error) {
-    alert("오류가 발생했습니다: " + error.message);
-  }
+      setError("오류가 발생했습니다: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <Container style={{ maxWidth: 600 }} className="mt-4">
-      <h2>{id ? "상품 수정" : "상품 등록"}</h2>
-      <Form onSubmit={handleSubmit}>
-        <Form.Control
-          type="text"
-          placeholder="상품명"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          className="mb-3"
-        />
-        <Form.Select
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          required
-          className="mb-3"
-        >
-          <option value="">카테고리 선택</option>
-          {CATEGORY_OPTIONS.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
-          ))}
-        </Form.Select>
-        <Form.Select
-          value={brand}
-          onChange={(e) => setBrand(e.target.value)}
-          required
-          className="mb-3"
-        >
-          <option value="">브랜드 선택</option>
-          {BRAND_OPTIONS.map((b) => (
-            <option key={b} value={b}>
-              {b}
-            </option>
-          ))}
-        </Form.Select>
-        <Form.Control
-          as="textarea"
-          rows={3}
-          placeholder="상세설명"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="mb-3"
-        />
-        <Form.Control
-          type="number"
-          placeholder="가격"
-          min={0}
-          value={price}
-          onChange={(e) => setPrice(Number(e.target.value))}
-          required
-          className="mb-3"
-        />
-        <Form.Control
-          type="number"
-          min={0}
-          value={totalStock}
-          onChange={(e) => settotalStock(Number(e.target.value))}
-          placeholder="초기 재고"
-          required
-          className="mb-3"
-        />
-        <Form.Check
-          type="checkbox"
-          label="판매 가능"
-          checked={available}
-          onChange={(e) => setAvailable(e.target.checked)}
-          className="mb-3"
-        />
+      <h2 className="mb-4 text-center">
+        {id ? "상품 수정" : "상품 등록"}
+      </h2>
 
-        {/* 수정 모드일 때 기존 이미지 보여주기 */}
+      {error && <Alert variant="danger">{error}</Alert>}
+
+      <Form onSubmit={handleSubmit}>
+        {/* Product Name */}
+        <Form.Group className="mb-3">
+          <Form.Label>상품명</Form.Label>
+          <Form.Control
+            type="text"
+            placeholder="상품명을 입력하세요"
+            value={formData.name}
+            onChange={(e) => handleInputChange('name', e.target.value)}
+            required
+          />
+        </Form.Group>
+
+        {/* Category Selection */}
+        <Form.Group className="mb-3">
+          <Form.Label>카테고리</Form.Label>
+          <Form.Select
+            value={formData.category}
+            onChange={(e) => handleInputChange('category', e.target.value)}
+            required
+          >
+            <option value="">카테고리 선택</option>
+            {CATEGORY_OPTIONS.map(category => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+
+        {/* Brand Selection */}
+        <Form.Group className="mb-3">
+          <Form.Label>브랜드</Form.Label>
+          <Form.Select
+            value={formData.brand}
+            onChange={(e) => handleInputChange('brand', e.target.value)}
+            required
+          >
+            <option value="">브랜드 선택</option>
+            {BRAND_OPTIONS.map(brand => (
+              <option key={brand} value={brand}>
+                {brand}
+              </option>
+            ))}
+          </Form.Select>
+        </Form.Group>
+
+        {/* Description */}
+        <Form.Group className="mb-3">
+          <Form.Label>상세설명</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            placeholder="상품에 대한 상세 설명을 입력하세요"
+            value={formData.description}
+            onChange={(e) => handleInputChange('description', e.target.value)}
+          />
+        </Form.Group>
+
+        {/* Price and Stock */}
+        <div className="row mb-3">
+          <div className="col-md-6">
+            <Form.Group>
+              <Form.Label>가격</Form.Label>
+              <Form.Control
+                type="number"
+                placeholder="가격"
+                min={0}
+                value={formData.price}
+                onChange={(e) => handleInputChange('price', Number(e.target.value))}
+                required
+              />
+            </Form.Group>
+          </div>
+          <div className="col-md-6">
+            <Form.Group>
+              <Form.Label>초기 재고</Form.Label>
+              <Form.Control
+                type="number"
+                min={0}
+                value={formData.totalStock}
+                onChange={(e) => handleInputChange('totalStock', Number(e.target.value))}
+                placeholder="재고 수량"
+                required
+              />
+            </Form.Group>
+          </div>
+        </div>
+
+        {/* Availability Toggle */}
+        <Form.Group className="mb-4">
+          <Form.Check
+            type="checkbox"
+            label="판매 가능"
+            checked={formData.available}
+            onChange={(e) => handleInputChange('available', e.target.checked)}
+          />
+        </Form.Group>
+
+        {/* Existing Images (Edit Mode) */}
         {id && existingImages.length > 0 && (
-          <div className="mb-3">
+          <Form.Group className="mb-3">
             <Form.Label>기존 이미지</Form.Label>
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div className="d-flex gap-2 flex-wrap">
               {existingImages.map((imgUrl, idx) => (
-                <div key={idx} style={{ position: "relative" }}>
+                <div key={idx} className="position-relative">
                   <img
                     src={imgUrl}
                     alt={`existing-${idx}`}
-                    width={80}
-                    height={80}
-                    style={{ objectFit: "cover" }}
+                    className="rounded border"
+                    style={{ 
+                      width: 80, 
+                      height: 80, 
+                      objectFit: "cover" 
+                    }}
                   />
                   <Button
                     variant="danger"
                     size="sm"
-                    style={{ position: "absolute", top: 0, right: 0 }}
+                    className="position-absolute top-0 end-0 rounded-circle"
+                    style={{ width: 24, height: 24 }}
                     onClick={() => removeExistingImage(imgUrl)}
                   >
-                    X
+                    ×
                   </Button>
                 </div>
               ))}
             </div>
-          </div>
+          </Form.Group>
         )}
 
-        <Form.Control
-          type="file"
-          multiple
-          accept="image/*"
-          onChange={handleNewImagesChange}
-          required={!id} // 등록 시 필수, 수정 시 선택적
-          className="mb-3"
-        />
-        
-          <Button type="submit" name="register" style={{ marginRight: '10px' }}>
-                등록
+        {/* New Images Upload */}
+        <Form.Group className="mb-4">
+          <Form.Label>
+            {id ? "새 이미지 추가" : "상품 이미지"}
+          </Form.Label>
+          <Form.Control
+            type="file"
+            multiple
+            accept="image/*"
+            onChange={handleNewImagesChange}
+            required={!id}
+          />
+          <Form.Text className="text-muted">
+            여러 이미지를 선택할 수 있습니다.
+          </Form.Text>
+        </Form.Group>
+
+        {/* Action Buttons */}
+        <div className="d-flex gap-3 justify-content-center">
+          <Button 
+            type="submit" 
+            name="register" 
+            variant="primary"
+            disabled={loading}
+            style={{ minWidth: 120 }}
+          >
+            {loading ? "처리 중..." : "등록"}
           </Button>
-          <Button type="submit" name="update">
-                수정
+          <Button 
+            type="submit" 
+            name="update" 
+            variant="success"
+            disabled={loading}
+            style={{ minWidth: 120 }}
+          >
+            {loading ? "처리 중..." : "수정"}
           </Button>
+          <Button 
+            variant="secondary" 
+            onClick={() => navigate("/admin/products")}
+            style={{ minWidth: 120 }}
+          >
+            취소
+          </Button>
+        </div>
       </Form>
     </Container>
   );

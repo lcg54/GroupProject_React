@@ -17,7 +17,7 @@ body {
   justify-content: center;
   align-items: center;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  overflow: hidden;
+  overflow: auto;
 }
 
 .auth-container {
@@ -27,7 +27,7 @@ body {
   width: 768px;
   max-width: 100%;
   min-height: 800px;
-  overflow: hidden;
+  overflow: auto;
   background: #fff;
 }
 
@@ -103,7 +103,7 @@ button {
 }
 
 .overlay_btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.26);
 }
 
 .sign-in-container {

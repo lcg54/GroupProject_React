@@ -7,19 +7,22 @@ import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
 import MyPage from "../pages/mypage/mypage";
 import CartList from "../pages/CartList";
+import AppWrapper from "./AppWrapper";
 
 export default function AppRoutes({ user }) {
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="/product/list" element={<ProductList user={user} />} />
-      <Route path="/product/:id" element={<Product user={user} />} />
-      <Route path="/inquiry/list" element={<InquiryList />} />
-      <Route path="/inquiry/write" element={<InquiryWrite />} />
-      <Route path="/review" element={<ReviewPage />} />
-      <Route path="/member/mypage" element={<MyPage user={user} />} />
-      <Route path="/member/cart" element={<CartList />} />
+    <AppWrapper>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/product/list" element={<ProductList user={user} />} />
+        <Route path="/product/:id" element={<Product user={user} />} />
+        <Route path="/inquiry/list" element={<InquiryList />} />
+        <Route path="/inquiry/write" element={<InquiryWrite />} />
+        <Route path="/review" element={<ReviewPage />} />
+        <Route path="/member/mypage" element={<MyPage user={user} />} />
+        <Route path="/member/cart" element={<CartList />} />
 
-    </Routes>
+      </Routes>
+    </AppWrapper>
   );
 }

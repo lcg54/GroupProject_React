@@ -236,7 +236,7 @@ export default function AdminProductForm({ user }) {
                 등록
           </Button>
           <Button type="submit" name="update">
-                수정 완료
+                수정
           </Button>
       </Form>
     </Container>

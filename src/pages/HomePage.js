@@ -12,7 +12,7 @@ export default function HomePage() {
       <button onClick={() => navigate(`/review`)}>후기게시판</button><br />
       <button onClick={() => navigate(`/member/mypage`)}>마이페이지</button><br />
       <button onClick={() => navigate(`/member/cart`)}>장바구니</button><br />
-      <button onClick={() => navigate(`/admin/product/register`)}>관리자 상품 등록</button><br />
+      <button onClick={() => navigate(`/admin/product/register`)}>관리자</button><br />
     </Container>
   );
 }

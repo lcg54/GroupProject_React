@@ -23,7 +23,8 @@ export default function AppRoutes({ user }) {
 
       {/* 관리자 페이지 */}
       <Route path="/admin/product/register" element={<AdminProductForm />} />
-      <Route path="/admin/product/edit/:id" element={<AdminProductForm />} />
+      <Route path="/admin/product/:id" element={<AdminProductForm />} />
+      <Route path="/admin/products" element={<ProductList />} />
 
     </Routes>
   );

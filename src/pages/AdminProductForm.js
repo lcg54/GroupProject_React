@@ -4,9 +4,9 @@ import { Container, Form, Button } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/config";
 
-const CATEGORY_OPTIONS = ["BREAD", "BEVERAGE", "CAKE"];
+const CATEGORY_OPTIONS = ["REFRIGERATOR", "WASHER", "DRYER", "AIRCON", "TV", "OVEN", "MICROWAVE", "OTHER"];
 const BRAND_OPTIONS = ["SAMSUNG", "LG", "DAEWOO", "WINIA", "CUCKOO", "SK_MAGIC"];
-const RENTAL_PERIODS = [1, 3, 5, 10]; // 필요 없으면 제거 가능
+const RENTAL_PERIODS = ["3년(36개월)", "4년(48개월)", "5년(60개월)", "6년(72개월)"]; // 필요 없으면 제거 가능
 
 export default function AdminProductForm({ user }) {
   const navigate = useNavigate();
@@ -64,6 +64,7 @@ export default function AdminProductForm({ user }) {
   // 제출 처리
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const action = e.nativeEvent.submitter?.name;
 
     // 간단 유효성 체크
     if (!name.trim()) {
@@ -93,21 +94,21 @@ export default function AdminProductForm({ user }) {
       formData.append("category", category);
       formData.append("brand", brand);
       formData.append("description", description.trim());
-      formData.append("price", price);
-      formData.append("available", available);
-      formData.append("totalStock", totalStock);
+      formData.append("price", price.toString());
+      formData.append("available", available.toString());
+      formData.append("totalStock", totalStock.toString());
       formData.append("existingImages", JSON.stringify(existingImages)); // 기존 이미지 리스트 (수정 시)
 
       newImages.forEach((img) => formData.append("mainImage", img)); // 새로 추가된 이미지들
 
-      if (id) {
+      if (action === "update" && id) {
         // 수정 모드
         await axios.put(`${API_BASE_URL}/product/${id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
           withCredentials: true,
         });
         alert("상품 수정 완료");
-      } else {
+      } else if (action === "register") {
         // 등록 모드
         await axios.post(`${API_BASE_URL}/product/register`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
@@ -118,9 +119,8 @@ export default function AdminProductForm({ user }) {
 
       navigate("/admin/products");
     } catch (error) {
-      console.error("상품 처리 실패:", error);
-      alert(id ? "상품 수정 실패" : "상품 등록 실패");
-    }
+    alert("오류가 발생했습니다: " + error.message);
+  }
   };
 
   return (
@@ -228,11 +228,16 @@ export default function AdminProductForm({ user }) {
           multiple
           accept="image/*"
           onChange={handleNewImagesChange}
-          {...(!id && { required: true })} // 등록 시 필수, 수정 시 선택적
+          required={!id} // 등록 시 필수, 수정 시 선택적
           className="mb-3"
         />
-
-        <Button type="submit">{id ? "수정 완료" : "등록"}</Button>
+        
+          <Button type="submit" name="register" style={{ marginRight: '10px' }}>
+                등록
+          </Button>
+          <Button type="submit" name="update">
+                수정 완료
+          </Button>
       </Form>
     </Container>
   );

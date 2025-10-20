@@ -95,7 +95,7 @@ export default function Product({ user }) {
   }
 
   return (
-    <Container className="mt-4" style={{ maxWidth: "750px" }}>
+    <Container className="mt-4" style={{ maxWidth: "700px" }}>
       <Row className="mb-5">
         <Col md={6}>
           <Carousel>

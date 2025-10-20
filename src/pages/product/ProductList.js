@@ -1,12 +1,15 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, Col, Container, Form, Row, Spinner } from "react-bootstrap";
+import { Search } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import { SelectedFilter, CategoryDropdown, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
+import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
+import CategoryGrid from "./CategoryGrid";
 import axios from "axios";
 
 export default function ProductList({ user }) {
   const [products, setProducts] = useState([]);
+  const [popularProducts, setPopularProducts] = useState([]);
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -16,22 +19,54 @@ export default function ProductList({ user }) {
   const [available, setAvailable] = useState(null);
   const [sortBy, setSortBy] = useState(null);
   const [keyword, setKeyword] = useState("");
-  
+  const [showSearch, setShowSearch] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const observer = useRef();
+  const searchRef = useRef(null);
 
+  // 필터 바뀌면 목록 리셋
   useEffect(() => {
     setProducts([]);
     setPage(1);
     setHasMore(true);
   }, [category, brand, available, sortBy]);
 
+  // 상품목록 불러오기
   useEffect(() => {
     if (hasMore) fetchProductList();
   }, [page, category, brand, available, sortBy]);
+
+  // 인기상품 3개 불러오기 (고정)
+  useEffect(() => {
+    fetchPopularProducts();
+  }, []);
+
+  // 검색창 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (searchRef.current && !searchRef.current.contains(e.target)) {
+        setShowSearch(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const fetchPopularProducts = async () => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/product/popular`);
+      const pop = res.data.map(p => ({
+        ...p, monthlyPrice: p.price / (6 * 10) - 2100,
+      }));
+      setPopularProducts(pop);
+    } catch (err) {
+      console.error("인기상품 불러오기 실패", err);
+    }
+  };
 
   const fetchProductList = async () => {
     setLoading(true);
@@ -39,7 +74,7 @@ export default function ProductList({ user }) {
       const res = await axios.get(`${API_BASE_URL}/product/list`, {
         params: {
           page: page,
-          size: 15,
+          size: 10,
           category: category.length > 0 ? category : null,
           brand: brand.length > 0 ? brand : null,
           available: available,
@@ -48,8 +83,7 @@ export default function ProductList({ user }) {
         },
       });
       const newProducts = res.data.products.map(p => ({
-          // 월 요금 계산 함수 (임시) (rentalService에 있는 것과 동일)
-        ...p, monthlyPrice:p.price / (6 * 10) - 2100
+        ...p, monthlyPrice: p.price / (6 * 10) - 2100,
       }));
       if (newProducts.length === 0) setHasMore(false);
       else setProducts(prev => [...prev, ...newProducts]);
@@ -84,10 +118,17 @@ export default function ProductList({ user }) {
     }
   };
 
-  return (
-    <Container className="mt-4" style={{ maxWidth: "750px" }}>
-      <h2 className="mb-4"><span style={{ fontSize: "2rem" }}>🏷️ 상품목록</span></h2>
+  // 재고 계산
+  const getAvailableStock = (p) => 
+    (p.totalStock ?? 0) - (p.reservedStock ?? 0) - (p.rentedStock ?? 0) - (p.repairStock ?? 0);
 
+  return (
+    <Container className="mt-4" style={{ maxWidth: "900px" }}>
+      
+      {/* 상단 카테고리 영역 */}
+      <CategoryGrid category={category} setCategory={setCategory} />
+
+      {/* 필터 영역 */}
       <div
         className="mb-3 sticky-top bg-white py-2"
         style={{
@@ -97,26 +138,47 @@ export default function ProductList({ user }) {
         }}
       >
         <Row className="g-2 mb-2 align-items-center">
-          <Col xs="auto"><CategoryDropdown category={category} setCategory={setCategory} /></Col>
           <Col xs="auto"><BrandDropdown brand={brand} setBrand={setBrand} /></Col>
           <Col xs="auto"><AvailabilityDropdown available={available} setAvailable={setAvailable} /></Col>
           <Col xs="auto"><SortDropdown sortBy={sortBy} setSortBy={setSortBy} /></Col>
-          <Col>
-            <Form.Control
-              type="text"
-              placeholder="🔍 검색어를 입력하세요."
-              value={keyword}
-              onChange={e => setKeyword(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === "Enter") {
-                  e.preventDefault();
-                  setProducts([]);
-                  setPage(1);
-                  setHasMore(true);
-                  fetchProductList();
-                }
-              }}
+          <Col className="text-end position-relative">
+            {/* 팝업 검색창 */}
+            <Search
+              size={22}
+              style={{ cursor: "pointer", color: "#0d6efd" }}
+              onClick={() => setShowSearch((prev) => !prev)}
             />
+            {showSearch && (
+              <div
+                ref={searchRef}
+                className="position-absolute end-0 mt-2 bg-white border rounded shadow p-2"
+                style={{
+                  width: "220px",
+                  zIndex: 2000,
+                  animation: "fadeIn 0.15s ease",
+                }}
+              >
+                <Form.Control
+                  type="text"
+                  placeholder="검색어를 입력하세요"
+                  value={keyword}
+                  autoFocus
+                  onChange={(e) => setKeyword(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      setShowSearch(false);
+                      setProducts([]);
+                      setPage(1);
+                      setHasMore(true);
+                      fetchProductList();
+                    } else if (e.key === "Escape") {
+                      setShowSearch(false);
+                    }
+                  }}
+                />
+              </div>
+            )}
           </Col>
         </Row>
         <SelectedFilter
@@ -126,80 +188,140 @@ export default function ProductList({ user }) {
           sortBy={sortBy} setSortBy={setSortBy}
         />
       </div>
- 
-      <Row>
-        {products.map((product, idx) => {
-          const availableStock = 
-          (product.totalStock ?? 0) - (product.reservedStock ?? 0) - (product.rentedStock ?? 0) - (product.repairStock ?? 0);
-          const isAvailable = availableStock > 0;
-          return (
-            <Col
-              key={product.id}
-              md={4}
-              className="mb-4"
-              ref={idx === products.length - 1 ? lastProductRef : null} // 마지막 상품
-            >
-              <div style={{ position: 'relative' }}>
-                <Card // 대여 불가면 반투명 + 회색톤(또는 그레이스케일)
-                  className="h-100"
-                  style={{
-                    cursor: "pointer",
-                    opacity: isAvailable ? 1 : 0.55,
-                    filter: isAvailable ? 'none' : 'grayscale(40%)',
-                    backgroundColor: isAvailable ? undefined : '#f7f7f7',
-                    transition: 'opacity 150ms ease, filter 150ms ease, background-color 150ms ease'
-                  }}
-                  onClick={() => navigate(`/product/${product.id}`)}
-                >
-                  <Card.Img
-                    variant="top"
-                    src={`${API_BASE_URL}/images/${product.mainImage}`}
-                    alt={product.name}
-                    style={{ width: '100%', height: "200px", objectFit: "cover" }}
-                  />
-                  <Card.Body>
-                    <Card.Title>{product.name}</Card.Title>
-                    <p className="mb-1">{/* 평점/리뷰 가져오기 */}⭐평점(리뷰갯수)</p>
-                    <Card.Text>월 {product.monthlyPrice.toLocaleString()} ₩</Card.Text>
-                    {user?.role === 'ADMIN' && (
-                      <div className="d-flex gap-2 mt-2">
-                        <button onClick={e => { e.stopPropagation(); navigate(`/product/update/${product.id}`); }}>수정</button>
-                        <button onClick={e => { e.stopPropagation(); handleDelete(product); }}>삭제</button>
+
+      {/* 인기상품 3개 */}
+      {popularProducts.length > 0 && (
+        <>
+          <Row className="mb-4">
+            {popularProducts.slice(0, 3).map(p => {
+              const availableStock = getAvailableStock(p);
+              const isAvailable = availableStock > 0;
+              return (
+                <Col key={p.id} md={4} className="mb-3">
+                  <div style={{ position: 'relative' }}>
+                    <Card
+                      className="h-100"
+                      style={{
+                        cursor: "pointer",
+                        opacity: isAvailable ? 1 : 0.55,
+                        filter: isAvailable ? 'none' : 'grayscale(40%)',
+                        backgroundColor: isAvailable ? undefined : '#f7f7f7',
+                      }}
+                      onClick={() => navigate(`/product/${p.id}`)}
+                    >
+                      <Card.Img
+                        variant="top"
+                        src={`${API_BASE_URL}/images/${p.mainImage}`}
+                        alt={p.name}
+                        style={{ width: '100%', height: "200px", objectFit: "cover" }}
+                      />
+                      <Card.Body>
+                        <Card.Title className="mb-1">{p.name}</Card.Title>
+                        <p className="mb-1 text-muted">⭐ 평점(리뷰갯수)</p>
+                        <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
+                      </Card.Body>
+                    </Card>
+                    
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: 8,
+                        left: 8,
+                        background: '#FFD43B',
+                        color: '#000',
+                        padding: '4px 8px',
+                        borderRadius: 12,
+                        fontWeight: 'bold',
+                        fontSize: 12,
+                        zIndex: 3,
+                      }}
+                    >
+                      인기제품
+                    </div>
+                    
+                    {!isAvailable && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          background: 'rgba(255, 0, 0, 0.75)',
+                          color: '#fff',
+                          padding: '4px 8px',
+                          borderRadius: 12,
+                          fontSize: 12,
+                          zIndex: 3,
+                        }}
+                      >
+                        재고소진
                       </div>
                     )}
-                  </Card.Body>
-                </Card>
-                {!isAvailable && (
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 8,
-                      left: 8,
-                      background: 'rgba(255, 0, 0, 0.65)',
-                      color: '#fff',
-                      padding: '4px 8px',
-                      borderRadius: 12,
-                      fontSize: 12,
-                      zIndex: 2,
-                    }}
-                  >
-                    재고소진
                   </div>
-                )}
+                </Col>
+              );
+            })}
+          </Row>
+        </>
+      )}
+
+      {/* 일반 목록 (가로형 카드) */}
+      {products.map((product, idx) => {
+        const availableStock = getAvailableStock(product);
+        const isAvailable = availableStock > 0;
+        return (
+          <div
+            key={product.id}
+            ref={idx === products.length - 1 ? lastProductRef : null}
+            className="d-flex align-items-center mb-3 p-2 border rounded"
+            style={{
+              backgroundColor: isAvailable ? "#fff" : "#f8f8f8",
+              opacity: isAvailable ? 1 : 0.55,
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+            onClick={() => navigate(`/product/${product.id}`)}
+          >
+            <img
+              src={`${API_BASE_URL}/images/${product.mainImage}`}
+              alt={product.name}
+              style={{
+                width: 120,
+                height: 120,
+                objectFit: "cover",
+                borderRadius: 8,
+                marginRight: 16,
+              }}
+            />
+            <div className="flex-grow-1">
+              <h5 className="mb-1">{product.name}</h5>
+              <p className="mb-1 text-muted">⭐ 평점(리뷰갯수)</p>
+              <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
+            </div>
+            {!isAvailable && (
+              <div
+                style={{
+                  background: "rgba(255,0,0,0.75)",
+                  color: "#fff",
+                  padding: "4px 8px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              >
+                재고소진
               </div>
-            </Col>
-          );
-        })}
-      </Row>
+            )}
+          </div>
+        );
+      })}
 
       {loading && (
-        <div className="text-center">
+        <div className="text-center mt-3">
           <Spinner animation="border" />
-          <h4>상품 정보를 불러오는 중입니다...</h4>
+          <h5 className="mt-2">상품 정보를 불러오는 중입니다...</h5>
         </div>
       )}
       {!hasMore && 
-        <div className="text-center">
+        <div className="text-center mt-3 mb-5 text-muted">
           모든 상품을 불러왔습니다.
         </div>
       }

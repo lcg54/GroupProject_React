@@ -28,35 +28,10 @@ export const FILTER_OPTIONS = {
   ],
   sortBy: [
     { value: null, label: "등록순" },
-    { value: "POPULAR", label: "인기순" },
+    { value: "POPULAR", label: "판매량순" },
     { value: "PRICE_ASC", label: "가격 낮은순" },
     { value: "PRICE_DESC", label: "가격 높은순" },
   ]
-};
-
-
-export const CategoryDropdown = ({ category, setCategory }) => {
-  const options = FILTER_OPTIONS.category;
-  const toggleCategory = (value) => {
-    if (value === null) { setCategory([]); return; }
-    setCategory(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  };
-  return (
-    <Dropdown>
-      <Dropdown.Toggle variant="outline-primary">카테고리</Dropdown.Toggle>
-      <Dropdown.Menu>
-        {options.map(o => (
-          <Dropdown.Item
-            key={o.value}
-            active={o.value === null ? category.length === 0 : category.includes(o.value)}
-            onClick={() => toggleCategory(o.value)}
-          >
-            {o.label}
-          </Dropdown.Item>
-        ))}
-      </Dropdown.Menu>
-    </Dropdown>
-  );
 };
 
 export const BrandDropdown = ({ brand, setBrand }) => {
@@ -87,7 +62,7 @@ export const AvailabilityDropdown = ({ available, setAvailable }) => {
   const options = FILTER_OPTIONS.available;
   return (
     <Dropdown>
-      <Dropdown.Toggle variant="outline-primary">대여 가능 여부</Dropdown.Toggle>
+      <Dropdown.Toggle variant="outline-primary">상태</Dropdown.Toggle>
       <Dropdown.Menu>
         {options.map(o => (
           <Dropdown.Item key={o.value} active={o.value === available} onClick={() => setAvailable(o.value)}>{o.label}</Dropdown.Item>
@@ -101,7 +76,7 @@ export const SortDropdown = ({ sortBy, setSortBy }) => {
   const options = FILTER_OPTIONS.sortBy;
   return (
     <Dropdown>
-      <Dropdown.Toggle variant="outline-primary">정렬 기준</Dropdown.Toggle>
+      <Dropdown.Toggle variant="outline-primary">정렬</Dropdown.Toggle>
       <Dropdown.Menu>
         {options.map(o => (
           <Dropdown.Item key={o.value} active={o.value === sortBy} onClick={() => setSortBy(o.value)}>{o.label}</Dropdown.Item>

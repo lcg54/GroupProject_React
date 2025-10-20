@@ -7,6 +7,7 @@ import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
 import MyPage from "../pages/mypage/MyPage";
 import CartList from "../pages/CartList";
+import AdminProductRegister from "../pages/AdminProductRegister";
 
 export default function AppRoutes({ user }) {
   return (
@@ -19,6 +20,8 @@ export default function AppRoutes({ user }) {
       <Route path="/review" element={<ReviewPage />} />
       <Route path="/mypage" element={<MyPage user={user} />} />
       <Route path="/cart" element={<CartList user={user} />} />
+
+      <Route path="/admin/product/register" element={<AdminProductRegister />} />
 
     </Routes>
   );

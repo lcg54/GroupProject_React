@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/config";
 import "./SignupPage.css";
 
-
 export default function SignupPage() {
   const navigate = useNavigate();
 
@@ -119,7 +118,7 @@ export default function SignupPage() {
             <div className="social-links">
               <div><a href="#"><i className="fa fa-facebook" aria-hidden="true"></i></a></div>
               <div><a href="#"><i className="fa fa-twitter" aria-hidden="true"></i></a></div>
-              <div><a href="#"><i className="fa fa-linkedin" aria-hidden="true"></i></a></div>
+              <div><a href="#"><i className="fa fa-google" aria-hidden="true"></i></a></div>
             </div>
 
             <span>또는 이메일로 가입하세요</span>

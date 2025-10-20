@@ -7,6 +7,6 @@ export default function Header() {
 
 
   return (
-    <Nav.Link onClick={() => navigate(`/member/signup`)}>xx</Nav.Link>
+    <Nav.Link onClick={() => navigate(`/member/login`)}>xx</Nav.Link>
   )
 }

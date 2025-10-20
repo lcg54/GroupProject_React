@@ -9,7 +9,7 @@ export default function App() {
 
   return (
     <>
-      <Header />
+      <Header user={user} />
       <AppRoutes user={user} />
       <Footer />
     </>

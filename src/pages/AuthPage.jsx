@@ -1,11 +1,22 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 import "./SignupPage.css";
 
 export default function AuthPage({ setUser }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSignUp, setIsSignUp] = useState(false);
+
+  // URL 경로에 따라 초기 화면 설정
+  useEffect(() => {
+    if (location.pathname === '/member/signup') {
+      setIsSignUp(true);
+    } else if (location.pathname === '/member/login') {
+      setIsSignUp(false);
+    }
+  }, [location.pathname]);
+
 
   // 회원가입 폼
   const [signupForm, setSignupForm] = useState({

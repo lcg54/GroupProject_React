@@ -30,7 +30,7 @@ const MyPage = ({ user }) => {
       </Container>
     );
   }
-  
+
   function renderContent(button) {
     switch (button.text) {
       case '내 카트':

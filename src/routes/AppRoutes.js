@@ -6,7 +6,7 @@ import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
 import AppWrapper from "./AppWrapper";
-import MyPage from "../pages/mypage/Mypage";
+import MyPage from "../pages/mypage/MyPage";
 import CartList from "../pages/CartList";
 import AdminProductForm from "../pages/AdminProductForm";
 import Login from "../pages/Login";
@@ -24,7 +24,7 @@ export default function AppRoutes({ user, setUser }) {
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/mypage" element={<MyPage user={user} />} />
         <Route path="/cart" element={<CartList user={user} />} />
-        <Route path="/admin/product/register" element={<AdminProductRegister />} />
+        <Route path="/admin/product/register" element={<AdminProductForm />} />
         <Route path="/login" element={<Login user={user} setUser={setUser} />} />
 
       </Routes>

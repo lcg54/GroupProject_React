@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Container, Form, Button, Alert } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { API_BASE_URL } from "../config/config";
+import { API_BASE_URL } from "../config/url";
 
 // Configuration constants
 const CATEGORY_OPTIONS = [

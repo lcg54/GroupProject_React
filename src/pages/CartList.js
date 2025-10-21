@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Button, Form, Card } from 'react-bootstrap';
 
-export default function CartList() {
+export default function CartList({ user }) {
 
   const [products, setProducts] = useState([
     {
@@ -53,6 +53,14 @@ export default function CartList() {
 
   const selectedProducts = products.filter(p => p.selected);
   const totalPrice = selectedProducts.reduce((sum, p) => sum + p.price, 0);
+
+  if (!user) {
+    return (
+      <Container className="mt-4 text-center">
+        <h4>로그인이 필요합니다.</h4>
+      </Container>
+    );
+  }
 
   return (
     <div className="bg-light min-vh-100 py-4">

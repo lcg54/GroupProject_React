@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Carousel, Nav, Spinner } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { API_BASE_URL } from "../config/config";
+import { API_BASE_URL } from "../../config/url";
 import axios from "axios";
-import InquiryList from './InquiryList';
-import ReviewPage from './ReviewPage';
+import InquiryList from '../InquiryList';
+import ReviewPage from '../ReviewPage';
 
 export default function Product({ user }) {
   const { id } = useParams(); // 상품아이디
@@ -34,7 +34,7 @@ export default function Product({ user }) {
   // 월 요금 계산 함수 (임시) (rentalService에 있는 것과 동일)
   const getMonthlyPrice = () => {
     if (!product) return 0;
-    return product.price / (selectedPeriod * 10) - 1100;
+    return product.price / (selectedPeriod * 10) - 2100;
   };
 
   const handleRental = async () => {
@@ -45,7 +45,8 @@ export default function Product({ user }) {
     if (!window.confirm(`
       상품명: ${product.name}
       대여기간: ${selectedPeriod}년
-      월 납부액: ${getMonthlyPrice()}원\n
+      월 납부액: ${getMonthlyPrice().toLocaleString()}원
+      총 납부액: ${(getMonthlyPrice()*selectedPeriod*12).toLocaleString()}원\n
       대여를 신청하시겠습니까?
     `)) return;
     try {
@@ -57,6 +58,7 @@ export default function Product({ user }) {
       alert(`대여 신청이 완료되었습니다.\n월 요금: ${res.data.monthlyPrice.toLocaleString()}원`);
       // 추가할것: navigate(주문내역페이지)
     } catch (err) {
+      console.log(err);
       alert("대여 신청 중 오류가 발생했습니다.");
     }
   };
@@ -93,7 +95,7 @@ export default function Product({ user }) {
   }
 
   return (
-    <Container className="mt-4" style={{ maxWidth: "750px" }}>
+    <Container className="mt-4" style={{ maxWidth: "700px" }}>
       <Row className="mb-5">
         <Col md={6}>
           <Carousel>
@@ -175,7 +177,6 @@ export default function Product({ user }) {
       {/* 탭 내용 */}
       {activeTab === "detail" && (
         <div className="p-3 border rounded">
-          <h5>상품 상세정보</h5>
           <p className="mt-3">{product.description}</p>
         </div>
       )}

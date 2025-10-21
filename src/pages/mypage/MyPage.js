@@ -1,20 +1,13 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import ServiceDate from './mypage/ServiceDate';
-import ExtensionOrReturn from './mypage/EOR/ExtensionOrReturn';
-import CartList from './CartList';
-import Receipt from './mypage/Receipt';
+import ServiceDate from './ServiceDate';
+import ExtensionOrReturn from './EOR/ExtensionOrReturn';
+import CartList from '../CartList';
+import Receipt from './Receipt';
 
-const MyPage = () => {
-  const [users, setUser] = useState([
-    {
-      userName: "000",
-      userGrade: "골드"
-    }
-  ]);
-
+const MyPage = ({ user }) => {
   const [clickedButton, setClickedButton] = useState(null);
 
   const buttons = [
@@ -30,6 +23,14 @@ const MyPage = () => {
     setClickedButton(button); // 클릭된 버튼 정보 저장
   };
 
+  if (!user) {
+    return (
+      <Container className="mt-4 text-center">
+        <h4>로그인이 필요합니다.</h4>
+      </Container>
+    );
+  }
+  
   function renderContent(button) {
     switch (button.text) {
       case '내 카트':
@@ -55,9 +56,9 @@ const MyPage = () => {
     <Container className="mt-4" style={{ maxWidth: "750px" }}>
       {/* 인사말 */}
       <div className="mb-4 d-flex justify-content-between align-items-center">
-        <h3>안녕하세요 {users.userName}님</h3>
+        <h3>안녕하세요 {user.name}님</h3>
         <span className="badge bg-warning text-dark" style={{ fontSize: "1rem" }}>
-          {users.userGrade} 등급
+          {user.grade} 등급
         </span>
       </div>
 

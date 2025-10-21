@@ -4,7 +4,7 @@ import { Container, Form, Button, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 
-// 📋 Configuration constants
+
 const CATEGORY_OPTIONS = [
   "REFRIGERATOR", "WASHER", "DRYER", "AIRCON", 
   "TV", "OVEN", "MICROWAVE", "OTHER"
@@ -14,11 +14,11 @@ const BRAND_OPTIONS = [
   "SAMSUNG", "LG", "DAEWOO", "WINIA", "CUCKOO", "SK_MAGIC"
 ];
 
-// ✅ Change component name to match your route
+
 export default function ProductInsertForm({user}) {
   const navigate = useNavigate();
 
-  // 🎯 Form state management
+  
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -33,7 +33,7 @@ export default function ProductInsertForm({user}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // ✏️ Handle form input changes
+  
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -41,12 +41,12 @@ export default function ProductInsertForm({user}) {
     }));
   };
 
-  // 📷 Handle image selection
+  
   const handleImagesChange = (e) => {
     setProductImages([...e.target.files]);
   };
 
-  // ✅ Form validation
+  
   const validateForm = () => {
     if (!formData.name.trim()) return "상품명을 입력하세요.";
     if (!formData.category) return "카테고리를 선택하세요.";
@@ -56,7 +56,7 @@ export default function ProductInsertForm({user}) {
     return null;
   };
 
-  // 🔄 Reset form to initial state
+  
   const resetForm = () => {
     setFormData({
       name: "",
@@ -70,16 +70,16 @@ export default function ProductInsertForm({user}) {
     setProductImages([]);
     setError("");
     
-    // Reset file input
+    
     const fileInput = document.querySelector('input[type="file"]');
     if (fileInput) fileInput.value = '';
   };
 
-  // 💾 Form submission handler
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
+    
     const validationError = validateForm();
     if (validationError) {
       setError("⚠️ " + validationError);
@@ -92,12 +92,12 @@ export default function ProductInsertForm({user}) {
     try {
       const formDataToSend = new FormData();
       
-      // Append form fields
+      
       Object.keys(formData).forEach(key => {
         formDataToSend.append(key, formData[key].toString());
       });
       
-      // Append product images
+      
       productImages.forEach(img => formDataToSend.append("mainImage", img));
 
       const config = {
@@ -108,12 +108,12 @@ export default function ProductInsertForm({user}) {
       await axios.post(`${API_BASE_URL}/product/register`, formDataToSend, config);
       alert("✅ 상품 등록이 완료되었습니다!");
       
-      // Ask user if they want to register another product
+      
       const registerAnother = window.confirm("다른 상품을 등록하시겠습니까?");
       if (registerAnother) {
         resetForm();
       } else {
-        navigate("/admin/products"); // ✅ Navigate back to admin products
+        navigate("/admin/products");
       }
 
     } catch (error) {
@@ -125,7 +125,7 @@ export default function ProductInsertForm({user}) {
 
   return (
     <Container style={{ maxWidth: 600 }} className="mt-4">
-      {/* ✅ Add navigation breadcrumb */}
+      
       <div className="d-flex align-items-center mb-4">
         <h2 className="mb-0 flex-grow-1 text-center">
           상품 등록
@@ -135,7 +135,7 @@ export default function ProductInsertForm({user}) {
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form onSubmit={handleSubmit}>
-        {/* 📝 Product Name */}
+        
         <Form.Group className="mb-3">
           <Form.Label>📋 상품명</Form.Label>
           <Form.Control
@@ -147,7 +147,7 @@ export default function ProductInsertForm({user}) {
           />
         </Form.Group>
 
-        {/* 📂 Category Selection */}
+        
         <Form.Group className="mb-3">
           <Form.Label>📂 카테고리</Form.Label>
           <Form.Select
@@ -164,7 +164,7 @@ export default function ProductInsertForm({user}) {
           </Form.Select>
         </Form.Group>
 
-        {/* 🏷️ Brand Selection */}
+        
         <Form.Group className="mb-3">
           <Form.Label>🏷️ 브랜드</Form.Label>
           <Form.Select
@@ -181,7 +181,7 @@ export default function ProductInsertForm({user}) {
           </Form.Select>
         </Form.Group>
 
-        {/* 📄 Description */}
+        
         <Form.Group className="mb-3">
           <Form.Label>📄 상세설명</Form.Label>
           <Form.Control
@@ -193,7 +193,7 @@ export default function ProductInsertForm({user}) {
           />
         </Form.Group>
 
-        {/* 💰 Price and 📦 Stock */}
+        
         <div className="row mb-3">
           <div className="col-md-6">
             <Form.Group>
@@ -210,7 +210,7 @@ export default function ProductInsertForm({user}) {
           </div>
           <div className="col-md-6">
             <Form.Group>
-              <Form.Label>📦 초기 재고</Form.Label>
+              <Form.Label>📦 재고 수량 </Form.Label>
               <Form.Control
                 type="number"
                 min={0}
@@ -223,7 +223,7 @@ export default function ProductInsertForm({user}) {
           </div>
         </div>
 
-        {/* 🛒 Availability Toggle */}
+        
         <Form.Group className="mb-4">
           <Form.Check
             type="checkbox"
@@ -233,7 +233,7 @@ export default function ProductInsertForm({user}) {
           />
         </Form.Group>
 
-        {/* 📷 Product Images Upload */}
+        
         <Form.Group className="mb-4">
           <Form.Label>📷 상품 이미지</Form.Label>
           <Form.Control
@@ -253,7 +253,7 @@ export default function ProductInsertForm({user}) {
           )}
         </Form.Group>
 
-        {/* 🎯 Action Buttons */}
+       
         <div className="d-flex gap-3 justify-content-center flex-wrap">
           <Button 
             type="submit" 
@@ -278,7 +278,7 @@ export default function ProductInsertForm({user}) {
           
           <Button 
             variant="secondary" 
-            onClick={() => navigate("/admin/products")}
+            onClick={() => navigate("/product/list")}
             disabled={loading}
             size="lg"
             style={{ minWidth: 140 }}

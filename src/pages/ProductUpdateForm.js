@@ -4,7 +4,7 @@ import { Container, Form, Button, Alert } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 
-// 📋 Configuration constants
+
 const CATEGORY_OPTIONS = [
   "REFRIGERATOR", "WASHER", "DRYER", "AIRCON", 
   "TV", "OVEN", "MICROWAVE", "OTHER"
@@ -18,7 +18,7 @@ export default function AdminProductUpdate({ user }) {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  // 🎯 Form state management
+  
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -35,9 +35,9 @@ export default function AdminProductUpdate({ user }) {
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // 📥 Load existing product data
+  
   useEffect(() => {
-    console.log("ProductUpdate - ID from params:", id); // Debug log
+    console.log("ProductUpdate - ID from params:", id); 
     
     if (!id || id === "undefined" || id === ":id" ) {
       setInitialLoading(false);
@@ -60,9 +60,9 @@ export default function AdminProductUpdate({ user }) {
       const response = await axios.get(`${API_BASE_URL}/product/${id}`);
       const product = response.data;
       
-      console.log("Loaded product data:", product); // Debug log
+      console.log("Loaded product data:", product); 
       
-      // 📝 Pre-fill form with existing product data
+      
       setFormData({
         name: product.name || "",
         category: product.category || "",
@@ -73,7 +73,7 @@ export default function AdminProductUpdate({ user }) {
         available: product.available !== undefined ? product.available : true
       });
       
-      // 🖼️ Load existing images
+      
       let imageUrls = [];
       if (product.images && Array.isArray(product.images)) {
         imageUrls = product.images.map(img => {
@@ -90,7 +90,7 @@ export default function AdminProductUpdate({ user }) {
       }
       
       setExistingImages(imageUrls);
-      console.log("Loaded images:", imageUrls); // Debug log
+      console.log("Loaded images:", imageUrls); 
       
     } catch (error) {
       console.error("Error loading product data:", error);
@@ -101,29 +101,29 @@ export default function AdminProductUpdate({ user }) {
     }
   };
 
-  // ✏️ Handle form input changes
+  
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
     
-    // Clear error when user starts typing
+    
     if (error) setError("");
   };
 
-  // 🖼️ Remove existing image
+  
   const removeExistingImage = (url) => {
     setExistingImages(prev => prev.filter(img => img !== url));
   };
 
-  // 📷 Handle new image selection
+  
   const handleNewImagesChange = (e) => {
     const files = [...e.target.files];
     setNewImages(files);
   };
 
-  // ✅ Form validation
+  
   const validateForm = () => {
     if (!formData.name.trim()) return "상품명을 입력하세요.";
     if (!formData.category) return "카테고리를 선택하세요.";
@@ -136,21 +136,21 @@ export default function AdminProductUpdate({ user }) {
     return null;
   };
 
-  // 🔄 Reset new images only
+  
   const resetNewImages = () => {
     setNewImages([]);
     setError("");
     
-    // Reset file input
+    
     const fileInput = document.querySelector('input[type="file"]');
     if (fileInput) fileInput.value = '';
   };
 
-  // 💾 Form submission handler
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validation
+    
     const validationError = validateForm();
     if (validationError) {
       setError("⚠️ " + validationError);
@@ -163,12 +163,12 @@ export default function AdminProductUpdate({ user }) {
     try {
       const formDataToSend = new FormData();
       
-      // Append form fields
+      
       Object.keys(formData).forEach(key => {
         formDataToSend.append(key, formData[key].toString());
       });
       
-      // Append existing images (clean URLs for backend)
+      
       const cleanExistingImages = existingImages.map(url => {
         if (url.includes('/images/')) {
           return url.split('/images/')[1];
@@ -177,7 +177,7 @@ export default function AdminProductUpdate({ user }) {
       });
       formDataToSend.append("existingImages", JSON.stringify(cleanExistingImages));
       
-      // Append new images
+      
       newImages.forEach(img => formDataToSend.append("mainImage", img));
 
       const config = {
@@ -185,12 +185,12 @@ export default function AdminProductUpdate({ user }) {
         withCredentials: true,
       };
 
-      console.log("Updating product with ID:", id); // Debug log
+      console.log("Updating product with ID:", id); 
       
       await axios.put(`${API_BASE_URL}/product/${id}`, formDataToSend, config);
       alert("✅ 상품 수정이 완료되었습니다!");
       
-      // Navigate back to product list
+      
       navigate("/product/list");
 
     } catch (error) {
@@ -201,7 +201,7 @@ export default function AdminProductUpdate({ user }) {
     }
   };
 
-  // Show loading spinner while fetching product data
+  
   if (initialLoading) {
     return (
       <Container style={{ maxWidth: 600 }} className="mt-4">
@@ -226,7 +226,7 @@ export default function AdminProductUpdate({ user }) {
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form onSubmit={handleSubmit}>
-        {/* 📝 Product Name */}
+        
         <Form.Group className="mb-3">
           <Form.Label>📋 상품명</Form.Label>
           <Form.Control
@@ -238,7 +238,7 @@ export default function AdminProductUpdate({ user }) {
           />
         </Form.Group>
 
-        {/* 📂 Category Selection */}
+        
         <Form.Group className="mb-3">
           <Form.Label>📂 카테고리</Form.Label>
           <Form.Select
@@ -255,7 +255,7 @@ export default function AdminProductUpdate({ user }) {
           </Form.Select>
         </Form.Group>
 
-        {/* 🏷️ Brand Selection */}
+        
         <Form.Group className="mb-3">
           <Form.Label>🏷️ 브랜드</Form.Label>
           <Form.Select
@@ -272,7 +272,7 @@ export default function AdminProductUpdate({ user }) {
           </Form.Select>
         </Form.Group>
 
-        {/* 📄 Description */}
+        
         <Form.Group className="mb-3">
           <Form.Label>📄 상세설명</Form.Label>
           <Form.Control
@@ -284,7 +284,7 @@ export default function AdminProductUpdate({ user }) {
           />
         </Form.Group>
 
-        {/* 💰 Price and 📦 Stock */}
+        
         <div className="row mb-3">
           <div className="col-md-6">
             <Form.Group>
@@ -314,7 +314,7 @@ export default function AdminProductUpdate({ user }) {
           </div>
         </div>
 
-        {/* 🛒 Availability Toggle */}
+        
         <Form.Group className="mb-4">
           <Form.Check
             type="checkbox"
@@ -324,7 +324,7 @@ export default function AdminProductUpdate({ user }) {
           />
         </Form.Group>
 
-        {/* 🖼️ Existing Images */}
+        
         {existingImages.length > 0 && (
           <Form.Group className="mb-3">
             <Form.Label>🖼️ 기존 이미지 ({existingImages.length}개)</Form.Label>
@@ -364,7 +364,7 @@ export default function AdminProductUpdate({ user }) {
           </Form.Group>
         )}
 
-        {/* 📷 New Images Upload */}
+        
         <Form.Group className="mb-4">
           <Form.Label>📷 새 이미지 추가</Form.Label>
           <Form.Control
@@ -383,7 +383,7 @@ export default function AdminProductUpdate({ user }) {
           )}
         </Form.Group>
 
-        {/* 🎯 Action Buttons */}
+        
         <div className="d-flex gap-3 justify-content-center flex-wrap">
           <Button 
             type="submit" 

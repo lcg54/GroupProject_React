@@ -106,17 +106,17 @@ export default function ProductList({ user }) {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  const handleDelete = async (product) => {
-    if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
-    try {
-      const res = await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
-      setProducts(prev => prev.filter(p => p.id !== product.id));
-      alert(res.data);
-    } catch (err) {
-      console.log(err);
-      alert("상품 삭제 중 오류가 발생했습니다.");
-    }
-  };
+  // const handleDelete = async (product) => {
+  //   if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
+  //   try {
+  //     const res = await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
+  //     setProducts(prev => prev.filter(p => p.id !== product.id));
+  //     alert(res.data);
+  //   } catch (err) {
+  //     console.log(err);
+  //     alert("상품 삭제 중 오류가 발생했습니다.");
+  //   }
+  // };
 
   // 재고 계산
   const getAvailableStock = (p) => 
@@ -217,11 +217,10 @@ export default function ProductList({ user }) {
                       />
                       <Card.Body>
                         <Card.Title className="mb-1">{p.name}</Card.Title>
-                        <p className="mb-1 text-muted">⭐ 평점(리뷰갯수)</p>
+                        <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
                         <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
                       </Card.Body>
                     </Card>
-                    
                     <div
                       style={{
                         position: 'absolute',
@@ -238,7 +237,6 @@ export default function ProductList({ user }) {
                     >
                       인기제품
                     </div>
-                    
                     {!isAvailable && (
                       <div
                         style={{
@@ -294,7 +292,7 @@ export default function ProductList({ user }) {
             />
             <div className="flex-grow-1">
               <h5 className="mb-1">{product.name}</h5>
-              <p className="mb-1 text-muted">⭐ 평점(리뷰갯수)</p>
+              <p className="mb-1 text-muted">⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})</p>
               <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
             </div>
             {!isAvailable && (

@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import axios from "axios";
 import InquiryList from '../InquiryList';
-import ReviewPage from '../ReviewPage';
+import ReviewPage from '../ReviewList';
 
 export default function Product({ user }) {
   const { id } = useParams(); // 상품아이디
@@ -56,7 +56,7 @@ export default function Product({ user }) {
         periodYears: selectedPeriod
       });
       alert(`대여 신청이 완료되었습니다.\n월 요금: ${res.data.monthlyPrice.toLocaleString()}원`);
-      // 추가할것: navigate(주문내역페이지)
+      navigate(`/rental/done`);
     } catch (err) {
       console.log(err);
       alert("대여 신청 중 오류가 발생했습니다.");
@@ -74,7 +74,7 @@ export default function Product({ user }) {
       장바구니에 추가하시겠습니까?
     `)) return;
     // 추가할것: try {카트아이템 추가하는 axios} catch
-    navigate(`/member/cart`);
+    navigate(`/cart`);
   }
 
   if (loading) {

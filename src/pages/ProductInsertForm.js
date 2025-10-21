@@ -254,13 +254,12 @@ export default function ProductInsertForm({user}) {
         </Form.Group>
 
        
-        <div className="d-flex gap-3 justify-content-center flex-wrap">
+        <div className="d-flex gap-2 justify-content-center flex-wrap mt-4">
           <Button 
             type="submit" 
             variant="primary"
             disabled={loading}
-            size="lg"
-            style={{ minWidth: 140 }}
+            style={{ minWidth: 120 }}
           >
             {loading ? "⏳ 등록 중..." : "✅ 상품 등록"}
           </Button>
@@ -270,8 +269,7 @@ export default function ProductInsertForm({user}) {
             variant="outline-secondary"
             onClick={resetForm}
             disabled={loading}
-            size="lg"
-            style={{ minWidth: 140 }}
+            style={{ minWidth: 120 }}
           >
             🔄 초기화
           </Button>
@@ -280,8 +278,7 @@ export default function ProductInsertForm({user}) {
             variant="secondary" 
             onClick={() => navigate("/product/list")}
             disabled={loading}
-            size="lg"
-            style={{ minWidth: 140 }}
+            style={{ minWidth: 120 }}
           >
             📋 목록으로
           </Button>

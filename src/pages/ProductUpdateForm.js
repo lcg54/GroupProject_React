@@ -215,6 +215,44 @@ export default function AdminProductUpdate({ user }) {
     );
   }
 
+  const handleDelete = async () => {
+     if (!id) {
+        setError("❌ 삭제할 상품 ID를 찾을 수 없습니다.");
+     return;
+ }
+ 
+ 
+ const isConfirmed = window.confirm(`"${formData.name}" 상품을 정말로 삭제하시겠습니까?`);
+ if (!isConfirmed) {
+ return; // 사용자가 취소함
+    }
+
+      setLoading(true);
+      setError("");
+
+ try {
+      console.log("Deleting product with ID:", id); // Debug log
+ 
+ 
+      await axios.delete(`${API_BASE_URL}/product/${id}`, {
+      withCredentials: true,
+ });
+
+      alert(`✅ 상품 "${formData.name}"이(가) 성공적으로 삭제되었습니다.`);
+
+
+      navigate("/product/list");
+
+ } catch (error) {
+        console.error("Error deleting product:", error);
+        setError(`❌ 상품 삭제 중 오류가 발생했습니다: ${error.response?.data?.message || error.message}`);
+    } finally {
+        setLoading(false);
+  }
+
+
+ };
+
   return (
     <Container style={{ maxWidth: 600 }} className="mt-4">
       <div className="d-flex align-items-center mb-4">
@@ -384,24 +422,32 @@ export default function AdminProductUpdate({ user }) {
         </Form.Group>
 
         
-        <div className="d-flex gap-3 justify-content-center flex-wrap">
+        <div className="d-flex gap-2 justify-content-center flex-wrap mt-4">
           <Button 
             type="submit" 
             variant="success"
             disabled={loading}
-            size="lg"
-            style={{ minWidth: 140 }}
+            style={{ minWidth: 120 }}
           >
-            {loading ? "⏳ 수정 중..." : "✅ 수정 완료"}
+            {loading ? "⏳ 수정 중..." : "상품 수정"}
           </Button>
           
+          <Button 
+              type="button" 
+              variant="danger" 
+              onClick={handleDelete} 
+              disabled={loading}
+              style={{ minWidth: 120 }}
+           >
+            상품 삭제
+          </Button>
+
           <Button 
             type="button"
             variant="outline-secondary"
             onClick={resetNewImages}
             disabled={loading}
-            size="lg"
-            style={{ minWidth: 140 }}
+            style={{ minWidth: 120 }}
           >
             🔄 이미지 초기화
           </Button>
@@ -410,8 +456,7 @@ export default function AdminProductUpdate({ user }) {
             variant="secondary" 
             onClick={() => navigate("/product/list")}
             disabled={loading}
-            size="lg"
-            style={{ minWidth: 140 }}
+            style={{ minWidth: 120 }}
           >
             📋 목록으로
           </Button>

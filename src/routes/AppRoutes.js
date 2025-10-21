@@ -4,9 +4,10 @@ import ProductList from '../pages/product/ProductList';
 import Product from '../pages/product/Product';
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
-import ReviewPage from '../pages/ReviewPage';
+import ReviewList from '../pages/ReviewList';
 import MyPage from "../pages/mypage/MyPage";
 import CartList from "../pages/CartList";
+import RentalCompleted from "../pages/RentalCompleted";
 import AdminProductRegister from "../pages/AdminProductRegister";
 import Login from "../pages/Login";
 
@@ -23,9 +24,10 @@ export default function AppRoutes({ handleLoginSuccess, logout, user, setUser })
       <Route path="/product/:id" element={<Product user={user} />} />
       <Route path="/inquiry/list" element={<InquiryList />} />
       <Route path="/inquiry/write" element={<InquiryWrite />} />
-      <Route path="/review" element={<ReviewPage />} />
+      <Route path="/review" element={<ReviewList />} />
       <Route path="/mypage" element={<MyPage user={user} />} />
       <Route path="/cart" element={<CartList user={user} />} />
+      <Route path="/rental/done" element={<RentalCompleted user={user} />} />
       <Route path="/admin/product/register" element={<AdminProductRegister />} />
       <Route path="/login" element={<Login user={user} setUser={setUser} />} />
 

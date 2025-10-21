@@ -26,8 +26,13 @@ export default function AdminProductUpdate({ user }) {
     description: "",
     price: 0,
     totalStock: 0,
-    available: true
+    available: true,
+    reservedStock: 0,
+    rentedStock: 0,
+    repairStock: 0,
   });
+
+  
 
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
@@ -70,7 +75,10 @@ export default function AdminProductUpdate({ user }) {
         description: product.description || "",
         price: Number(product.price) || 0,
         totalStock: Number(product.totalStock) || 0,
-        available: product.available !== undefined ? product.available : true
+        available: product.available !== undefined ? product.available : true,
+        reservedStock: Number(product.reservedStock) || 0,
+        rentedStock: Number(product.rentedStock) || 0,
+        repairStock: Number(product.repairStock) || 0,
       });
       
       
@@ -130,6 +138,15 @@ export default function AdminProductUpdate({ user }) {
     if (!formData.brand) return "브랜드를 선택하세요.";
     if (formData.price <= 0) return "가격은 0보다 커야 합니다.";
     if (formData.totalStock < 0) return "재고는 0 이상이어야 합니다.";
+    if (formData.reservedStock < 0 || formData.rentedStock < 0 || formData.repairStock < 0) {
+        return "세부 재고 수량은 0 미만이 될 수 없습니다.";
+    }
+
+    const sumUnavailable = formData.reservedStock + formData.rentedStock + formData.repairStock;
+    if (sumUnavailable > formData.totalStock) {
+        return `⚠️ 예약/대여/수리 중인 재고의 합(${sumUnavailable}개)이 총 보유 수량(${formData.totalStock}개)을 초과했습니다.`;
+    }
+
     if (existingImages.length === 0 && newImages.length === 0) {
       return "상품 이미지는 최소 1개 이상 필요합니다.";
     }
@@ -253,6 +270,14 @@ export default function AdminProductUpdate({ user }) {
 
  };
 
+    const availableStock = Math.max(
+      formData.totalStock - (formData.reservedStock 
+        + formData.rentedStock 
+        + formData.repairStock),
+        0
+    );
+
+
   return (
     <Container style={{ maxWidth: 600 }} className="mt-4">
       <div className="d-flex align-items-center mb-4">
@@ -339,20 +364,67 @@ export default function AdminProductUpdate({ user }) {
           </div>
           <div className="col-md-6">
             <Form.Group>
-              <Form.Label>📦 재고 수량</Form.Label>
+              <Form.Label>📦 총 재고 수량 </Form.Label>
               <Form.Control
                 type="number"
                 min={0}
                 value={formData.totalStock}
                 onChange={(e) => handleInputChange('totalStock', Number(e.target.value))}
-                placeholder="재고 수량을 입력하세요"
+                placeholder="총 재고 수량을 입력하세요"
                 required
               />
             </Form.Group>
           </div>
         </div>
 
-        
+        <div className="row mb-3 border p-3 rounded bg-light">
+            <h6 className="mb-3 text primary">📊 현재 재고 현황 </h6>
+            
+            <div className="col-md-6 mb-3">
+              <Form.Label>✅ 대여 가능 </Form.Label>
+              <Form.Control
+                  type="number"
+                  value={availableStock}
+                  readOnly
+                  disabled
+                  className="fw-bold bg-white"
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+              <Form.Label>🚚 대여 중 </Form.Label>
+              <Form.Control
+                  type="number"
+                  min={0}
+                  value={formData.rentedStock}
+                  onChange={(e) => handleInputChange('rentedStock', Number(e.target.value))}
+                  className="bg-white"
+              />
+            </div>
+
+            <div className="col-md-6 mb-3">
+                <Form.Label>⏳ 예약 중 </Form.Label>
+                <Form.Control
+                    type="number"
+                    min={0}
+                    value={formData.reservedStock}
+                    onChange={(e) => handleInputChange('reservedStock', Number(e.target.value))}
+                    className="bg-white"
+                />
+            </div>
+            
+            <div className="col-md-6 mb-3">
+                <Form.Label>🔧 수리 중 </Form.Label>
+                <Form.Control
+                    type="number"
+                    min={0}
+                    value={formData.repairStock}
+                    onChange={(e) => handleInputChange('repairStock', Number(e.target.value))}
+                    className="bg-white"
+                />
+            </div>
+        </div>
+
         <Form.Group className="mb-4">
           <Form.Check
             type="checkbox"

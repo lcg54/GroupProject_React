@@ -210,13 +210,13 @@ export default function ProductInsertForm({user}) {
           </div>
           <div className="col-md-6">
             <Form.Group>
-              <Form.Label>📦 재고 수량 </Form.Label>
+              <Form.Label>📦 총 보유 수량 </Form.Label>
               <Form.Control
                 type="number"
                 min={0}
                 value={formData.totalStock}
                 onChange={(e) => handleInputChange('totalStock', Number(e.target.value))}
-                placeholder="재고 수량을 입력하세요"
+                placeholder="총 보유 수량을 입력하세요"
                 required
               />
             </Form.Group>

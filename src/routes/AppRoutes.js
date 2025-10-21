@@ -6,7 +6,7 @@ import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
 import AppWrapper from "./AppWrapper";
-import MyPage from "../pages/mypage/Mypage";
+import MyPage from "../pages/mypage/MyPage";
 import CartList from "../pages/CartList";
 import AdminProductRegister from "../pages/AdminProductRegister";
 import Login from "../pages/Login";

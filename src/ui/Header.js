@@ -1,48 +1,50 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
 import { Navbar, Nav, Button } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
 
 export default function Header() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
   const navigate = useNavigate();
 
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [visible, setVisible] = useState(true);
+
   const lastScrollY = useRef(window.scrollY);
-  const menuOpenRef = useRef(menuOpen);
-  const scrollTimeout = useRef(null);
+  const ticking = useRef(false);
 
+  // 스크롤 방향에 따라 visible 상태 조절
   useEffect(() => {
-    menuOpenRef.current = menuOpen;
-    if (menuOpen) {
-      setIsHidden(true); // 메뉴 열릴 때 무조건 숨김
-    } else {
-      setIsHidden(false);
-    }
-  }, [menuOpen]);
+    const scrollTimeout = { current: null };
 
-  useEffect(() => {
     const handleScroll = () => {
-      if (menuOpenRef.current) return;
+      if (ticking.current) return;
+      ticking.current = true;
 
-      const currentScrollY = window.scrollY;
+      requestAnimationFrame(() => {
+        const currentScrollY = window.scrollY;
 
-      if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
-        // 스크롤 내림: 헤더 숨김
-        setIsHidden(true);
-      } else if (currentScrollY < lastScrollY.current) {
-        // 스크롤 올림: 헤더 보임
-        setIsHidden(false);
-      }
+        if (menuOpen) {
+          setVisible(true); // 메뉴 열려있으면 항상 보여주기
+        } else {
+          if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+            // 아래로 스크롤 중 & 어느정도 내려왔으면 숨기기
+            setVisible(false);
+          } else {
+            // 위로 스크롤 중이면 보이기
+            setVisible(true);
+          }
+        }
 
-      lastScrollY.current = currentScrollY;
+        lastScrollY.current = currentScrollY;
+        ticking.current = false;
 
-      // 스크롤 멈춤 감지: 300ms 후 헤더 보임
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-      scrollTimeout.current = setTimeout(() => {
-        setIsHidden(false);
-      }, 300);
+        // 스크롤 멈춤 감지 (300ms 후 헤더 보임)
+        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        scrollTimeout.current = setTimeout(() => {
+          setVisible(true);
+        }, 300);
+      });
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -51,16 +53,18 @@ export default function Header() {
       window.removeEventListener('scroll', handleScroll);
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
     };
-  }, []);
+  }, [menuOpen]);
 
-  const headerClass = `header ${isHidden ? 'header-hidden' : 'header-visible'}`;
 
   return (
     <>
-      <Navbar className={headerClass}>
+      <Navbar
+        className={`header ${visible ? 'header-visible' : 'header-hidden'}`}
+        sticky="top" // position: sticky 지원용 react-bootstrap props
+      >
         <Button
           variant="outline-secondary"
-          onClick={() => setMenuOpen(prev => !prev)}
+          onClick={() => setMenuOpen(!menuOpen)}
           aria-controls="side-menu"
           aria-expanded={menuOpen}
           className="me-3"
@@ -74,7 +78,7 @@ export default function Header() {
         </Nav>
       </Navbar>
 
-      {/* 사이드 메뉴 및 오버레이는 그대로 유지 */}
+      {/* 사이드 메뉴 */}
       <div
         id="side-menu"
         style={{
@@ -87,7 +91,7 @@ export default function Header() {
           boxShadow: '2px 0 5px rgba(0,0,0,0.3)',
           padding: '2rem 1rem',
           transition: 'left 0.3s ease',
-          zIndex: 1050,
+          zIndex: 1200,
           display: 'flex',
           flexDirection: 'column',
           gap: '1rem',
@@ -121,14 +125,15 @@ export default function Header() {
 
         <hr />
 
-        <Button variant="light" onClick={() => { navigate('/login'); setMenuOpen(false); }}>
+        <Button variant="light" onClick={() => { navigate('/member/login'); setMenuOpen(false); }}>
           로그인
         </Button>
-        <Button variant="light" onClick={() => { navigate('/signup'); setMenuOpen(false); }}>
+        <Button variant="light" onClick={() => { navigate('/member/signup'); setMenuOpen(false); }}>
           회원가입
         </Button>
       </div>
 
+      {/* 메뉴 오버레이 */}
       {menuOpen && (
         <div
           onClick={() => setMenuOpen(false)}
@@ -139,7 +144,7 @@ export default function Header() {
             height: '100vh',
             width: '100vw',
             backgroundColor: 'rgba(0,0,0,0.3)',
-            zIndex: 1040,
+            zIndex: 1100,
           }}
         />
       )}

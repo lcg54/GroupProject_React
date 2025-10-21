@@ -106,17 +106,17 @@ export default function ProductList({ user }) {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  const handleDelete = async (product) => {
-    if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
-    try {
-      const res = await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
-      setProducts(prev => prev.filter(p => p.id !== product.id));
-      alert(res.data);
-    } catch (err) {
-      console.log(err);
-      alert("상품 삭제 중 오류가 발생했습니다.");
-    }
-  };
+  // const handleDelete = async (product) => {
+  //   if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
+  //   try {
+  //     const res = await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
+  //     setProducts(prev => prev.filter(p => p.id !== product.id));
+  //     alert(res.data);
+  //   } catch (err) {
+  //     console.log(err);
+  //     alert("상품 삭제 중 오류가 발생했습니다.");
+  //   }
+  // };
 
   // 재고 계산
   const getAvailableStock = (p) => 

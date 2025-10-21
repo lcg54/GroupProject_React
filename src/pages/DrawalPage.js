@@ -83,7 +83,6 @@ export default function DrawalPage({ user, onLogout }) {
               <ul style={{ fontSize: 13, color: '#999', paddingLeft: 20, marginTop: 10 }}>
                 <li>탈퇴 시 모든 개인정보가 삭제됩니다.</li>
                 <li>작성한 게시글 및 댓글은 삭제되지 않습니다.</li>
-                <li>탈퇴 후 같은 아이디로 재가입할 수 없습니다.</li>
                 <li>탈퇴한 정보는 복구할 수 없습니다.</li>
               </ul>
             </div>

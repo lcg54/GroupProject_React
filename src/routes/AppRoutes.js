@@ -6,6 +6,7 @@ import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
 import ReviewPage from '../pages/ReviewPage';
 import ReviewWrite from '../pages/ReviewWrite';
+import SalesHistory from '../pages/SalesHistory';
 import AppWrapper from "./AppWrapper";
 import MyPage from "../pages/mypage/MyPage";
 import CartList from "../pages/CartList";
@@ -23,6 +24,7 @@ export default function AppRoutes({ user, setUser }) {
         <Route path="/inquiry/write" element={<InquiryWrite />} />
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/review/wirte" element={<ReviewWrite />} />
+        <Route path="/sales/history" element={<SalesHistory />} />
         <Route path="/mypage" element={<MyPage user={user} />} />
         <Route path="/cart" element={<CartList user={user} />} />
         <Route path="/admin/product/register" element={<AdminProductRegister />} />

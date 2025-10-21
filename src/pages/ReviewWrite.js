@@ -17,6 +17,7 @@ export default function App() {
         { value: 3, label: '3년 대여' },
       ],
       selected: false,
+      hasReview: true,
     },
     {
       id: 2,
@@ -31,6 +32,7 @@ export default function App() {
         { value: 3, label: '3년 대여' },
       ],
       selected: false,
+      hasReview: false,
     },
   ];
 
@@ -46,11 +48,13 @@ export default function App() {
         <Form.Label>구매한 제품 선택</Form.Label>
         <Form.Control as="select" value={selectedProduct} onChange={handleChange}>
           <option value="">제품을 선택하세요</option>
-          {products.map((product) => (
-            <option key={product.id} value={product.id}>
-              {product.name}
-            </option>
-          ))}
+          {products
+            .filter((product) => !product.hasReview)
+            .map((product) => (
+              <option key={product.id} value={product.id}>
+                {product.name}
+              </option>
+            ))}
         </Form.Control>
       </Form.Group>
       <Form.Group>

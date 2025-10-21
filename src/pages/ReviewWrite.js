@@ -70,11 +70,7 @@ export default function App() {
       </Form.Group>
       <Form.Group>
         <Form.Label>리뷰 내용</Form.Label>
-        <Form.Control type="text"></Form.Control>
-      </Form.Group>
-      <Form.Group>
-        <Form.Label>문의 내용</Form.Label>
-        <Form.Control placeholder="내용 작성" as="textarea" rows={9} maxLength={4000}></Form.Control>
+        <Form.Control type="text" name="content" placeholder="내용 작성" as="textarea" rows={9} maxLength={4000}></Form.Control>
       </Form.Group>
       <Form.Group>
         <Form.Label>리뷰 사진</Form.Label>

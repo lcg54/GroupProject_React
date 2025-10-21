@@ -1,0 +1,275 @@
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css");
+
+/* 공통 박스 사이징 */
+.signup-page * {
+  box-sizing: border-box;
+}
+
+/* body 스타일: 실제 body 태그에 적용하는 건 아니라면 제거 가능 */
+.signup-page {
+  font-family: "Montserrat", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.signup-page .auth-wrapper {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
+  overflow: auto;
+}
+
+.signup-page .auth-container {
+  border-radius: 10px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  position: relative;
+  width: 768px;
+  max-width: 100%;
+  min-height: 800px;
+  overflow: auto;
+  background: #fff;
+}
+
+/* form */
+.signup-page form {
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 0 50px;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
+.signup-page form input {
+  background: #f5f5f5;
+  padding: 12px;
+  margin: 8px 0;
+  width: 85%;
+  border: 2px solid #e0e0e0;
+  outline: none;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.signup-page form input:focus {
+  border-color: #333;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 버튼 */
+.signup-page .form_btn {
+  border-radius: 25px;
+  border: none;
+  outline: none;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 15px 45px;
+  margin: 14px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #333;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.signup-page .form_btn:hover {
+  background: #000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+}
+
+.signup-page .form_btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.signup-page .form_btn:disabled {
+  background: #999;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.signup-page .overlay_btn {
+  background: transparent;
+  border: 2px solid #fff;
+  color: #fff;
+}
+
+.signup-page .overlay_btn:hover {
+  background: rgba(255, 255, 255, 0.26);
+}
+
+/* 로그인 / 회원가입 컨테이너 */
+.signup-page .sign-in-container {
+  position: absolute;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  transition: all 0.6s ease-in-out;
+  z-index: 2;
+}
+
+.signup-page .sign-up-container {
+  position: absolute;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  opacity: 0;
+  z-index: 1;
+  transition: all 0.6s ease-in-out;
+}
+
+/* 오버레이 */
+.signup-page .overlay-container {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  overflow: hidden;
+  transition: transform 0.6s ease-in-out;
+  z-index: 100;
+}
+
+.signup-page .overlay-left,
+.signup-page .overlay-right {
+  display: flex;
+  flex-direction: column;
+  padding: 0 50px;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #fff 0%, #333 100%);
+  color: #fff;
+  transition: transform 0.6s ease-in-out;
+}
+
+.signup-page .overlay-left {
+  transform: translateX(-100%);
+}
+
+.signup-page .overlay-right {
+  right: 0;
+  transform: translateX(0);
+}
+
+/* right-panel-active 상태 */
+.signup-page .auth-container.right-panel-active .sign-in-container {
+  transform: translateX(100%);
+}
+
+.signup-page .auth-container.right-panel-active .sign-up-container {
+  transform: translateX(100%);
+  opacity: 1;
+  z-index: 5;
+}
+
+.signup-page .auth-container.right-panel-active .overlay-container {
+  transform: translateX(-100%);
+}
+
+.signup-page .auth-container.right-panel-active .overlay-left {
+  transform: translateX(0);
+}
+
+.signup-page .auth-container.right-panel-active .overlay-right {
+  transform: translateX(100%);
+}
+
+/* social links */
+.signup-page .social-links {
+  margin: 20px 0;
+  display: flex;
+  gap: 10px;
+}
+
+.signup-page .social-links div {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  border: 2px solid #e0e0e0;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.signup-page .social-links div:hover {
+  border-color: #333;
+  background: #f5f5f5;
+  transform: translateY(-2px);
+}
+
+.signup-page .social-links a {
+  color: #333;
+  text-decoration: none;
+}
+
+/* 메시지 */
+.signup-page .error-message {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 10px;
+  text-align: center;
+  width: 85%;
+}
+
+.signup-page .success-message {
+  color: #28a745;
+  font-size: 13px;
+  margin-top: 10px;
+  text-align: center;
+  width: 85%;
+}
+
+/* 제목 / 단락 */
+.signup-page h1 {
+  font-weight: bold;
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 32px;
+}
+
+.signup-page p {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  margin: 20px 0 30px;
+  text-align: center;
+}
+
+.signup-page span {
+  font-size: 12px;
+  color: #666;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* 반응형 */
+@media screen and (max-width: 768px) {
+  .signup-page .auth-container {
+    width: 100%;
+    min-height: 100vh;
+  }
+
+  .signup-page .sign-in-container,
+  .signup-page .sign-up-container {
+    width: 100%;
+  }
+
+  .signup-page .overlay-container {
+    display: none;
+  }
+}

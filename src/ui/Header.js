@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './Header.css';
@@ -120,10 +120,10 @@ export default function Header() {
 
         <hr />
 
-        <Button variant="light" onClick={() => { navigate('/login'); setMenuOpen(false); }}>
+        <Button variant="light" onClick={() => { navigate('/member/login'); setMenuOpen(false); }}>
           로그인
         </Button>
-        <Button variant="light" onClick={() => { navigate('/signup'); setMenuOpen(false); }}>
+        <Button variant="light" onClick={() => { navigate('/member/signup'); setMenuOpen(false); }}>
           회원가입
         </Button>
       </div>

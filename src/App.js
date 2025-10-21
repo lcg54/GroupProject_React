@@ -13,6 +13,6 @@ export default function App() {
       <Header />
       <AppRoutes user={user} setUser={setUser} />
       <Footer />
-    </ AppWrapper>
+    </AppWrapper>
   );
 }

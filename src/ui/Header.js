@@ -114,6 +114,10 @@ export default function Header() {
         <Button variant="light" onClick={() => { navigate('/admin/product/register'); setMenuOpen(false); }}>
           상품등록
         </Button>
+        <Button variant="light" onClick={() => { navigate('/admin/product/update/:id'); setMenuOpen(false); }}>
+          상품수정
+        </Button>
+        
 
         <hr />
 

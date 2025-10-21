@@ -8,7 +8,8 @@ import ReviewPage from '../pages/ReviewPage';
 import AppWrapper from "./AppWrapper";
 import MyPage from "../pages/mypage/MyPage";
 import CartList from "../pages/CartList";
-import AdminProductForm from "../pages/AdminProductForm";
+import ProductInsertForm from "../pages/ProductInsertForm";
+import ProductUpdateForm from "../pages/ProductUpdateForm";
 import Login from "../pages/Login";
 
 
@@ -24,7 +25,8 @@ export default function AppRoutes({ user, setUser }) {
         <Route path="/review" element={<ReviewPage />} />
         <Route path="/mypage" element={<MyPage user={user} />} />
         <Route path="/cart" element={<CartList user={user} />} />
-        <Route path="/admin/product/register" element={<AdminProductForm />} />
+        <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
+        <Route path="/admin/product/update/:id?" element={<ProductUpdateForm user={user} />} />
         <Route path="/login" element={<Login user={user} setUser={setUser} />} />
 
       </Routes>

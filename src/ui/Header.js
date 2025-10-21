@@ -14,6 +14,8 @@ export default function Header() {
 
   // 스크롤 방향에 따라 visible 상태 조절
   useEffect(() => {
+    const scrollTimeout = { current: null };
+
     const handleScroll = () => {
       if (ticking.current) return;
       ticking.current = true;
@@ -35,13 +37,23 @@ export default function Header() {
 
         lastScrollY.current = currentScrollY;
         ticking.current = false;
+
+        // 스크롤 멈춤 감지 (300ms 후 헤더 보임)
+        if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+        scrollTimeout.current = setTimeout(() => {
+          setVisible(true);
+        }, 300);
       });
     };
 
     window.addEventListener('scroll', handleScroll);
-    // 컴포넌트 언마운트 시 이벤트 제거
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+    };
   }, [menuOpen]);
+
 
   return (
     <>

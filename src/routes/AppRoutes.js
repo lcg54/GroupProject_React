@@ -8,10 +8,12 @@ import ReviewPage from '../pages/ReviewPage';
 import MyPage from "../pages/mypage/mypage";
 import CartList from "../pages/CartList";
 import AppWrapper from "./AppWrapper";
+import Header from "../ui/Header";
 
 export default function AppRoutes({ user }) {
   return (
     <AppWrapper>
+      <Header />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/product/list" element={<ProductList user={user} />} />

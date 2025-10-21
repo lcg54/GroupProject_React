@@ -1,31 +1,42 @@
 .header {
-    position: sticky;
-    /* fixed에서 sticky로 변경 */
+    position: absolute;
     top: 0;
-    width: 100%;
+    /* 페이지 맨 위로 딱 붙게 */
+    left: 0;
+    right: 0;
     height: 60px;
-    background-color: transparent !important;
-    /* 완전 투명 */
+    /* 헤더 높이 지정 */
+
+    width: 100%;
+    transition: top 0.3s ease, opacity 0.3s ease;
+    z-index: 1100;
+    background-color: rgba(255, 255, 255, 0.01) !important;
     box-shadow: none !important;
-    display: flex;
-    align-items: center;
-    padding: 0 1rem;
-    transition: transform 0.3s ease;
-    z-index: 1000;
+    padding: 0 !important;
+    margin: 0 !important;
+    margin-top: 0;
+    /* 혹시 여백이나 경계 생기는 걸 막으려고 border, outline 없애기 */
+    border: none !important;
+    outline: none !important;
+    border-top: -20px solid transparent;
+
 }
 
-/* 스크롤 내릴 때 헤더 사라짐 */
-.header-hidden {
-    transform: translateY(-100%);
-}
 
-/* 보일 때 위치 */
 .header-visible {
-    transform: translateY(0);
+    opacity: 1;
 }
 
-.main-content {
-    padding-top: 60px;
-    /* 헤더 높이만큼 패딩 줘서 컨텐츠 안 겹치게 */
-    transition: padding-top 0.3s ease;
+.header-hidden {
+    opacity: 0;
+}
+
+.side-menu-button {
+  width: 100%;          /* 버튼 가로폭 전체 채우기 */
+  text-align: left;     /* 텍스트 왼쪽 정렬 */
+  padding: 0.5rem 1rem; /* 위아래 0.5rem, 좌우 1rem 패딩 */
+  box-sizing: border-box; /* 패딩 포함해서 너비 계산 */
+  white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
+  overflow: hidden;     /* 넘치는 텍스트 숨김 */
+  text-overflow: ellipsis; /* 넘칠 때 말줄임표 */
 }

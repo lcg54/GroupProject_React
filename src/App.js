@@ -9,10 +9,8 @@ export default function App() {
 
   return (
     <>
-      <Header user={user} />
-      <div className="main-content">
+      
         <AppRoutes user={user} />
-      </div>
       <Footer />
     </>
   );

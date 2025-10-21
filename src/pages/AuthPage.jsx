@@ -63,7 +63,7 @@ export default function AuthPage({ setUser }) {
     if (!signupForm.name.trim()) return "이름을 입력하세요.";
     if (!signupForm.email.trim()) return "이메일을 입력하세요.";
     if (!/^\S+@\S+\.\S+$/.test(signupForm.email)) return "이메일 형식이 올바르지 않습니다.";
-    if (signupForm.password.length < 8) return "비밀번호는 최소 8자 이상이어야 합니다.";
+    if (signupForm.password.length < 8) return "비밀번호는 특수 문자 포함 최소 8자 이상이어야 합니다.";
     if (signupForm.password !== signupForm.passwordConfirm) return "비밀번호가 일치하지 않습니다.";
     return null;
   };
@@ -217,7 +217,7 @@ export default function AuthPage({ setUser }) {
               type="password"
               value={signupForm.password}
               onChange={onSignupChange}
-              placeholder="비밀번호 (최소 8자)"
+              placeholder="비밀번호 (특수 문자 + 최소 8자)"
               autoComplete="new-password"
             />
             <input
@@ -307,7 +307,7 @@ export default function AuthPage({ setUser }) {
           </div>
           <div className="overlay-right">
             <h1>안녕하세요!</h1>
-            <p>개인 정보를 입력하고 여정을 시작하세요</p>
+            <p>방문이 처음이시라면 회원가입 후 다양한 상품들을 이용해 보세요.</p>
             <button
               className="overlay_btn"
               type="button"

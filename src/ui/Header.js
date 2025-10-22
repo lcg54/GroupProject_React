@@ -72,8 +72,8 @@ export default function Header() {
         </Button>
 
         <Nav className="ms-auto d-none d-lg-flex">
-          <Nav.Link href="/login">login</Nav.Link>
-          <Nav.Link href="/signup">signup</Nav.Link>
+          <Nav.Link href="/member/login">login</Nav.Link>
+          <Nav.Link href="/member/signup">signup</Nav.Link>
         </Nav>
       </Navbar>
 

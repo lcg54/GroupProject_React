@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, Col, Container, Form, Row, Spinner } from "react-bootstrap";
 import { Search } from "react-bootstrap-icons";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
 import CategoryGrid from "./CategoryGrid";
-import axios from "axios";
 
 export default function ProductList({ user }) {
   const [products, setProducts] = useState([]);
@@ -24,9 +24,18 @@ export default function ProductList({ user }) {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-
+  const location = useLocation();  // 추가된 부분: URL 쿼리 파라미터 사용
   const observer = useRef();
   const searchRef = useRef(null);
+
+  // URL의 쿼리 파라미터에서 category 값 파싱하여 초기 설정
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const cat = params.get("category");
+    if (cat) {
+      setCategory([cat]);
+    }
+  }, [location.search]);
 
   // 필터 바뀌면 목록 리셋
   useEffect(() => {
@@ -37,7 +46,9 @@ export default function ProductList({ user }) {
 
   // 상품목록 불러오기
   useEffect(() => {
-    if (hasMore) fetchProductList();
+    if (hasMore) {
+      fetchProductList();
+    }
   }, [page, category, brand, available, sortBy]);
 
   // 인기상품 3개 불러오기 (고정)
@@ -85,8 +96,11 @@ export default function ProductList({ user }) {
       const newProducts = res.data.products.map(p => ({
         ...p, monthlyPrice: p.price / (6 * 10) - 2100,
       }));
-      if (newProducts.length === 0) setHasMore(false);
-      else setProducts(prev => [...prev, ...newProducts]);
+      if (newProducts.length === 0) {
+        setHasMore(false);
+      } else {
+        setProducts(prev => [...prev, ...newProducts]);
+      }
     } catch (err) {
       alert("상품 목록을 불러오는 중 오류가 발생했습니다.");
     } finally {
@@ -94,7 +108,7 @@ export default function ProductList({ user }) {
     }
   };
 
-  // 무한스크롤
+  // 무한스크롤: 마지막 아이템을 감지하면 페이지 증가
   const lastProductRef = useCallback(node => {
     if (loading) return;
     if (observer.current) observer.current.disconnect();
@@ -106,27 +120,18 @@ export default function ProductList({ user }) {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  // const handleDelete = async (product) => {
-  //   if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
-  //   try {
-  //     const res = await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
-  //     setProducts(prev => prev.filter(p => p.id !== product.id));
-  //     alert(res.data);
-  //   } catch (err) {
-  //     console.log(err);
-  //     alert("상품 삭제 중 오류가 발생했습니다.");
-  //   }
-  // };
-
-  // 재고 계산
-  const getAvailableStock = (p) => 
+  // 재고 계산 함수
+  const getAvailableStock = (p) =>
     (p.totalStock ?? 0) - (p.reservedStock ?? 0) - (p.rentedStock ?? 0) - (p.repairStock ?? 0);
 
   return (
     <Container className="mt-4" style={{ maxWidth: "900px" }}>
-      
       {/* 상단 카테고리 영역 */}
-      <CategoryGrid category={category} setCategory={setCategory} />
+      <CategoryGrid
+        category={category}
+        setCategory={setCategory}
+        styleType="default"
+      />
 
       {/* 필터 영역 */}
       <div
@@ -142,7 +147,6 @@ export default function ProductList({ user }) {
           <Col xs="auto"><AvailabilityDropdown available={available} setAvailable={setAvailable} /></Col>
           <Col xs="auto"><SortDropdown sortBy={sortBy} setSortBy={setSortBy} /></Col>
           <Col className="text-end position-relative">
-            {/* 팝업 검색창 */}
             <Search
               size={22}
               style={{ cursor: "pointer", color: "#0d6efd" }}
@@ -225,17 +229,16 @@ export default function ProductList({ user }) {
                       style={{
                         position: 'absolute',
                         top: 8,
-                        left: 8,
-                        background: '#FFD43B',
-                        color: '#000',
+                        right: 8,
+                        background: 'rgba(255, 0, 0, 0.75)',
+                        color: '#fff',
                         padding: '4px 8px',
                         borderRadius: 12,
-                        fontWeight: 'bold',
                         fontSize: 12,
                         zIndex: 3,
                       }}
                     >
-                      인기제품
+                      재고소진
                     </div>
                     {!isAvailable && (
                       <div
@@ -318,11 +321,12 @@ export default function ProductList({ user }) {
           <h5 className="mt-2">상품 정보를 불러오는 중입니다...</h5>
         </div>
       )}
-      {!hasMore && 
+
+      {!hasMore && (
         <div className="text-center mt-3 mb-5 text-muted">
           모든 상품을 불러왔습니다.
         </div>
-      }
+      )}
     </Container>
   );
 }

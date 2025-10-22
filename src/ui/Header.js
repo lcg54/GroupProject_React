@@ -105,9 +105,6 @@ export default function Header() {
         <Button variant="light" onClick={() => { navigate('/inquiry/list'); setMenuOpen(false); }}>
           문의게시판
         </Button>
-        <Button variant="light" onClick={() => { navigate('/review'); setMenuOpen(false); }}>
-          후기게시판
-        </Button>
         <Button variant="light" onClick={() => { navigate('/mypage'); setMenuOpen(false); }}>
           마이페이지
         </Button>

@@ -33,65 +33,65 @@ const HeroSection = () => {
     navigate(`/product/list?category=${categoryValue}`);
   };
 
-  const carouselStyle = {
-    height: '900px',
-    maxHeight: '650px',
-    objectFit: 'cover',
-    width: '100%',
-    backgroundColor: "#eee",
-  };
 
   return (
-    <Container
-      style={{ maxWidth: '900px', backgroundColor: '#FFFDF2', padding: '10rem 2rem', borderRadius: '10px' }}
-      className="my-5"
-    >
-      <Row className="align-items-start">
-        <Col md={6} className="d-flex flex-column align-items-start pe-6">
-          <div style={{ marginBottom: '1.5rem' }}>
-            <DoubleCircle />
-          </div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.75rem' }}>
-            Renting quality<br />of life
-          </h1>
-          <p>당신의 삶의 질을 높히기 위해<br />저희는 편안함을 대여해 드립니다.</p>
-        </Col>
-        <Col md={6} className="text-center ps-6">
 
-          <Carousel
-            fade
-            interval={4000}
-            indicators={true}
-            controls={true}
-            nextIcon={<span className="carousel-control-next-icon" aria-hidden="true" />}
-            prevIcon={<span className="carousel-control-prev-icon" aria-hidden="true" />}
-          >
-            {popularProducts.map((p) => (
-              <Carousel.Item
-                key={p.id}
-                style={{ cursor: 'pointer' }}
-                // 클릭하면 상품상세로 이동
-                onClick={() => navigate(`/product/${p.id}`)}
-              >
-                <Image
-                  src={p.id === 'example' ? p.mainImage : `${API_BASE_URL}/images/${p.mainImage}`}
-                  alt={p.name}
-                  fluid
-                  rounded
-                  style={carouselStyle}
-                />
-              </Carousel.Item>
-            ))}
-          </Carousel>
-        </Col>
-      </Row>
+    <Container className="py-5" style={{ backgroundColor: '#3CB371', color: '#000000ff', maxWidth: '800px' }}>
+      {/* 텍스트 영역 */}
+      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <h1 style={{ fontSize: '7rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+          Renting
+        </h1>
+        <h3 style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>
+          quality of life
+        </h3>
 
-      {/* 카테고리 (그냥 카테고리페이지를 가져옴) */}
+      </div>
+
+      {/* 캐러셀 영역 - Container 안의 너비 유지 */}
+      <div style={{ textAlign: 'center' }}>
+        <Carousel
+          fade
+          interval={4000}
+          indicators={true}
+          controls={true}
+          nextIcon={<span className="carousel-control-next-icon" aria-hidden="true" />}
+          prevIcon={<span className="carousel-control-prev-icon" aria-hidden="true" />}
+        >
+          {popularProducts.map((p) => (
+            <Carousel.Item
+              key={p.id}
+              style={{ cursor: 'pointer' }}
+              onClick={() => navigate(`/product/${p.id}`)}
+            >
+              <Image
+                src={p.id === 'example' ? p.mainImage : `${API_BASE_URL}/images/${p.mainImage}`}
+                alt={p.name}
+                fluid
+                style={{
+                  width: '100%',
+                  height: '400px',
+                  objectFit: 'cover',
+                  borderRadius: '10px',
+                }}
+              />
+            </Carousel.Item>
+          ))}
+        </Carousel>
+        <p style={{ fontSize: '1rem', marginBottom: '0.3rem' }}>
+          당신의 삶의 질을 높히기 위해
+        </p>
+        <p style={{ fontSize: '1rem' }}>
+          저희는 편안함을 대여해 드립니다.
+        </p>
+      </div>
+
+      {/* 카테고리 영역 */}
       <div className="mt-5">
         <CategoryGrid
-          category={[]} // 아무 선택 없음
+          category={[]}
           onClickCategory={handleCategoryClick}
-          styleType="mini" // 미니 스타일로 보여줌
+          styleType="mini"
         />
       </div>
     </Container>

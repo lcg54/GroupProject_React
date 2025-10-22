@@ -149,7 +149,7 @@ export default function ProductList({ user }) {
           <Col className="text-end position-relative">
             <Search
               size={22}
-              style={{ cursor: "pointer", color: "#0d6efd" }}
+              style={{ cursor: "pointer", color: "#000000ff" }}
               onClick={() => setShowSearch((prev) => !prev)}
             />
             {showSearch && (
@@ -163,6 +163,7 @@ export default function ProductList({ user }) {
                 }}
               >
                 <Form.Control
+                  style={{ backgroundColor: '#352907ff' }}
                   type="text"
                   placeholder="검색어를 입력하세요"
                   value={keyword}

@@ -28,7 +28,7 @@ export default function AppRoutes({ handleLoginSuccess, logout, user, setUser })
       <Route path="/inquiry/write" element={<InquiryWrite />} />
       <Route path="/review" element={<ReviewList />} />
       <Route path="/review/write" element={<ReviewWrite />} />
-      <Route path="/sales/history" element={<SalesHistory />} />
+      <Route path="/saleshistory" element={<SalesHistory user={user} />} />
       <Route path="/mypage" element={<MyPage user={user} />} />
       <Route path="/cart" element={<CartList user={user} />} />
       <Route path="/rental/done" element={<RentalCompleted user={user} />} />

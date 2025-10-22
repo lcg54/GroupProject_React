@@ -42,7 +42,7 @@ const HeroSection = () => {
   };
 
   return (
-    <Container
+  <Container
       style={{ maxWidth: '900px', backgroundColor: '#FFFDF2', padding: '10rem 2rem', borderRadius: '10px' }}
       className="my-5"
     >

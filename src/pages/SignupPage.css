@@ -14,12 +14,11 @@
 
 .signup-page .auth-wrapper {
   width: 100%;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  /* background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); */
-  overflow: auto;
+  padding: 40px 20px;
 }
 
 .signup-page .auth-container {
@@ -28,9 +27,9 @@
   position: relative;
   width: 768px;
   max-width: 100%;
-  min-height: 800px;
-  overflow: auto;
+  min-height: 768px;
   background: #fff;
+  overflow: hidden;
 }
 
 /* form */
@@ -38,8 +37,8 @@
   background: #ffffff;
   display: flex;
   flex-direction: column;
-  padding: 0 50px;
-  height: 100%;
+  padding: 50px;
+  min-height: 600px;
   justify-content: center;
   align-items: center;
 }
@@ -115,6 +114,8 @@
   height: 100%;
   transition: all 0.6s ease-in-out;
   z-index: 2;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .signup-page .sign-up-container {
@@ -125,6 +126,30 @@
   opacity: 0;
   z-index: 1;
   transition: all 0.6s ease-in-out;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* 스크롤바 스타일링 */
+.signup-page .sign-in-container::-webkit-scrollbar,
+.signup-page .sign-up-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.signup-page .sign-in-container::-webkit-scrollbar-track,
+.signup-page .sign-up-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.signup-page .sign-in-container::-webkit-scrollbar-thumb,
+.signup-page .sign-up-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.signup-page .sign-in-container::-webkit-scrollbar-thumb:hover,
+.signup-page .sign-up-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
 /* 오버레이 */
@@ -143,13 +168,14 @@
 .signup-page .overlay-right {
   display: flex;
   flex-direction: column;
-  padding: 0 50px;
+  padding: 50px;
   justify-content: center;
   align-items: center;
   position: absolute;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #fff 0%, #000000f1 100%);
+  min-height: 100%;
+  background: linear-gradient(135deg, #8ea862 0%, #3f773f 100%);
   color: #fff;
   transition: transform 0.6s ease-in-out;
 }
@@ -223,6 +249,9 @@
   margin-top: 10px;
   text-align: center;
   width: 85%;
+  background: #ffe6e6;
+  padding: 10px;
+  border-radius: 5px;
 }
 
 .signup-page .success-message {
@@ -231,6 +260,9 @@
   margin-top: 10px;
   text-align: center;
   width: 85%;
+  background: #e6ffe6;
+  padding: 10px;
+  border-radius: 5px;
 }
 
 /* 제목 / 단락 */
@@ -280,6 +312,10 @@
 
 /* 반응형 */
 @media screen and (max-width: 768px) {
+  .signup-page .auth-wrapper {
+    padding: 20px 10px;
+  }
+
   .signup-page .auth-container {
     width: 100%;
     min-height: 100vh;
@@ -288,9 +324,18 @@
   .signup-page .sign-in-container,
   .signup-page .sign-up-container {
     width: 100%;
+    position: relative;
+  }
+
+  .signup-page .sign-up-container {
+    opacity: 1;
   }
 
   .signup-page .overlay-container {
     display: none;
+  }
+
+  .signup-page form {
+    padding: 30px 20px;
   }
 }

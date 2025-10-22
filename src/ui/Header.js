@@ -3,7 +3,7 @@ import { Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import './Header.css';
 
-export default function Header() {
+export default function Header({ user, onLogout }) {
   const navigate = useNavigate();
 
   const [menuOpen, setMenuOpen] = useState(false);
@@ -54,12 +54,18 @@ export default function Header() {
     };
   }, [menuOpen]);
 
+  const handleLogoutClick = () => {
+    if (onLogout) {
+      onLogout();
+    }
+    navigate('/');
+  };
 
   return (
     <>
       <Navbar
         className={`header ${visible ? 'header-visible' : 'header-hidden'}`}
-        sticky="top" // position: sticky 지원용 react-bootstrap props
+        sticky="top"
       >
         <Button
           variant="outline-secondary"
@@ -71,9 +77,26 @@ export default function Header() {
           <img src="/path-to-hamburger-icon.svg" alt="Menu" />
         </Button>
 
-        <Nav className="ms-auto d-none d-lg-flex">
-          <Nav.Link href="/member/login">login</Nav.Link>
-          <Nav.Link href="/member/signup">signup</Nav.Link>
+        <Nav className="ms-auto d-none d-lg-flex align-items-center">
+          {user ? (
+            <>
+              <span style={{ marginRight: '1rem', fontWeight: 'bold' }}>
+                {user.name}님
+              </span>
+              <Button
+                variant="outline-danger"
+                size="sm"
+                onClick={handleLogoutClick}
+              >
+                로그아웃
+              </Button>
+            </>
+          ) : (
+            <>
+              <Nav.Link href="/member/login">login</Nav.Link>
+              <Nav.Link href="/member/signup">signup</Nav.Link>
+            </>
+          )}
         </Nav>
       </Navbar>
 
@@ -121,12 +144,28 @@ export default function Header() {
 
         <hr />
 
-        <Button variant="light" onClick={() => { navigate('/member/login'); setMenuOpen(false); }}>
-          로그인
-        </Button>
-        <Button variant="light" onClick={() => { navigate('/member/signup'); setMenuOpen(false); }}>
-          회원가입
-        </Button>
+        {user ? (
+          <>
+            <div style={{ padding: '0.5rem', backgroundColor: '#e9ecef', borderRadius: '5px', textAlign: 'center', marginBottom: '0.5rem' }}>
+              <strong>{user.name}</strong>님
+            </div>
+            <Button variant="light" onClick={() => { navigate('/member/edit'); setMenuOpen(false); }}>
+              내정보 수정
+            </Button>
+            <Button variant="secondary" onClick={() => { handleLogoutClick(); setMenuOpen(false); }}>
+              로그아웃
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button variant="light" onClick={() => { navigate('/member/login'); setMenuOpen(false); }}>
+              로그인
+            </Button>
+            <Button variant="light" onClick={() => { navigate('/member/signup'); setMenuOpen(false); }}>
+              회원가입
+            </Button>
+          </>
+        )}
       </div>
 
       {/* 메뉴 오버레이 */}

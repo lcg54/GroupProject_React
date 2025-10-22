@@ -10,12 +10,12 @@ import CartList from "../pages/CartList";
 import AdminProductRegister from "../pages/AdminProductRegister";
 import Login from "../pages/Login";
 
-import AuthPage from './../pages/AuthPage';  // 통합 페이지
+import AuthPage from './../pages/AuthPage';
 import LogoutPage from './../pages/LogoutPage';
 import EditPage from './../pages/EditPage';
-import DrawalPage from './../pages/DrawalPage';
+// import DrawalPage from './../pages/DrawalPage';
 
-export default function AppRoutes({ handleLoginSuccess, logout, user, setUser }) {
+export default function AppRoutes({ user, setUser, handleLogout }) {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
@@ -30,12 +30,13 @@ export default function AppRoutes({ handleLoginSuccess, logout, user, setUser })
       <Route path="/login" element={<Login user={user} setUser={setUser} />} />
 
       {/* 로그인/회원가입을 하나의 페이지로 통합 */}
-      <Route path="/member/login" element={<AuthPage setUser={handleLoginSuccess} />} />
-      <Route path="/member/signup" element={<AuthPage setUser={handleLoginSuccess} />} />
+      <Route path="/member/login" element={<AuthPage setUser={setUser} />} />
+      <Route path="/member/signup" element={<AuthPage setUser={setUser} />} />
 
-      <Route path="/member/logout" element={<LogoutPage onLogout={logout} />} />
+      <Route path="/member/logout" element={<LogoutPage onLogout={handleLogout} />} />
+      {/* 정보 수정/회원 탈퇴를 하나의 페이지로 통합 */}
       <Route path="/member/edit" element={<EditPage user={user} setUser={setUser} />} />
-      <Route path="/member/drawal" element={<DrawalPage user={user} onLogout={logout} />} />
+      {/* <Route path="/member/drawal" element={<DrawalPage user={user} onLogout={handleLogout} />} /> */}
     </Routes>
   );
 }

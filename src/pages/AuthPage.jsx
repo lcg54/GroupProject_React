@@ -74,7 +74,7 @@ export default function AuthPage({ setUser }) {
     if (!signupForm.name.trim()) return "이름을 입력하세요.";
     if (!signupForm.email.trim()) return "이메일을 입력하세요.";
     if (!/^\S+@\S+\.\S+$/.test(signupForm.email)) return "이메일 형식이 올바르지 않습니다.";
-    if (signupForm.password.length < 7) return "비밀번호는 특수 문자 포함 최소 8자 이상이어야 합니다.";
+    if (signupForm.password.length < 8) return "비밀번호는 특수 문자 포함 최소 8자 이상이어야 합니다.";
     if (!/[!@#$%]/.test(signupForm.password)) return "비밀번호는 ! @ # $ % 중 하나 이상의 특수문자를 포함해야 합니다.";
     if (signupForm.password !== signupForm.passwordConfirm) return "비밀번호가 일치하지 않습니다.";
     return null;

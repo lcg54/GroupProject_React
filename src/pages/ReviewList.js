@@ -45,11 +45,12 @@ export default function ReviewList() {
   // 별점 렌더링
   const renderStars = (rating) => {
     const stars = [];
-    const fullStars = Math.floor(rating);
-    const hasHalfStar = rating - fullStars >= 0.5;
-    for (let i = 0; i < fullStars; i++) stars.push(<StarFill key={`full-${i}`} color="#FFD700" />);
-    if (hasHalfStar) stars.push(<StarHalf key="half" color="#FFD700" />);
-    for (let i = stars.length; i < 5; i++) stars.push(<Star key={`empty-${i}`} color="#ccc" />);
+    for (let i = 1; i <= 5; i++) {
+      if (rating >= i) stars.push(<StarFill key={`full-${i}`} color="#FFD700" />); 
+      else if (rating >= i - 0.5)  stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
+      else stars.push(<Star key={`empty-${i}`} color="#ccc" />);
+    }
+    console.log(typeof rating, rating);
     return <span>{stars}</span>;
   };
 

@@ -65,7 +65,7 @@ const MyPage = ({ user }) => {
       <div
         className="mb-4 d-flex justify-content-between align-items-center"
         style={{ maxWidth: '900px', backgroundColor: '#3CB371', padding: '1rem 2rem', borderRadius: '10px' }}>
-        <h3>{user.name}님</h3>
+        <h3>{/*{user.profileImage}*/}{user.name}님</h3>
         <span className="badge bg-warning text-dark" style={{ fontSize: "1rem" }}>
           {useicon.icons}등급
         </span>

@@ -164,7 +164,7 @@ export default function ProductList({ user }) {
   };
 
   return (
-    <Container className="mt-4" style={{ maxWidth: "900px" }}>
+    <Container className="mt-4 productlist-bg" style={{ maxWidth: "900px" }}>
       {/* 상단 카테고리 영역 */}
       <CategoryGrid
         category={category}

@@ -58,7 +58,7 @@ export default function Product({ user }) {
       대여시작일: ${rentalStart}
       대여기간: ${selectedPeriod}년
       월 납부액: ${getMonthlyPrice().toLocaleString()}원
-      총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원
+      총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원\n
       대여를 신청하시겠습니까?
     `)) return;
 

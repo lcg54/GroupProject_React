@@ -1,9 +1,7 @@
 export default function Footer() {
-
   return (
-    <>
-      <hr />
-      footer
-    </>
+    <footer className="fixed-footer">
+      © {new Date().getFullYear()} My Website. All rights reserved.
+    </footer>
   );
 }

@@ -6,7 +6,7 @@ import { API_BASE_URL } from "../config/url";
 
 
 const CATEGORY_OPTIONS = [
-  "REFRIGERATOR", "WASHER", "DRYER", "AIRCON", 
+  "REFRIGERATOR", "WASHER", "DRYER", "AIRCON",
   "TV", "OVEN", "MICROWAVE", "OTHER"
 ];
 
@@ -15,10 +15,10 @@ const BRAND_OPTIONS = [
 ];
 
 
-export default function ProductInsertForm({user}) {
+export default function ProductInsertForm({ user }) {
   const navigate = useNavigate();
 
-  
+
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -33,7 +33,7 @@ export default function ProductInsertForm({user}) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -41,12 +41,12 @@ export default function ProductInsertForm({user}) {
     }));
   };
 
-  
+
   const handleImagesChange = (e) => {
     setProductImages([...e.target.files]);
   };
 
-  
+
   const validateForm = () => {
     if (!formData.name.trim()) return "상품명을 입력하세요.";
     if (!formData.category) return "카테고리를 선택하세요.";
@@ -56,7 +56,7 @@ export default function ProductInsertForm({user}) {
     return null;
   };
 
-  
+
   const resetForm = () => {
     setFormData({
       name: "",
@@ -69,17 +69,17 @@ export default function ProductInsertForm({user}) {
     });
     setProductImages([]);
     setError("");
-    
-    
+
+
     const fileInput = document.querySelector('input[type="file"]');
     if (fileInput) fileInput.value = '';
   };
 
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    
+
+
     const validationError = validateForm();
     if (validationError) {
       setError("⚠️ " + validationError);
@@ -91,13 +91,13 @@ export default function ProductInsertForm({user}) {
 
     try {
       const formDataToSend = new FormData();
-      
-      
+
+
       Object.keys(formData).forEach(key => {
         formDataToSend.append(key, formData[key].toString());
       });
-      
-      
+
+
       productImages.forEach(img => formDataToSend.append("mainImage", img));
 
       const config = {
@@ -107,8 +107,8 @@ export default function ProductInsertForm({user}) {
 
       await axios.post(`${API_BASE_URL}/product/register`, formDataToSend, config);
       alert("✅ 상품 등록이 완료되었습니다!");
-      
-      
+
+
       const registerAnother = window.confirm("다른 상품을 등록하시겠습니까?");
       if (registerAnother) {
         resetForm();
@@ -124,8 +124,8 @@ export default function ProductInsertForm({user}) {
   };
 
   return (
-    <Container style={{ maxWidth: 600 }} className="mt-4">
-      
+    <Container style={{ maxWidth: 600 }} className="mt-4 productlist-bg">
+
       <div className="d-flex align-items-center mb-4">
         <h2 className="mb-0 flex-grow-1 text-center">
           상품 등록
@@ -135,7 +135,7 @@ export default function ProductInsertForm({user}) {
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form onSubmit={handleSubmit}>
-        
+
         <Form.Group className="mb-3">
           <Form.Label>📋 상품명</Form.Label>
           <Form.Control
@@ -147,7 +147,7 @@ export default function ProductInsertForm({user}) {
           />
         </Form.Group>
 
-        
+
         <Form.Group className="mb-3">
           <Form.Label>📂 카테고리</Form.Label>
           <Form.Select
@@ -164,7 +164,7 @@ export default function ProductInsertForm({user}) {
           </Form.Select>
         </Form.Group>
 
-        
+
         <Form.Group className="mb-3">
           <Form.Label>🏷️ 브랜드</Form.Label>
           <Form.Select
@@ -181,7 +181,7 @@ export default function ProductInsertForm({user}) {
           </Form.Select>
         </Form.Group>
 
-        
+
         <Form.Group className="mb-3">
           <Form.Label>📄 상세설명</Form.Label>
           <Form.Control
@@ -193,7 +193,7 @@ export default function ProductInsertForm({user}) {
           />
         </Form.Group>
 
-        
+
         <div className="row mb-3">
           <div className="col-md-6">
             <Form.Group>
@@ -223,7 +223,7 @@ export default function ProductInsertForm({user}) {
           </div>
         </div>
 
-        
+
         <Form.Group className="mb-4">
           <Form.Check
             type="checkbox"
@@ -233,7 +233,7 @@ export default function ProductInsertForm({user}) {
           />
         </Form.Group>
 
-        
+
         <Form.Group className="mb-4">
           <Form.Label>📷 상품 이미지</Form.Label>
           <Form.Control
@@ -253,18 +253,18 @@ export default function ProductInsertForm({user}) {
           )}
         </Form.Group>
 
-       
+
         <div className="d-flex gap-2 justify-content-center flex-wrap mt-4">
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             variant="primary"
             disabled={loading}
             style={{ minWidth: 120 }}
           >
             {loading ? "⏳ 등록 중..." : "✅ 상품 등록"}
           </Button>
-          
-          <Button 
+
+          <Button
             type="button"
             variant="outline-secondary"
             onClick={resetForm}
@@ -273,9 +273,9 @@ export default function ProductInsertForm({user}) {
           >
             🔄 초기화
           </Button>
-          
-          <Button 
-            variant="secondary" 
+
+          <Button
+            variant="secondary"
             onClick={() => navigate("/product/list")}
             disabled={loading}
             style={{ minWidth: 120 }}

@@ -48,9 +48,9 @@ const MyPage = ({ user }) => {
       case '서비스 알림':
         return <ServiceDate />;
       case '내 문의사항':
-        return <p>메뉴4 전용 내용</p>;
+        return navigate('/inquiry/list');
       case '내 정보 수정':
-        return <p>메뉴5 전용 내용</p>;
+        return navigate('/member/edit');
       case '연장/반납':
         return <ExtensionOrReturn />;
       default:

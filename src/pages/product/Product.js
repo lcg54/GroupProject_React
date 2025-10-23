@@ -59,7 +59,7 @@ export default function Product({ user }) {
       대여시작일: ${rentalStart}
       대여기간: ${selectedPeriod}년
       월 납부액: ${getMonthlyPrice().toLocaleString()}원
-      총 납부액: ${(getMonthlyPrice()*selectedPeriod*12).toLocaleString()}원\n
+      총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원\n
       대여를 신청하시겠습니까?
     `)) return;
 
@@ -124,7 +124,7 @@ export default function Product({ user }) {
 
         <Col md={6}>
           <h2 className="mb-3 fw-bold">{product.name}</h2>
-          <p className="text-muted mb-4">{product.brand} / {product.category}</p> 
+          <p className="text-muted mb-4">{product.brand} / {product.category}</p>
 
           <div className="mb-3">
             <strong>대여 시작일</strong>
@@ -146,7 +146,7 @@ export default function Product({ user }) {
                     className="w-100 py-3"
                     onClick={() => setSelectedPeriod(year)}
                   >
-                    {year}년 ({year*12}개월)
+                    {year}년 ({year * 12}개월)
                   </Button>
                 </Col>
               ))}
@@ -158,21 +158,38 @@ export default function Product({ user }) {
               {getMonthlyPrice().toLocaleString()} ₩ / 월
             </h4>
             <p className="text-muted">
-              총 납부액 : {(getMonthlyPrice()*selectedPeriod*12).toLocaleString()} ₩
+              총 납부액 : {(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()} ₩
               <br />
               일시불(원가) : {product.price.toLocaleString()} ₩
             </p>
           </div>
-
-          {/* 버튼 영역 */}
           <div className="d-flex gap-3">
+            {user && user.role === "ADMIN" ? (
+              <>
+                <Button variant="outline-primary" size="lg" onClick={() => navigate(`/admin/product/update/${id}`)}>
+                  🛒 상품 수정하기
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="outline-primary" size="lg" onClick={handleCart}>
+                  🛒 장바구니
+                </Button>
+                <Button variant="outline-danger" size="lg" onClick={handleRental}>
+                  📦 신청하기
+                </Button>
+              </>
+            )}
+          </div>
+          {/* 버튼 영역 */}
+          {/* <div className="d-flex gap-3">
             <Button variant="outline-primary" size="lg" onClick={handleCart}>
               🛒 장바구니
             </Button>
             <Button variant="outline-danger" size="lg" onClick={handleRental}>
               📦 신청하기
             </Button>
-          </div>
+          </div> */}
         </Col>
       </Row>
 

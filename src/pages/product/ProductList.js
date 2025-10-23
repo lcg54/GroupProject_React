@@ -125,7 +125,7 @@ export default function ProductList({ user }) {
     (p.totalStock ?? 0) - (p.reservedStock ?? 0) - (p.rentedStock ?? 0) - (p.repairStock ?? 0);
 
   return (
-    <Container className="mt-4" style={{ maxWidth: "900px" }}>
+    <Container className="mt-4 productlist-bg" style={{ maxWidth: "900px" }}>
       {/* 상단 카테고리 영역 */}
       <CategoryGrid
         category={category}

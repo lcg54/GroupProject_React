@@ -6,7 +6,7 @@ import { API_BASE_URL } from "../config/url";
 
 
 const CATEGORY_OPTIONS = [
-  "REFRIGERATOR", "WASHER", "DRYER", "AIRCON", 
+  "REFRIGERATOR", "WASHER", "DRYER", "AIRCON",
   "TV", "OVEN", "MICROWAVE", "OTHER"
 ];
 
@@ -18,7 +18,7 @@ export default function AdminProductUpdate({ user }) {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  
+
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -32,7 +32,7 @@ export default function AdminProductUpdate({ user }) {
     repairStock: 0,
   });
 
-  
+
 
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
@@ -40,34 +40,40 @@ export default function AdminProductUpdate({ user }) {
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState("");
 
-  
+
   useEffect(() => {
-    console.log("ProductUpdate - ID from params:", id); 
-    
-    if (!id || id === "undefined" || id === ":id" ) {
-      setInitialLoading(false);
-      return;
-    } else {
+    console.log("ProductUpdate - ID from params:", id);
+
+    // if (!id || id === "undefined" || id === ":id") {
+    //   setInitialLoading(false);
+    //   return;
+    // } else {
+    //   setError("❌ 유효하지 않은 상품 ID입니다.");
+    //   setTimeout(() => navigate("/"), 2000);
+    // }
+    if (!id || id === "undefined" || id === ":id") {
       setError("❌ 유효하지 않은 상품 ID입니다.");
       setTimeout(() => navigate("/"), 2000);
+      setInitialLoading(false);
+      return;
     }
 
     loadProductData();
   }, [id, navigate]);
 
   const loadProductData = async () => {
-    if(!id) return ;
-    
+    if (!id) return;
+
     try {
       setInitialLoading(true);
       setError("");
-      
+
       const response = await axios.get(`${API_BASE_URL}/product/${id}`);
       const product = response.data;
-      
-      console.log("Loaded product data:", product); 
-      
-      
+
+      console.log("Loaded product data:", product);
+
+
       setFormData({
         name: product.name || "",
         category: product.category || "",
@@ -80,8 +86,8 @@ export default function AdminProductUpdate({ user }) {
         rentedStock: Number(product.rentedStock) || 0,
         repairStock: Number(product.repairStock) || 0,
       });
-      
-      
+
+
       let imageUrls = [];
       if (product.images && Array.isArray(product.images)) {
         imageUrls = product.images.map(img => {
@@ -91,15 +97,15 @@ export default function AdminProductUpdate({ user }) {
           return img.url ? (img.url.startsWith('http') ? img.url : `${API_BASE_URL}/images/${img.url}`) : '';
         }).filter(url => url);
       } else if (product.mainImage) {
-        const mainImageUrl = product.mainImage.startsWith('http') 
-          ? product.mainImage 
+        const mainImageUrl = product.mainImage.startsWith('http')
+          ? product.mainImage
           : `${API_BASE_URL}/images/${product.mainImage}`;
         imageUrls = [mainImageUrl];
       }
-      
+
       setExistingImages(imageUrls);
-      console.log("Loaded images:", imageUrls); 
-      
+      console.log("Loaded images:", imageUrls);
+
     } catch (error) {
       console.error("Error loading product data:", error);
       setError(`❌ 상품 정보를 불러오는데 실패했습니다: ${error.response?.data?.message || error.message}`);
@@ -109,29 +115,29 @@ export default function AdminProductUpdate({ user }) {
     }
   };
 
-  
+
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
-    
-    
+
+
     if (error) setError("");
   };
 
-  
+
   const removeExistingImage = (url) => {
     setExistingImages(prev => prev.filter(img => img !== url));
   };
 
-  
+
   const handleNewImagesChange = (e) => {
     const files = [...e.target.files];
     setNewImages(files);
   };
 
-  
+
   const validateForm = () => {
     if (!formData.name.trim()) return "상품명을 입력하세요.";
     if (!formData.category) return "카테고리를 선택하세요.";
@@ -139,12 +145,12 @@ export default function AdminProductUpdate({ user }) {
     if (formData.price <= 0) return "가격은 0보다 커야 합니다.";
     if (formData.totalStock < 0) return "재고는 0 이상이어야 합니다.";
     if (formData.reservedStock < 0 || formData.rentedStock < 0 || formData.repairStock < 0) {
-        return "세부 재고 수량은 0 미만이 될 수 없습니다.";
+      return "세부 재고 수량은 0 미만이 될 수 없습니다.";
     }
 
     const sumUnavailable = formData.reservedStock + formData.rentedStock + formData.repairStock;
     if (sumUnavailable > formData.totalStock) {
-        return `⚠️ 예약/대여/수리 중인 재고의 합(${sumUnavailable}개)이 총 보유 수량(${formData.totalStock}개)을 초과했습니다.`;
+      return `⚠️ 예약/대여/수리 중인 재고의 합(${sumUnavailable}개)이 총 보유 수량(${formData.totalStock}개)을 초과했습니다.`;
     }
 
     if (existingImages.length === 0 && newImages.length === 0) {
@@ -153,21 +159,21 @@ export default function AdminProductUpdate({ user }) {
     return null;
   };
 
-  
+
   const resetNewImages = () => {
     setNewImages([]);
     setError("");
-    
-    
+
+
     const fileInput = document.querySelector('input[type="file"]');
     if (fileInput) fileInput.value = '';
   };
 
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    
+
+
     const validationError = validateForm();
     if (validationError) {
       setError("⚠️ " + validationError);
@@ -179,13 +185,13 @@ export default function AdminProductUpdate({ user }) {
 
     try {
       const formDataToSend = new FormData();
-      
-      
+
+
       Object.keys(formData).forEach(key => {
         formDataToSend.append(key, formData[key].toString());
       });
-      
-      
+
+
       const cleanExistingImages = existingImages.map(url => {
         if (url.includes('/images/')) {
           return url.split('/images/')[1];
@@ -193,8 +199,8 @@ export default function AdminProductUpdate({ user }) {
         return url;
       });
       formDataToSend.append("existingImages", JSON.stringify(cleanExistingImages));
-      
-      
+
+
       newImages.forEach(img => formDataToSend.append("mainImage", img));
 
       const config = {
@@ -202,12 +208,12 @@ export default function AdminProductUpdate({ user }) {
         withCredentials: true,
       };
 
-      console.log("Updating product with ID:", id); 
-      
+      console.log("Updating product with ID:", id);
+
       await axios.put(`${API_BASE_URL}/product/${id}`, formDataToSend, config);
       alert("✅ 상품 수정이 완료되었습니다!");
-      
-      
+
+
       navigate("/product/list");
 
     } catch (error) {
@@ -218,7 +224,7 @@ export default function AdminProductUpdate({ user }) {
     }
   };
 
-  
+
   if (initialLoading) {
     return (
       <Container style={{ maxWidth: 600 }} className="mt-4">
@@ -233,53 +239,53 @@ export default function AdminProductUpdate({ user }) {
   }
 
   const handleDelete = async () => {
-     if (!id) {
-        setError("❌ 삭제할 상품 ID를 찾을 수 없습니다.");
-     return;
- }
- 
- 
- const isConfirmed = window.confirm(`"${formData.name}" 상품을 정말로 삭제하시겠습니까?`);
- if (!isConfirmed) {
- return; // 사용자가 취소함
+    if (!id) {
+      setError("❌ 삭제할 상품 ID를 찾을 수 없습니다.");
+      return;
     }
 
-      setLoading(true);
-      setError("");
 
- try {
+    const isConfirmed = window.confirm(`"${formData.name}" 상품을 정말로 삭제하시겠습니까?`);
+    if (!isConfirmed) {
+      return; // 사용자가 취소함
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
       console.log("Deleting product with ID:", id); // Debug log
- 
- 
+
+
       await axios.delete(`${API_BASE_URL}/product/${id}`, {
-      withCredentials: true,
- });
+        withCredentials: true,
+      });
 
       alert(`✅ 상품 "${formData.name}"이(가) 성공적으로 삭제되었습니다.`);
 
 
       navigate("/product/list");
 
- } catch (error) {
-        console.error("Error deleting product:", error);
-        setError(`❌ 상품 삭제 중 오류가 발생했습니다: ${error.response?.data?.message || error.message}`);
+    } catch (error) {
+      console.error("Error deleting product:", error);
+      setError(`❌ 상품 삭제 중 오류가 발생했습니다: ${error.response?.data?.message || error.message}`);
     } finally {
-        setLoading(false);
-  }
+      setLoading(false);
+    }
 
 
- };
+  };
 
-    const availableStock = Math.max(
-      formData.totalStock - (formData.reservedStock 
-        + formData.rentedStock 
-        + formData.repairStock),
-        0
-    );
+  const availableStock = Math.max(
+    formData.totalStock - (formData.reservedStock
+      + formData.rentedStock
+      + formData.repairStock),
+    0
+  );
 
 
   return (
-    <Container style={{ maxWidth: 600 }} className="mt-4">
+    <Container style={{ maxWidth: 600 }} className="mt-4 productlist-bg">
       <div className="d-flex align-items-center mb-4">
         <h2 className="mb-0 flex-grow-1 text-center">
           상품 수정
@@ -289,7 +295,7 @@ export default function AdminProductUpdate({ user }) {
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form onSubmit={handleSubmit}>
-        
+
         <Form.Group className="mb-3">
           <Form.Label>📋 상품명</Form.Label>
           <Form.Control
@@ -301,7 +307,7 @@ export default function AdminProductUpdate({ user }) {
           />
         </Form.Group>
 
-        
+
         <Form.Group className="mb-3">
           <Form.Label>📂 카테고리</Form.Label>
           <Form.Select
@@ -318,7 +324,7 @@ export default function AdminProductUpdate({ user }) {
           </Form.Select>
         </Form.Group>
 
-        
+
         <Form.Group className="mb-3">
           <Form.Label>🏷️ 브랜드</Form.Label>
           <Form.Select
@@ -335,7 +341,7 @@ export default function AdminProductUpdate({ user }) {
           </Form.Select>
         </Form.Group>
 
-        
+
         <Form.Group className="mb-3">
           <Form.Label>📄 상세설명</Form.Label>
           <Form.Control
@@ -347,7 +353,7 @@ export default function AdminProductUpdate({ user }) {
           />
         </Form.Group>
 
-        
+
         <div className="row mb-3">
           <div className="col-md-6">
             <Form.Group>
@@ -378,51 +384,51 @@ export default function AdminProductUpdate({ user }) {
         </div>
 
         <div className="row mb-3 border p-3 rounded bg-light">
-            <h6 className="mb-3 text primary">📊 현재 재고 현황 </h6>
-            
-            <div className="col-md-6 mb-3">
-              <Form.Label>✅ 대여 가능 </Form.Label>
-              <Form.Control
-                  type="number"
-                  value={availableStock}
-                  readOnly
-                  disabled
-                  className="fw-bold bg-white"
-              />
-            </div>
+          <h6 className="mb-3 text primary">📊 현재 재고 현황 </h6>
 
-            <div className="col-md-6 mb-3">
-              <Form.Label>🚚 대여 중 </Form.Label>
-              <Form.Control
-                  type="number"
-                  min={0}
-                  value={formData.rentedStock}
-                  onChange={(e) => handleInputChange('rentedStock', Number(e.target.value))}
-                  className="bg-white"
-              />
-            </div>
+          <div className="col-md-6 mb-3">
+            <Form.Label>✅ 대여 가능 </Form.Label>
+            <Form.Control
+              type="number"
+              value={availableStock}
+              readOnly
+              disabled
+              className="fw-bold bg-white"
+            />
+          </div>
 
-            <div className="col-md-6 mb-3">
-                <Form.Label>⏳ 예약 중 </Form.Label>
-                <Form.Control
-                    type="number"
-                    min={0}
-                    value={formData.reservedStock}
-                    onChange={(e) => handleInputChange('reservedStock', Number(e.target.value))}
-                    className="bg-white"
-                />
-            </div>
-            
-            <div className="col-md-6 mb-3">
-                <Form.Label>🔧 수리 중 </Form.Label>
-                <Form.Control
-                    type="number"
-                    min={0}
-                    value={formData.repairStock}
-                    onChange={(e) => handleInputChange('repairStock', Number(e.target.value))}
-                    className="bg-white"
-                />
-            </div>
+          <div className="col-md-6 mb-3">
+            <Form.Label>🚚 대여 중 </Form.Label>
+            <Form.Control
+              type="number"
+              min={0}
+              value={formData.rentedStock}
+              onChange={(e) => handleInputChange('rentedStock', Number(e.target.value))}
+              className="bg-white"
+            />
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <Form.Label>⏳ 예약 중 </Form.Label>
+            <Form.Control
+              type="number"
+              min={0}
+              value={formData.reservedStock}
+              onChange={(e) => handleInputChange('reservedStock', Number(e.target.value))}
+              className="bg-white"
+            />
+          </div>
+
+          <div className="col-md-6 mb-3">
+            <Form.Label>🔧 수리 중 </Form.Label>
+            <Form.Control
+              type="number"
+              min={0}
+              value={formData.repairStock}
+              onChange={(e) => handleInputChange('repairStock', Number(e.target.value))}
+              className="bg-white"
+            />
+          </div>
         </div>
 
         <Form.Group className="mb-4">
@@ -434,7 +440,7 @@ export default function AdminProductUpdate({ user }) {
           />
         </Form.Group>
 
-        
+
         {existingImages.length > 0 && (
           <Form.Group className="mb-3">
             <Form.Label>🖼️ 기존 이미지 ({existingImages.length}개)</Form.Label>
@@ -445,10 +451,10 @@ export default function AdminProductUpdate({ user }) {
                     src={imgUrl}
                     alt={`existing-${idx}`}
                     className="rounded border"
-                    style={{ 
-                      width: 80, 
-                      height: 80, 
-                      objectFit: "cover" 
+                    style={{
+                      width: 80,
+                      height: 80,
+                      objectFit: "cover"
                     }}
                     onError={(e) => {
                       console.error("Image load error:", imgUrl);
@@ -474,7 +480,7 @@ export default function AdminProductUpdate({ user }) {
           </Form.Group>
         )}
 
-        
+
         <Form.Group className="mb-4">
           <Form.Label>📷 새 이미지 추가</Form.Label>
           <Form.Control
@@ -493,28 +499,28 @@ export default function AdminProductUpdate({ user }) {
           )}
         </Form.Group>
 
-        
+
         <div className="d-flex gap-2 justify-content-center flex-wrap mt-4">
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             variant="success"
             disabled={loading}
             style={{ minWidth: 120 }}
           >
             {loading ? "⏳ 수정 중..." : "상품 수정"}
           </Button>
-          
-          <Button 
-              type="button" 
-              variant="danger" 
-              onClick={handleDelete} 
-              disabled={loading}
-              style={{ minWidth: 120 }}
-           >
+
+          <Button
+            type="button"
+            variant="danger"
+            onClick={handleDelete}
+            disabled={loading}
+            style={{ minWidth: 120 }}
+          >
             상품 삭제
           </Button>
 
-          <Button 
+          <Button
             type="button"
             variant="outline-secondary"
             onClick={resetNewImages}
@@ -523,9 +529,9 @@ export default function AdminProductUpdate({ user }) {
           >
             🔄 이미지 초기화
           </Button>
-          
-          <Button 
-            variant="secondary" 
+
+          <Button
+            variant="secondary"
             onClick={() => navigate("/product/list")}
             disabled={loading}
             style={{ minWidth: 120 }}

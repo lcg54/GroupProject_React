@@ -32,10 +32,16 @@ export default function ProductList({ user }) {
 
 
   // 관리자 여부 확인
-  const isAdmin = user && user.role === 'ADMIN';
-
+  const isAdmin = user?.role === 'ADMIN';
+  
   console.log("Current User:", user);
   console.log("Is Admin:", isAdmin);
+
+  useEffect(() =>{
+    console.log("ProdctList - user prop:", user);
+    console.log("ProductList - user.role:", user?.role);
+    console.log("ProductList - isAdmin:", isAdmin);
+  }, [user,isAdmin]);
 
   // URL의 쿼리 파라미터에서 category 값 파싱하여 초기 설정
   useEffect(() => {

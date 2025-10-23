@@ -115,7 +115,7 @@ export default function Product({ user }) {
                   className="d-block w-100 rounded"
                   src={`${API_BASE_URL}/images/${src}`}
                   alt={`상품 이미지 ${i + 1}`}
-                  style={{ height: "400px", objectFit: "cover" }}
+                  style={{ height: "400px", objectFit: "contain" }}
                 />
               </Carousel.Item>
             ))}

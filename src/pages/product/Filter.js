@@ -29,7 +29,7 @@ export const FILTER_OPTIONS = {
     { value: false, label: "대여불가" },
   ],
   sortBy: [
-    { value: null, label: "최신순" },
+    { value: null, label: "최신순 (기본)" },
     { value: "POPULAR", label: "판매량순" },
     { value: "RATING_DESC", label: "평점순" },
     { value: "PRICE_ASC", label: "가격 낮은순" },

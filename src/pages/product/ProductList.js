@@ -163,7 +163,7 @@ export default function ProductList({ user }) {
                 }}
               >
                 <Form.Control
-                  style={{ backgroundColor: '#352907ff' }}
+                  style={{ backgroundColor: '#ffffffff' }}
                   type="text"
                   placeholder="검색어를 입력하세요"
                   value={keyword}
@@ -196,60 +196,42 @@ export default function ProductList({ user }) {
 
       {/* 인기상품 3개 */}
       {popularProducts.length > 0 && (
-        <Row className="mb-4">
-          {popularProducts.slice(0, 3).map(p => {
-            const availableStock = getAvailableStock(p);
-            const isAvailable = availableStock > 0;
-            return (
-              <Col key={p.id} md={4} className="mb-3">
-                <div style={{ position: 'relative' }}>
-                  <Card
-                    className="h-100"
-                    style={{
-                      cursor: "pointer",
-                      opacity: isAvailable ? 1 : 0.55,
-                      filter: isAvailable ? 'none' : 'grayscale(40%)',
-                      backgroundColor: isAvailable ? undefined : '#f7f7f7',
-                    }}
-                    onClick={() => navigate(`/product/${p.id}`)}
-                  >
-                    <Card.Img
-                      variant="top"
-                      src={`${API_BASE_URL}/images/${p.mainImage}`}
-                      alt={p.name}
-                      style={{ width: '100%', height: "200px", objectFit: "cover" }}
-                    />
-                    <Card.Body>
-                      <Card.Title className="mb-1">{p.name}</Card.Title>
-                      <p className="mb-1 text-muted">⭐ 평점(리뷰갯수)</p>
-                      <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
-                    </Card.Body>
-                  </Card>
-
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 8,
-                      left: 8,
-                      background: '#FFD43B',
-                      color: '#000',
-                      padding: '4px 8px',
-                      borderRadius: 12,
-                      fontWeight: 'bold',
-                      fontSize: 12,
-                      zIndex: 3,
-                    }}
-                  >
-                    인기제품
-                  </div>
-
-                  {!isAvailable && (
+        <>
+          <Row className="mb-4">
+            {popularProducts.slice(0, 3).map(p => {
+              const availableStock = getAvailableStock(p);
+              const isAvailable = availableStock > 0;
+              return (
+                <Col key={p.id} md={4} className="mb-3">
+                  <div style={{ position: 'relative' }}>
+                    <Card
+                      className="h-100"
+                      style={{
+                        cursor: "pointer",
+                        opacity: isAvailable ? 1 : 0.55,
+                        filter: isAvailable ? 'none' : 'grayscale(40%)',
+                        backgroundColor: isAvailable ? undefined : '#f7f7f7',
+                      }}
+                      onClick={() => navigate(`/product/${p.id}`)}
+                    >
+                      <Card.Img
+                        variant="top"
+                        src={`${API_BASE_URL}/images/${p.mainImage}`}
+                        alt={p.name}
+                        style={{ width: '100%', height: "200px", objectFit: "cover" }}
+                      />
+                      <Card.Body>
+                        <Card.Title className="mb-1">{p.name}</Card.Title>
+                        <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
+                        <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
+                      </Card.Body>
+                    </Card>
                     <div
                       style={{
                         position: 'absolute',
                         top: 8,
-                        right: 8,
-                        background: 'rgba(255, 0, 0, 0.75)',
+                        left: 8,
+                        background: 'rgba(221, 217, 0, 1)',
                         color: '#fff',
                         padding: '4px 8px',
                         borderRadius: 12,
@@ -257,14 +239,31 @@ export default function ProductList({ user }) {
                         zIndex: 3,
                       }}
                     >
-                      재고소진
+                      인기상품
                     </div>
-                  )}
-                </div>
-              </Col>
-            );
-          })}
-        </Row>
+                    {!isAvailable && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          background: 'rgba(255, 0, 0, 0.75)',
+                          color: '#fff',
+                          padding: '4px 8px',
+                          borderRadius: 12,
+                          fontSize: 12,
+                          zIndex: 3,
+                        }}
+                      >
+                        재고소진
+                      </div>
+                    )}
+                  </div>
+                </Col>
+              );
+            })}
+          </Row>
+        </>
       )}
 
       {/* 일반 목록 (가로형 카드) */}
@@ -297,7 +296,7 @@ export default function ProductList({ user }) {
             />
             <div className="flex-grow-1">
               <h5 className="mb-1">{product.name}</h5>
-              <p className="mb-1 text-muted">⭐ 평점(리뷰갯수)</p>
+              <p className="mb-1 text-muted">⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})</p>
               <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
             </div>
             {!isAvailable && (

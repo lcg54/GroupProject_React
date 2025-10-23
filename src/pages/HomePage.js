@@ -1,6 +1,5 @@
-import { Container, Row, Col, Image, Carousel } from 'react-bootstrap';
+import { Container, Image, Carousel } from 'react-bootstrap';
 import { useNavigate } from "react-router-dom";
-import DoubleCircle from "./home/DoubleCircle";
 import CategoryGrid from "./product/CategoryGrid";
 import { useEffect, useState } from 'react';
 import { API_BASE_URL } from '../config/url';
@@ -35,7 +34,6 @@ const HeroSection = () => {
 
 
   return (
-
     <Container className="py-5" style={{ backgroundColor: '#3CB371', color: '#000000ff', maxWidth: '800px' }}>
       {/* 텍스트 영역 */}
       <div style={{ textAlign: 'center', marginBottom: '4rem' }}>

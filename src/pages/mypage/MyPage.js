@@ -6,9 +6,16 @@ import ServiceDate from './ServiceDate';
 import ExtensionOrReturn from './EOR/ExtensionOrReturn';
 import CartList from '../CartList';
 import Receipt from './Receipt';
+import { useNavigate } from "react-router-dom";
+import '../commonness/commonness.css'
 
 const MyPage = ({ user }) => {
+  const navigate = useNavigate();
   const [clickedButton, setClickedButton] = useState(null);
+
+  const useicon = [
+    { icons: "🛒" },
+  ];
 
   const buttons = [
     { icon: "🛒", text: "내 카트" },
@@ -30,11 +37,11 @@ const MyPage = ({ user }) => {
       </Container>
     );
   }
-  
+
   function renderContent(button) {
     switch (button.text) {
       case '내 카트':
-        return <CartList />;
+        return navigate('/cart')
       // 이렇게 간의 페이지처럼 보여주던지 경로로 아에 넘기든 할 생각
       case '결제 내역':
         return <Receipt />;
@@ -55,10 +62,12 @@ const MyPage = ({ user }) => {
   return (
     <Container className="mt-4" style={{ maxWidth: "750px" }}>
       {/* 인사말 */}
-      <div className="mb-4 d-flex justify-content-between align-items-center">
-        <h3>안녕하세요 {user.name}님</h3>
+      <div
+        className="mb-4 d-flex justify-content-between align-items-center"
+        style={{ maxWidth: '900px', backgroundColor: '#3CB371', padding: '1rem 2rem', borderRadius: '10px' }}>
+        <h3>{user.name}님</h3>
         <span className="badge bg-warning text-dark" style={{ fontSize: "1rem" }}>
-          {user.grade} 등급
+          {useicon.icons}등급
         </span>
       </div>
 
@@ -68,8 +77,7 @@ const MyPage = ({ user }) => {
           <Col key={idx} xs={4} className="mb-4">
             <Button
               variant="outline-primary"
-              className="w-100 d-flex flex-column align-items-center py-4 rounded-3"
-              style={{ minHeight: "120px", fontSize: "1.1rem" }}
+              className="w-100 d-flex flex-column align-items-center py-4 rounded-3 button button:hover button-Size"
               onClick={() => handleClick(button)} // 클릭 이벤트
             >
               <span style={{ fontSize: "2.5rem", marginBottom: "8px" }}>{button.icon}</span>

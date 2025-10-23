@@ -1,4 +1,6 @@
 import { Button, Dropdown } from "react-bootstrap";
+import '../commonness/commonness.css'
+
 
 export const FILTER_OPTIONS = {
   category: [
@@ -27,7 +29,7 @@ export const FILTER_OPTIONS = {
     { value: false, label: "대여불가" },
   ],
   sortBy: [
-    { value: null, label: "최신순" },
+    { value: null, label: "최신순 (기본)" },
     { value: "POPULAR", label: "판매량순" },
     { value: "RATING_DESC", label: "평점순" },
     { value: "PRICE_ASC", label: "가격 낮은순" },
@@ -43,7 +45,9 @@ export const BrandDropdown = ({ brand, setBrand }) => {
   };
   return (
     <Dropdown>
-      <Dropdown.Toggle variant="outline-primary">브랜드</Dropdown.Toggle>
+      <Dropdown.Toggle
+        variant="outline-primary"
+      >브랜드</Dropdown.Toggle>
       <Dropdown.Menu>
         {options.map(o => (
           <Dropdown.Item
@@ -84,7 +88,7 @@ export const SortDropdown = ({ sortBy, setSortBy }) => {
         ))}
       </Dropdown.Menu>
     </Dropdown>
-  );  
+  );
 };
 
 
@@ -114,7 +118,7 @@ export const SelectedFilter = ({ category, setCategory, brand, setBrand, availab
           {FILTER_OPTIONS.brand.find(o => o.value === b)?.label} ✕
         </Button>
       ))}
-    
+
       {available !== null && (
         <Button
           variant="secondary"

@@ -4,7 +4,6 @@ import { Container, Form, Button, Alert } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 
-
 const CATEGORY_OPTIONS = [
   "REFRIGERATOR", "WASHER", "DRYER", "AIRCON", 
   "TV", "OVEN", "MICROWAVE", "OTHER"
@@ -18,7 +17,6 @@ export default function AdminProductUpdate({ user }) {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -32,15 +30,12 @@ export default function AdminProductUpdate({ user }) {
     repairStock: 0,
   });
 
-  
-
   const [existingImages, setExistingImages] = useState([]);
   const [newImages, setNewImages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
   const [error, setError] = useState("");
 
-  
   useEffect(() => {
     console.log("ProductUpdate - ID from params:", id); 
     
@@ -67,7 +62,6 @@ export default function AdminProductUpdate({ user }) {
       
       console.log("Loaded product data:", product); 
       
-      
       setFormData({
         name: product.name || "",
         category: product.category || "",
@@ -80,7 +74,6 @@ export default function AdminProductUpdate({ user }) {
         rentedStock: Number(product.rentedStock) || 0,
         repairStock: Number(product.repairStock) || 0,
       });
-      
       
       let imageUrls = [];
       if (product.images && Array.isArray(product.images)) {
@@ -109,7 +102,6 @@ export default function AdminProductUpdate({ user }) {
     }
   };
 
-  
   const handleInputChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
@@ -120,18 +112,15 @@ export default function AdminProductUpdate({ user }) {
     if (error) setError("");
   };
 
-  
   const removeExistingImage = (url) => {
     setExistingImages(prev => prev.filter(img => img !== url));
   };
 
-  
   const handleNewImagesChange = (e) => {
     const files = [...e.target.files];
     setNewImages(files);
   };
 
-  
   const validateForm = () => {
     if (!formData.name.trim()) return "상품명을 입력하세요.";
     if (!formData.category) return "카테고리를 선택하세요.";
@@ -153,20 +142,16 @@ export default function AdminProductUpdate({ user }) {
     return null;
   };
 
-  
   const resetNewImages = () => {
     setNewImages([]);
     setError("");
-    
     
     const fileInput = document.querySelector('input[type="file"]');
     if (fileInput) fileInput.value = '';
   };
 
-  
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
     
     const validationError = validateForm();
     if (validationError) {
@@ -180,11 +165,9 @@ export default function AdminProductUpdate({ user }) {
     try {
       const formDataToSend = new FormData();
       
-      
       Object.keys(formData).forEach(key => {
         formDataToSend.append(key, formData[key].toString());
       });
-      
       
       const cleanExistingImages = existingImages.map(url => {
         if (url.includes('/images/')) {
@@ -193,7 +176,6 @@ export default function AdminProductUpdate({ user }) {
         return url;
       });
       formDataToSend.append("existingImages", JSON.stringify(cleanExistingImages));
-      
       
       newImages.forEach(img => formDataToSend.append("mainImage", img));
 
@@ -207,7 +189,6 @@ export default function AdminProductUpdate({ user }) {
       await axios.put(`${API_BASE_URL}/product/${id}`, formDataToSend, config);
       alert("✅ 상품 수정이 완료되었습니다!");
       
-      
       navigate("/product/list");
 
     } catch (error) {
@@ -218,7 +199,6 @@ export default function AdminProductUpdate({ user }) {
     }
   };
 
-  
   if (initialLoading) {
     return (
       <Container style={{ maxWidth: 600 }} className="mt-4">
@@ -238,7 +218,6 @@ export default function AdminProductUpdate({ user }) {
      return;
  }
  
- 
  const isConfirmed = window.confirm(`"${formData.name}" 상품을 정말로 삭제하시겠습니까?`);
  if (!isConfirmed) {
  return; // 사용자가 취소함
@@ -256,8 +235,6 @@ export default function AdminProductUpdate({ user }) {
  });
 
       alert(`✅ 상품 "${formData.name}"이(가) 성공적으로 삭제되었습니다.`);
-
-
       navigate("/product/list");
 
  } catch (error) {
@@ -267,7 +244,6 @@ export default function AdminProductUpdate({ user }) {
         setLoading(false);
   }
 
-
  };
 
     const availableStock = Math.max(
@@ -276,8 +252,6 @@ export default function AdminProductUpdate({ user }) {
         + formData.repairStock),
         0
     );
-
-
   return (
     <Container style={{ maxWidth: 600 }} className="mt-4">
       <div className="d-flex align-items-center mb-4">
@@ -285,7 +259,6 @@ export default function AdminProductUpdate({ user }) {
           상품 수정
         </h2>
       </div>
-
       {error && <Alert variant="danger">{error}</Alert>}
 
       <Form onSubmit={handleSubmit}>
@@ -301,7 +274,6 @@ export default function AdminProductUpdate({ user }) {
           />
         </Form.Group>
 
-        
         <Form.Group className="mb-3">
           <Form.Label>📂 카테고리</Form.Label>
           <Form.Select
@@ -317,8 +289,6 @@ export default function AdminProductUpdate({ user }) {
             ))}
           </Form.Select>
         </Form.Group>
-
-        
         <Form.Group className="mb-3">
           <Form.Label>🏷️ 브랜드</Form.Label>
           <Form.Select
@@ -334,8 +304,6 @@ export default function AdminProductUpdate({ user }) {
             ))}
           </Form.Select>
         </Form.Group>
-
-        
         <Form.Group className="mb-3">
           <Form.Label>📄 상세설명</Form.Label>
           <Form.Control
@@ -346,8 +314,6 @@ export default function AdminProductUpdate({ user }) {
             onChange={(e) => handleInputChange('description', e.target.value)}
           />
         </Form.Group>
-
-        
         <div className="row mb-3">
           <div className="col-md-6">
             <Form.Group>
@@ -433,7 +399,6 @@ export default function AdminProductUpdate({ user }) {
             onChange={(e) => handleInputChange('available', e.target.checked)}
           />
         </Form.Group>
-
         
         {existingImages.length > 0 && (
           <Form.Group className="mb-3">

@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-import { Card, Col, Container, Form, Row, Spinner } from "react-bootstrap";
-import { Search } from "react-bootstrap-icons";
+import { Card, Col, Container, Form, Row, Spinner, Button } from "react-bootstrap";
+import { Search, PencilSquare, Trash } from "react-bootstrap-icons";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
@@ -27,6 +27,12 @@ export default function ProductList({ user }) {
 
   const observer = useRef();
   const searchRef = useRef(null);
+
+  // 관리자 여부 확인
+  const isAdmin = user && user.role === 'ADMIN';
+
+  console.log("Current User:", user);
+  console.log("Is Admin:", isAdmin);
 
   // 필터 바뀌면 목록 리셋
   useEffect(() => {
@@ -68,12 +74,12 @@ export default function ProductList({ user }) {
     }
   };
 
-  const fetchProductList = async () => {
+  const fetchProductList = async (reset = false) => {
     setLoading(true);
     try {
       const res = await axios.get(`${API_BASE_URL}/product/list`, {
         params: {
-          page: page,
+          page: reset ? 1 : page,
           size: 10,
           category: category.length > 0 ? category : null,
           brand: brand.length > 0 ? brand : null,
@@ -86,6 +92,13 @@ export default function ProductList({ user }) {
         ...p, monthlyPrice: p.price / (6 * 10) - 2100,
       }));
       if (newProducts.length === 0) setHasMore(false);
+
+      if (reset) {
+        setProducts(newProducts);
+        setPage(1);
+        setHasMore(newProducts.length > 0);
+      }
+      
       else setProducts(prev => [...prev, ...newProducts]);
     } catch (err) {
       alert("상품 목록을 불러오는 중 오류가 발생했습니다.");
@@ -106,17 +119,24 @@ export default function ProductList({ user }) {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-  // const handleDelete = async (product) => {
-  //   if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
-  //   try {
-  //     const res = await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
-  //     setProducts(prev => prev.filter(p => p.id !== product.id));
-  //     alert(res.data);
-  //   } catch (err) {
-  //     console.log(err);
-  //     alert("상품 삭제 중 오류가 발생했습니다.");
-  //   }
-  // };
+  const handleDelete = async (e, product) => {
+    e.stopPropagation(); // 카드 클릭 이벤트 막기
+    if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
+
+    setLoading(true);
+    try {
+      await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
+      setProducts(prev => prev.filter(p => p.id !== product.id));
+      setPopularProducts(prev => prev.filter(p => p.id !== product.id));
+      
+      fetchProductList(true); 
+    } catch (err) {
+      console.error("상품 삭제 중 오류 발생:", err);
+      alert("상품 삭제 중 오류가 발생했습니다. 권한을 확인해주세요.");
+    } finally{
+      setLoading(false);
+    }
+  };
 
   // 재고 계산
   const getAvailableStock = (p) => 
@@ -219,6 +239,27 @@ export default function ProductList({ user }) {
                         <Card.Title className="mb-1">{p.name}</Card.Title>
                         <p className="mb-1 text-muted">⭐ 평점(리뷰갯수)</p>
                         <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
+                        
+                        {isAdmin && (
+                            <div className="d-flex gap-2 mt-2">
+                                <Button 
+                                    size="sm" 
+                                    variant="outline-primary" 
+                                    onClick={(e) => { e.stopPropagation(); navigate(`/admin/product/update/${p.id}`); }}
+                                    style={{ flex: 1 }}
+                                >
+                                    <PencilSquare size={14} className="me-1" /> 수정
+                                </Button>
+                                <Button 
+                                    size="sm" 
+                                    variant="outline-danger" 
+                                    onClick={(e) => handleDelete(e, p)}
+                                    style={{ flex: 1 }}
+                                >
+                                    <Trash size={14} className="me-1" /> 삭제
+                                </Button>
+                            </div>
+                        )}
                       </Card.Body>
                     </Card>
                     
@@ -297,6 +338,30 @@ export default function ProductList({ user }) {
               <p className="mb-1 text-muted">⭐ 평점(리뷰갯수)</p>
               <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
             </div>
+            {isAdmin && (
+                <div 
+                    className="d-flex gap-2 ms-3"
+                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} // 클릭이 잘 되도록 z-index 설정
+                >
+                    <Button 
+                        size="sm" 
+                        variant="primary" 
+                        onClick={(e) => { 
+                            e.stopPropagation(); // 부모 카드 클릭 이벤트 막기
+                            navigate(`/admin/product/update/${product.id}`); 
+                        }}
+                    >
+                        <PencilSquare size={14} />
+                    </Button>
+                    <Button 
+                        size="sm" 
+                        variant="danger" 
+                        onClick={(e) => handleDelete(e, product)}
+                    >
+                        <Trash size={14} />
+                    </Button>
+                </div>
+            )}
             {!isAvailable && (
               <div
                 style={{

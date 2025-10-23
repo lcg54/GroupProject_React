@@ -1,14 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-<<<<<<< HEAD
+
 import { Card, Col, Container, Form, Row, Spinner, Button } from "react-bootstrap";
 import { Search, PencilSquare, Trash } from "react-bootstrap-icons";
-import { useNavigate } from "react-router-dom";
-=======
-import { Card, Col, Container, Form, Row, Spinner } from "react-bootstrap";
-import { Search } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
->>>>>>> cc6891dd3dc6a19fd6d9c3d52deae5c1ccd865e5
+
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
 import CategoryGrid from "./CategoryGrid";
@@ -34,13 +30,13 @@ export default function ProductList({ user }) {
   const observer = useRef();
   const searchRef = useRef(null);
 
-<<<<<<< HEAD
+
   // 관리자 여부 확인
   const isAdmin = user && user.role === 'ADMIN';
 
   console.log("Current User:", user);
   console.log("Is Admin:", isAdmin);
-=======
+
   // URL의 쿼리 파라미터에서 category 값 파싱하여 초기 설정
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -49,7 +45,7 @@ export default function ProductList({ user }) {
       setCategory([cat]);
     }
   }, [location.search]);
->>>>>>> cc6891dd3dc6a19fd6d9c3d52deae5c1ccd865e5
+
 
   // 필터 바뀌면 목록 리셋
   useEffect(() => {
@@ -63,7 +59,7 @@ export default function ProductList({ user }) {
     if (hasMore) {
       fetchProductList();
     }
-  }, [page, category, brand, available, sortBy]);
+  }, [page, category, brand, available, sortBy, keyword]);
 
   // 인기상품 3개 불러오기 (고정)
   useEffect(() => {
@@ -110,23 +106,18 @@ export default function ProductList({ user }) {
       const newProducts = res.data.products.map(p => ({
         ...p, monthlyPrice: p.price / (6 * 10) - 2100,
       }));
-<<<<<<< HEAD
-      if (newProducts.length === 0) setHasMore(false);
 
       if (reset) {
         setProducts(newProducts);
         setPage(1);
         setHasMore(newProducts.length > 0);
-      }
-      
-      else setProducts(prev => [...prev, ...newProducts]);
-=======
-      if (newProducts.length === 0) {
-        setHasMore(false);
       } else {
         setProducts(prev => [...prev, ...newProducts]);
+        if (newProducts.length === 0) {
+        setHasMore(false);
       }
->>>>>>> cc6891dd3dc6a19fd6d9c3d52deae5c1ccd865e5
+    }
+
     } catch (err) {
       alert("상품 목록을 불러오는 중 오류가 발생했습니다.");
     } finally {
@@ -146,10 +137,14 @@ export default function ProductList({ user }) {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
-<<<<<<< HEAD
-  const handleDelete = async (e, product) => {
+  const handleUpdate = useCallback((e, productId) => {
+  e.stopPropagation(); // 카드 클릭 방지
+  navigate(`/admin/product/update/${productId}`);
+  }, [navigate]);
+
+  const handleDelete = useCallback(async (e, product) => {
     e.stopPropagation(); // 카드 클릭 이벤트 막기
-    if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
+   if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
 
     setLoading(true);
     try {
@@ -164,15 +159,14 @@ export default function ProductList({ user }) {
     } finally{
       setLoading(false);
     }
-  };
+  }, [navigate, fetchProductList]);
 
   // 재고 계산
-  const getAvailableStock = (p) => 
-=======
-  // 재고 계산 함수
-  const getAvailableStock = (p) =>
->>>>>>> cc6891dd3dc6a19fd6d9c3d52deae5c1ccd865e5
-    (p.totalStock ?? 0) - (p.reservedStock ?? 0) - (p.rentedStock ?? 0) - (p.repairStock ?? 0);
+  const getAvailableStock = (p) => {
+    return(
+    (p.totalStock ?? 0) - (p.reservedStock ?? 0) - (p.rentedStock ?? 0) - (p.repairStock ?? 0)
+    );
+  };
 
   return (
     <Container className="mt-4" style={{ maxWidth: "900px" }}>
@@ -226,7 +220,7 @@ export default function ProductList({ user }) {
                       setProducts([]);
                       setPage(1);
                       setHasMore(true);
-                      fetchProductList();
+                      fetchProductList(true);
                     } else if (e.key === "Escape") {
                       setShowSearch(false);
                     }
@@ -280,7 +274,7 @@ export default function ProductList({ user }) {
                                 <Button 
                                     size="sm" 
                                     variant="outline-primary" 
-                                    onClick={(e) => { e.stopPropagation(); navigate(`/admin/product/update/${p.id}`); }}
+                                    onClick={(e) => handleUpdate(e,p.id)}
                                     style={{ flex: 1 }}
                                 >
                                     <PencilSquare size={14} className="me-1" /> 수정
@@ -371,26 +365,22 @@ export default function ProductList({ user }) {
               <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
             </div>
             {isAdmin && (
-                <div 
-                    className="d-flex gap-2 ms-3"
-                    style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', zIndex: 2 }} // 클릭이 잘 되도록 z-index 설정
-                >
+                <div className="d-flex flex-column gap-1 ms-3">
                     <Button 
                         size="sm" 
-                        variant="primary" 
-                        onClick={(e) => { 
-                            e.stopPropagation(); // 부모 카드 클릭 이벤트 막기
-                            navigate(`/admin/product/update/${product.id}`); 
-                        }}
+                        variant="outline-primary" 
+                        onClick={(e) => handleUpdate(e, product.id)}
                     >
-                        <PencilSquare size={14} />
+                        <PencilSquare size={14} className="me-1" /> 
+                        수정
                     </Button>
                     <Button 
                         size="sm" 
-                        variant="danger" 
+                        variant="outline-danger" 
                         onClick={(e) => handleDelete(e, product)}
                     >
-                        <Trash size={14} />
+                        <Trash size={14} className="me-1" />
+                        삭제
                     </Button>
                 </div>
             )}

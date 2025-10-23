@@ -13,9 +13,10 @@ const BRAND_OPTIONS = [
   "SAMSUNG", "LG", "DAEWOO", "WINIA", "CUCKOO", "SK_MAGIC"
 ];
 
-export default function AdminProductUpdate({ user }) {
+export default function ProductUpdateForm({ user }) {
   const navigate = useNavigate();
   const { id } = useParams();
+  console.log("useParams ID:", id);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -38,13 +39,11 @@ export default function AdminProductUpdate({ user }) {
 
   useEffect(() => {
     console.log("ProductUpdate - ID from params:", id); 
-    
+    console.warn("⚠️ ID가 아직 준비되지 않음:", id);
     if (!id || id === "undefined" || id === ":id" ) {
+      
       setInitialLoading(false);
       return;
-    } else {
-      setError("❌ 유효하지 않은 상품 ID입니다.");
-      setTimeout(() => navigate("/"), 2000);
     }
 
     loadProductData();

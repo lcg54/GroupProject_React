@@ -109,7 +109,7 @@ export default function Product({ user }) {
       <Row className="mb-5">
         <Col md={6}>
           <Carousel>
-            {[product.mainImage, ...(product.images?.map(img => img.url) || [])].map((src, i) => (
+            {[product.mainImage, ...(product.images || [])].map((src, i) => (
               <Carousel.Item key={i}>
                 <img
                   className="d-block w-100 rounded"

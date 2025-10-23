@@ -8,8 +8,9 @@ import CartList from '../CartList';
 import Receipt from './Receipt';
 import { useNavigate } from "react-router-dom";
 import '../commonness/commonness.css'
+import EditPage from "../EditPage";
 
-const MyPage = ({ user }) => {
+const MyPage = ({ user, setUser }) => {
   const navigate = useNavigate();
   const [clickedButton, setClickedButton] = useState(null);
 
@@ -50,7 +51,7 @@ const MyPage = ({ user }) => {
       case '내 문의사항':
         return <p>메뉴4 전용 내용</p>;
       case '내 정보 수정':
-        return <p>메뉴5 전용 내용</p>;
+        return <EditPage user={user} setUser={setUser} />;
       case '연장/반납':
         return <ExtensionOrReturn />;
       default:
@@ -65,7 +66,7 @@ const MyPage = ({ user }) => {
       <div
         className="mb-4 d-flex justify-content-between align-items-center"
         style={{ maxWidth: '900px', backgroundColor: '#3CB371', padding: '1rem 2rem', borderRadius: '10px' }}>
-        <h3>{user.name}님</h3>
+        <h3>{/*{user.profileImage}*/}{user.name}님</h3>
         <span className="badge bg-warning text-dark" style={{ fontSize: "1rem" }}>
           {useicon.icons}등급
         </span>

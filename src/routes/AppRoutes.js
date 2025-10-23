@@ -26,7 +26,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/mypage" element={<MyPage user={user} />} />
+      <Route path="/mypage" element={<MyPage user={user} setUser={setUser} />} />
       
       <Route path="/product/list" element={<ProductList user={user} />} />
       <Route path="/product/:id" element={<Product user={user} />} />

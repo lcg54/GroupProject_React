@@ -1,11 +1,22 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 import "./SignupPage.css";
 
 export default function AuthPage({ setUser }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isSignUp, setIsSignUp] = useState(false);
+
+  // URL 경로에 따라 초기 화면 설정
+  useEffect(() => {
+    if (location.pathname === '/member/signup') {
+      setIsSignUp(true);
+    } else if (location.pathname === '/member/login') {
+      setIsSignUp(false);
+    }
+  }, [location.pathname]);
+
 
   // 회원가입 폼
   const [signupForm, setSignupForm] = useState({
@@ -64,6 +75,7 @@ export default function AuthPage({ setUser }) {
     if (!signupForm.email.trim()) return "이메일을 입력하세요.";
     if (!/^\S+@\S+\.\S+$/.test(signupForm.email)) return "이메일 형식이 올바르지 않습니다.";
     if (signupForm.password.length < 8) return "비밀번호는 특수 문자 포함 최소 8자 이상이어야 합니다.";
+    if (!/[!@#$%]/.test(signupForm.password)) return "비밀번호는 ! @ # $ % 중 하나 이상의 특수문자를 포함해야 합니다.";
     if (signupForm.password !== signupForm.passwordConfirm) return "비밀번호가 일치하지 않습니다.";
     return null;
   };
@@ -147,183 +159,183 @@ export default function AuthPage({ setUser }) {
 
   return (
     <div className="signup-page">
-    <div className="auth-wrapper">
-      <div className={`auth-container ${isSignUp ? 'right-panel-active' : ''}`}>
+      <div className="auth-wrapper">
+        <div className={`auth-container ${isSignUp ? 'right-panel-active' : ''}`}>
 
-        {/* 로그인 폼 */}
-        <div className="sign-in-container">
-          <form onSubmit={handleLogin}>
-            <h1>로그인</h1>
-            <div className="social-links">
-              <div><a href="#"><i className="fa fa-facebook" aria-hidden="true"></i></a></div>
-              <div><a href="#"><i className="fa fa-twitter" aria-hidden="true"></i></a></div>
-              <div><a href="#"><i className="fa fa-google" aria-hidden="true"></i></a></div>
-            </div>
-            <span>또는 계정으로 로그인하세요</span>
-            <input
-              name="username"
-              value={loginForm.username}
-              onChange={onLoginChange}
-              placeholder="아이디"
-              autoComplete="username"
-            />
-            <input
-              name="password"
-              type="password"
-              value={loginForm.password}
-              onChange={onLoginChange}
-              placeholder="비밀번호"
-              autoComplete="current-password"
-            />
-            {!isSignUp && error && <div className="error-message">{error}</div>}
-            <button className="form_btn" type="submit" disabled={loading}>
-              {loading ? "로그인 중..." : "로그인"}
-            </button>
-          </form>
-        </div>
-
-        {/* 회원가입 폼 */}
-        <div className="sign-up-container">
-          <form onSubmit={handleSignup} encType="multipart/form-data">
-            <h1>회원가입</h1>
-            <div className="social-links">
-              <div><a href="#"><i className="fa fa-facebook" aria-hidden="true"></i></a></div>
-              <div><a href="#"><i className="fa fa-twitter" aria-hidden="true"></i></a></div>
-              <div><a href="#"><i className="fa fa-google" aria-hidden="true"></i></a></div>
-            </div>
-            <span>또는 이메일로 가입하세요</span>
-
-            <input
-              name="username"
-              value={signupForm.username}
-              onChange={onSignupChange}
-              placeholder="아이디"
-              autoComplete="username"
-            />
-            <input
-              name="name"
-              value={signupForm.name}
-              onChange={onSignupChange}
-              placeholder="이름"
-            />
-            <input
-              name="email"
-              value={signupForm.email}
-              onChange={onSignupChange}
-              placeholder="이메일"
-              autoComplete="email"
-            />
-            <input
-              name="password"
-              type="password"
-              value={signupForm.password}
-              onChange={onSignupChange}
-              placeholder="비밀번호 (특수 문자 + 최소 8자)"
-              autoComplete="new-password"
-            />
-            <input
-              name="passwordConfirm"
-              type="password"
-              value={signupForm.passwordConfirm}
-              onChange={onSignupChange}
-              placeholder="비밀번호 확인"
-              autoComplete="new-password"
-            />
-            <input
-              name="phone"
-              value={signupForm.phone}
-              onChange={onSignupChange}
-              placeholder="전화번호 (선택)"
-            />
-            <input
-              name="address"
-              value={signupForm.address}
-              onChange={onSignupChange}
-              placeholder="주소 (선택)"
-            />
-
-            <label style={{
-              marginTop: 8,
-              width: "85%",
-              textAlign: "left",
-              fontSize: 13,
-              color: "#666",
-              cursor: "pointer"
-            }}>
-              프로필 이미지 (선택)
+          {/* 로그인 폼 */}
+          <div className="sign-in-container">
+            <form onSubmit={handleLogin}>
+              <h1>로그인</h1>
+              <div className="social-links">
+                <div><a href="#"><i className="fa fa-facebook" aria-hidden="true"></i></a></div>
+                <div><a href="#"><i className="fa fa-twitter" aria-hidden="true"></i></a></div>
+                <div><a href="#"><i className="fa fa-google" aria-hidden="true"></i></a></div>
+              </div>
+              <span>또는 계정으로 로그인하세요</span>
               <input
-                type="file"
-                accept="image/*"
-                onChange={onFileChange}
-                style={{
-                  marginTop: 8,
-                  fontSize: 12,
-                  padding: 8
-                }}
+                name="username"
+                value={loginForm.username}
+                onChange={onLoginChange}
+                placeholder="아이디"
+                autoComplete="username"
               />
-            </label>
+              <input
+                name="password"
+                type="password"
+                value={loginForm.password}
+                onChange={onLoginChange}
+                placeholder="비밀번호"
+                autoComplete="current-password"
+              />
+              {!isSignUp && error && <div className="error-message">{error}</div>}
+              <button className="form_btn" type="submit" disabled={loading}>
+                {loading ? "로그인 중..." : "로그인"}
+              </button>
+            </form>
+          </div>
 
-            {profilePreview && (
-              <div style={{ marginTop: 12, marginBottom: 8 }}>
-                <div style={{ fontSize: 12, marginBottom: 6, color: "#666" }}>미리보기:</div>
-                <img
-                  src={profilePreview}
-                  alt="preview"
+          {/* 회원가입 폼 */}
+          <div className="sign-up-container">
+            <form onSubmit={handleSignup} encType="multipart/form-data">
+              <h1>회원가입</h1>
+              <div className="social-links">
+                <div><a href="#"><i className="fa fa-facebook" aria-hidden="true"></i></a></div>
+                <div><a href="#"><i className="fa fa-twitter" aria-hidden="true"></i></a></div>
+                <div><a href="#"><i className="fa fa-google" aria-hidden="true"></i></a></div>
+              </div>
+              <span>또는 이메일로 가입하세요</span>
+
+              <input
+                name="username"
+                value={signupForm.username}
+                onChange={onSignupChange}
+                placeholder="아이디"
+                autoComplete="username"
+              />
+              <input
+                name="name"
+                value={signupForm.name}
+                onChange={onSignupChange}
+                placeholder="이름"
+              />
+              <input
+                name="email"
+                value={signupForm.email}
+                onChange={onSignupChange}
+                placeholder="이메일"
+                autoComplete="email"
+              />
+              <input
+                name="password"
+                type="password"
+                value={signupForm.password}
+                onChange={onSignupChange}
+                placeholder="비밀번호 (특수 문자 + 최소 8자)"
+                autoComplete="new-password"
+              />
+              <input
+                name="passwordConfirm"
+                type="password"
+                value={signupForm.passwordConfirm}
+                onChange={onSignupChange}
+                placeholder="비밀번호 확인"
+                autoComplete="new-password"
+              />
+              <input
+                name="phone"
+                value={signupForm.phone}
+                onChange={onSignupChange}
+                placeholder="전화번호 (선택)"
+              />
+              <input
+                name="address"
+                value={signupForm.address}
+                onChange={onSignupChange}
+                placeholder="주소 (선택)"
+              />
+
+              <label style={{
+                marginTop: 8,
+                width: "85%",
+                textAlign: "left",
+                fontSize: 13,
+                color: "#666",
+                cursor: "pointer"
+              }}>
+                프로필 이미지 (선택)
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onFileChange}
                   style={{
-                    width: 100,
-                    height: 100,
-                    objectFit: "cover",
-                    borderRadius: 50,
-                    border: "3px solid #e0e0e0"
+                    marginTop: 8,
+                    fontSize: 12,
+                    padding: 8
                   }}
                 />
-              </div>
-            )}
+              </label>
 
-            {isSignUp && error && <div className="error-message">{error}</div>}
-            {isSignUp && successMsg && <div className="success-message">{successMsg}</div>}
+              {profilePreview && (
+                <div style={{ marginTop: 12, marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, marginBottom: 6, color: "#666" }}>미리보기:</div>
+                  <img
+                    src={profilePreview}
+                    alt="preview"
+                    style={{
+                      width: 100,
+                      height: 100,
+                      objectFit: "cover",
+                      borderRadius: 50,
+                      border: "3px solid #e0e0e0"
+                    }}
+                  />
+                </div>
+              )}
 
-            <button className="form_btn" type="submit" disabled={loading} style={{ marginTop: 12 }}>
-              {loading ? "가입 중..." : "회원가입"}
-            </button>
-          </form>
-        </div>
+              {isSignUp && error && <div className="error-message">{error}</div>}
+              {isSignUp && successMsg && <div className="success-message">{successMsg}</div>}
 
-        {/* 오버레이 패널 */}
-        <div className="overlay-container">
-          <div className="overlay-left">
-            <h1>환영합니다!</h1>
-            <p>계정이 있으시면 로그인해주세요</p>
-            <button
-              className="overlay_btn"
-              type="button"
-              onClick={() => {
-                setIsSignUp(false);
-                setError(null);
-                setSuccessMsg(null);
-              }}
-            >
-              로그인
-            </button>
+              <button className="form_btn" type="submit" disabled={loading} style={{ marginTop: 12 }}>
+                {loading ? "가입 중..." : "회원가입"}
+              </button>
+            </form>
           </div>
-          <div className="overlay-right">
-            <h1>안녕하세요!</h1>
-            <p>방문이 처음이시라면 회원가입 후 다양한 상품들을 이용해 보세요.</p>
-            <button
-              className="overlay_btn"
-              type="button"
-              onClick={() => {
-                setIsSignUp(true);
-                setError(null);
-                setSuccessMsg(null);
-              }}
-            >
-              회원가입
-            </button>
+
+          {/* 오버레이 패널 */}
+          <div className="overlay-container">
+            <div className="overlay-left">
+              <h1>환영합니다!</h1>
+              <p>계정이 있으시면 로그인해주세요</p>
+              <button
+                className="overlay_btn"
+                type="button"
+                onClick={() => {
+                  setIsSignUp(false);
+                  setError(null);
+                  setSuccessMsg(null);
+                }}
+              >
+                로그인
+              </button>
+            </div>
+            <div className="overlay-right">
+              <h1>안녕하세요!</h1>
+              <p>방문이 처음이시라면 회원가입 후 다양한 상품들을 이용해 보세요.</p>
+              <button
+                className="overlay_btn"
+                type="button"
+                onClick={() => {
+                  setIsSignUp(true);
+                  setError(null);
+                  setSuccessMsg(null);
+                }}
+              >
+                회원가입
+              </button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </div>
   );
 }

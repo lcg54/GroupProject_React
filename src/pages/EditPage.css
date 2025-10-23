@@ -1,0 +1,315 @@
+/* 공통 박스 사이징 */
+.edit-page * {
+  box-sizing: border-box;
+}
+
+.edit-page {
+  font-family: "Montserrat", sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+.edit-page .wrapper {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 60px 20px;
+}
+
+.edit-page .container {
+  border-radius: 10px;
+  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+  width: 600px;
+  max-width: 100%;
+  max-height: 85vh;
+  overflow-y: auto;
+  background: #fff;
+
+  /* 스크롤바 스타일링 */
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+.edit-page .container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.edit-page .container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.edit-page .container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.edit-page .container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* form */
+.edit-page form {
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  padding: 50px;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-page form input {
+  background: #f5f5f5;
+  padding: 12px;
+  margin: 8px 0;
+  width: 85%;
+  border: 2px solid #e0e0e0;
+  outline: none;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.edit-page form input:focus {
+  border-color: #333;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+}
+
+/* 버튼 그룹 */
+.edit-page .button-group {
+  display: flex;
+  gap: 10px;
+  width: 85%;
+  margin-top: 20px;
+  flex-wrap: wrap;
+}
+
+/* 버튼 공통 스타일 */
+.edit-page .form_btn {
+  flex: 1;
+  min-width: 120px;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  font-size: 13px;
+  font-weight: bold;
+  padding: 12px 20px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.edit-page .form_btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.edit-page .form_btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.edit-page .form_btn:disabled {
+  background: #999 !important;
+  cursor: not-allowed;
+  transform: none;
+  opacity: 0.6;
+}
+
+/* 버튼 색상 */
+.edit-page .btn-primary {
+  background: #333;
+}
+
+.edit-page .btn-primary:hover {
+  background: #000;
+}
+
+.edit-page .btn-secondary {
+  background: #6c757d;
+}
+
+.edit-page .btn-secondary:hover {
+  background: #5a6268;
+}
+
+.edit-page .btn-danger {
+  background: #dc3545;
+}
+
+.edit-page .btn-danger:hover {
+  background: #c82333;
+}
+
+/* 메시지 */
+.edit-page .error-message {
+  color: #dc3545;
+  font-size: 13px;
+  margin-top: 10px;
+  text-align: center;
+  width: 85%;
+  background: #ffe6e6;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.edit-page .success-message {
+  color: #28a745;
+  font-size: 13px;
+  margin-top: 10px;
+  text-align: center;
+  width: 85%;
+  background: #e6ffe6;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+/* 제목 / 단락 */
+.edit-page h1 {
+  font-weight: bold;
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 32px;
+}
+
+.edit-page p {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  margin: 20px 0 30px;
+  text-align: center;
+}
+
+.edit-page span {
+  font-size: 12px;
+  color: #666;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* 프로필 이미지 라벨 */
+.edit-page label {
+  cursor: pointer;
+  color: #666;
+}
+
+/* 탈퇴 모달 */
+.edit-page .modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.edit-page .modal-content {
+  background: white;
+  border-radius: 10px;
+  padding: 30px;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.edit-page .modal-content h2 {
+  color: #dc3545;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 24px;
+}
+
+.edit-page .modal-content input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+.edit-page .modal-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.edit-page .modal-btn {
+  flex: 1;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.edit-page .modal-btn-danger {
+  background: #dc3545;
+  color: white;
+}
+
+.edit-page .modal-btn-danger:hover {
+  background: #c82333;
+}
+
+.edit-page .modal-btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.edit-page .modal-btn-secondary:hover {
+  background: #5a6268;
+}
+
+.edit-page .modal-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 반응형 */
+@media screen and (max-width: 768px) {
+  .edit-page .wrapper {
+    padding: 40px 10px;
+  }
+
+  .edit-page .container {
+    width: 100%;
+    max-height: 90vh;
+  }
+
+  .edit-page form {
+    padding: 30px 20px;
+  }
+
+  .edit-page .button-group {
+    flex-direction: column;
+    width: 85%;
+  }
+
+  .edit-page .form_btn {
+    width: 100%;
+    min-width: auto;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .edit-page h1 {
+    font-size: 24px;
+  }
+
+  .edit-page form {
+    padding: 20px 15px;
+  }
+}

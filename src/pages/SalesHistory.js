@@ -181,7 +181,7 @@ export default function App({ user }) {
     }, 400);
   };
 
-  // 관리자 페이지 설정 
+  /*
   useEffect(() => {
     console.log("user 상태:", user);
     if (!user) {
@@ -200,6 +200,7 @@ export default function App({ user }) {
       </div>
     );
   }
+  */
 
   return (
     <Container>

@@ -1,15 +1,16 @@
 import { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Carousel, Nav, Spinner } from "react-bootstrap";
+import { Button, Col, Container, Row, Carousel, Nav, Spinner, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import axios from "axios";
 import InquiryList from '../InquiryList';
-import ReviewPage from '../ReviewList';
+import ReviewList from "../ReviewList";
 
 export default function Product({ user }) {
   const { id } = useParams(); // 상품아이디
   const [product, setProduct] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(6);
+  const [rentalStart, setRentalStart] = useState("");
   const [activeTab, setActiveTab] = useState("detail");
   const [loading, setLoading] = useState(true);
 
@@ -31,35 +32,44 @@ export default function Product({ user }) {
     }
   };
 
-  // 월 요금 계산 함수 (임시) (rentalService에 있는 것과 동일)
+  // 월 대여료 계산 로직 (임시) (rentalService에 있는 것과 동일)
   const getMonthlyPrice = () => {
     if (!product) return 0;
-    return product.price / (selectedPeriod * 10) - 2100;
+    return product.price / (selectedPeriod * 8) - 5100;
   };
 
   const handleRental = async () => {
-    if (!user) {
-      alert("로그인이 필요합니다.");
-      return;
-    }
+    if (!user) { alert("로그인이 필요합니다."); return; }
+    if (!rentalStart) { alert("대여 시작일을 선택해주세요."); return; }
+
+    const rentalData = {
+      memberId: user.id,
+      items: [
+        {
+          productId: Number(id),
+          quantity: 1,
+          periodYears: selectedPeriod,
+          rentalStart,
+        },
+      ],
+    };
+
     if (!window.confirm(`
       상품명: ${product.name}
+      대여시작일: ${rentalStart}
       대여기간: ${selectedPeriod}년
       월 납부액: ${getMonthlyPrice().toLocaleString()}원
       총 납부액: ${(getMonthlyPrice()*selectedPeriod*12).toLocaleString()}원\n
       대여를 신청하시겠습니까?
     `)) return;
+
     try {
-      const res = await axios.post(`${API_BASE_URL}/rental/${id}`, {
-        memberId: user.id,
-        productId: Number(id),
-        periodYears: selectedPeriod
-      });
-      alert(`대여 신청이 완료되었습니다.\n월 요금: ${res.data.monthlyPrice.toLocaleString()}원`);
-      navigate(`/rental/done`);
+      const res = await axios.post(`${API_BASE_URL}/rental`, rentalData);
+      alert("대여가 완료되었습니다!");
+      console.log("대여 결과:", res.data);
     } catch (err) {
-      console.log(err);
-      alert("대여 신청 중 오류가 발생했습니다.");
+      console.error("대여 요청 실패:", err);
+      alert("대여 중 오류가 발생했습니다.");
     }
   };
 
@@ -99,7 +109,7 @@ export default function Product({ user }) {
       <Row className="mb-5">
         <Col md={6}>
           <Carousel>
-            {[product.mainImage, ...(product.images?.map(img => img.url) || [])].map((src, i) => (
+            {[product.mainImage, ...(product.images || [])].map((src, i) => (
               <Carousel.Item key={i}>
                 <img
                   className="d-block w-100 rounded"
@@ -115,6 +125,16 @@ export default function Product({ user }) {
         <Col md={6}>
           <h2 className="mb-3 fw-bold">{product.name}</h2>
           <p className="text-muted mb-4">{product.brand} / {product.category}</p> 
+
+          <div className="mb-3">
+            <strong>대여 시작일</strong>
+            <Form.Control
+              type="date"
+              value={rentalStart}
+              min={new Date().toISOString().split("T")[0]} // 오늘 이후만 선택
+              onChange={(e) => setRentalStart(e.target.value)}
+            />
+          </div>
 
           <div className="mb-4">
             <strong>대여기간</strong>
@@ -182,7 +202,7 @@ export default function Product({ user }) {
       )}
       {activeTab === "review" && (
         <div className="p-3 border rounded">
-          <ReviewPage />
+          <ReviewList />
         </div>
       )}
       {activeTab === "inquiry" && (

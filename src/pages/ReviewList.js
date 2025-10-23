@@ -15,6 +15,8 @@ export default function ReviewList() {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 5;
 
+  const [averageRating, setAverageRating] = useState(0);
+
   // 리뷰 불러오기
   useEffect(() => {
     fetchReviews();
@@ -34,6 +36,12 @@ export default function ReviewList() {
       const data = res.data;
       setReviews(data.content);
       setTotalPages(data.totalPages);
+
+      if (data.content.length > 0) {
+        const sum = data.content.reduce((acc, review) => acc + review.rating, 0);
+        setAverageRating(sum / data.content.length);
+      }
+
     } catch (err) {
       console.error("리뷰 불러오기 실패:", err);
       alert("리뷰를 불러오는 중 오류가 발생했습니다.");
@@ -46,8 +54,8 @@ export default function ReviewList() {
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      if (rating >= i) stars.push(<StarFill key={`full-${i}`} color="#FFD700" />); 
-      else if (rating >= i - 0.5)  stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
+      if (rating >= i) stars.push(<StarFill key={`full-${i}`} color="#FFD700" />);
+      else if (rating >= i - 0.5) stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
       else stars.push(<Star key={`empty-${i}`} color="#ccc" />);
     }
     console.log(typeof rating, rating);
@@ -84,12 +92,32 @@ export default function ReviewList() {
     return <Pagination className="justify-content-center">{items}</Pagination>;
   };
 
+  const maskName = (name) => {
+    if (!name) return "";
+    if (name.length === 1) return name;
+    return name[0] + "*".repeat(name.length - 1);
+  };
+
   return (
     <Container style={{ maxWidth: "800px" }}>
       <h2 className="mb-3 text-center">상품후기</h2>
 
       <div className="text-end mb-3">
         <button>후기 작성</button>
+      </div>
+
+      <div className="mb-3 text-center" >
+        <Card>
+          <div style={{ fontSize: "1.2rem" }}>
+            전체 평균 평점: {renderStars(averageRating)}{" "}
+            <span className="text-muted" style={{ fontSize: "1rem" }}>
+              ({averageRating.toFixed(1)})
+            </span>
+          </div>
+          <div>
+            {/* ProgressBar */}
+          </div>
+        </Card>
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -136,7 +164,7 @@ export default function ReviewList() {
                 </span>
               </p>
               <div className="d-flex justify-content-between text-muted">
-                <span>{review.memberName}</span>
+                <span>{maskName(review.memberName)}</span>
                 <span>{new Date(review.regDate).toLocaleString()}</span>
               </div>
               <div className="my-2">{review.content}</div>

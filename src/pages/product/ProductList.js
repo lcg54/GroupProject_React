@@ -275,7 +275,7 @@ export default function ProductList({ user }) {
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
                         <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
                         
-                        {isAdmin && (
+                        {isAdmin && isAvailable && (
                             <div className="d-flex gap-2 mt-2">
                                 <Button 
                                     size="sm" 
@@ -370,7 +370,7 @@ export default function ProductList({ user }) {
               <p className="mb-1 text-muted">⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})</p>
               <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
             </div>
-            {isAdmin && (
+            {isAdmin && isAvailable && (
                 <div className="d-flex flex-column gap-1 ms-3">
                     <Button 
                         size="sm" 

@@ -69,7 +69,7 @@ const HeroSection = () => {
                 style={{
                   width: '100%',
                   height: '400px',
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   borderRadius: '10px',
                 }}
               />

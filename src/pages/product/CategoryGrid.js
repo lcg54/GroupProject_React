@@ -92,7 +92,7 @@ export default function CategoryGrid({ category = [], setCategory, onClickCatego
                 style={{
                   width: isMini ? "60px" : "100%",
                   height: isMini ? "60px" : "80px",
-                  objectFit: "cover",
+                  objectFit: 'contain',
                   marginBottom: isMini ? "0.25rem" : undefined,
                 }}
               />

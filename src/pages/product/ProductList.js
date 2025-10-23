@@ -218,7 +218,7 @@ export default function ProductList({ user }) {
                         variant="top"
                         src={`${API_BASE_URL}/images/${p.mainImage}`}
                         alt={p.name}
-                        style={{ width: '100%', height: "200px", objectFit: "cover" }}
+                        style={{ width: '100%', height: "200px", objectFit: "contain" }}
                       />
                       <Card.Body>
                         <Card.Title className="mb-1">{p.name}</Card.Title>
@@ -289,7 +289,7 @@ export default function ProductList({ user }) {
               style={{
                 width: 120,
                 height: 120,
-                objectFit: "cover",
+                objectFit: "contain",
                 borderRadius: 8,
                 marginRight: 16,
               }}

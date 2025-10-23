@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Button, Form, Card } from 'react-bootstrap';
 import axios from 'axios';
-import { API_BASE_URL } from '../config/url';
+import { API_BASE_URL } from '../../config/url';
+import "./cart.css"
 
 export default function CartList({ user }) {
 
@@ -88,7 +89,7 @@ export default function CartList({ user }) {
   }
 
   return (
-    <Container style={{ maxWidth: '900px', backgroundColor: '#f1ead7', padding: '2rem 2rem', borderRadius: '10px' }}>
+    <Container style={{ maxWidth: '900px', backgroundColor: '#ffffffff', padding: '2rem 2rem', borderRadius: '10px' }}>
 
 
 
@@ -99,7 +100,7 @@ export default function CartList({ user }) {
             <p className="text-center text-muted my-5">장바구니가 비어있습니다.</p>
           ) : (
             products.map(p => (
-              <Card key={p.id} className="mb-3 shadow-sm">
+              <Card key={p.id} className=" shadow-sm">
                 <Card.Body>
                   <Row>
                     <Col xs={3}>

@@ -2,8 +2,9 @@ import React from "react";
 
 export default function Footer() {
   return (
-    <footer className="fixed-footer">
-      © {new Date().getFullYear()} My Website. All rights reserved.
-    </footer>
+    // <footer className="fixed-footer">
+    //   © {new Date().getFullYear()} My Website. All rights reserved.
+    // </footer>
+    <></>
   );
 }

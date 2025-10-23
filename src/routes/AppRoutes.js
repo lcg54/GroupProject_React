@@ -11,7 +11,7 @@ import InquiryWrite from './../pages/InquiryWrite';
 import ReviewList from '../pages/ReviewList';
 import ReviewWrite from '../pages/ReviewWrite';
 
-import CartList from "../pages/CartList";
+import CartList from "../pages/cart/CartList";
 import RentalCompleted from "../pages/RentalCompleted";
 
 import ProductInsertForm from "../pages/ProductInsertForm";
@@ -27,7 +27,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/mypage" element={<MyPage user={user} setUser={setUser} />} />
-      
+
       <Route path="/product/list" element={<ProductList user={user} />} />
       <Route path="/product/:id" element={<Product user={user} />} />
 

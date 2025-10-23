@@ -149,7 +149,7 @@ export default function ProductList({ user }) {
           <Col className="text-end position-relative">
             <Search
               size={22}
-              style={{ cursor: "pointer", color: "#0d6efd" }}
+              style={{ cursor: "pointer", color: "#000000ff" }}
               onClick={() => setShowSearch((prev) => !prev)}
             />
             {showSearch && (
@@ -163,6 +163,7 @@ export default function ProductList({ user }) {
                 }}
               >
                 <Form.Control
+                  style={{ backgroundColor: '#ffffffff' }}
                   type="text"
                   placeholder="검색어를 입력하세요"
                   value={keyword}
@@ -229,8 +230,8 @@ export default function ProductList({ user }) {
                       style={{
                         position: 'absolute',
                         top: 8,
-                        right: 8,
-                        background: 'rgba(255, 0, 0, 0.75)',
+                        left: 8,
+                        background: 'rgba(221, 217, 0, 1)',
                         color: '#fff',
                         padding: '4px 8px',
                         borderRadius: 12,
@@ -238,7 +239,7 @@ export default function ProductList({ user }) {
                         zIndex: 3,
                       }}
                     >
-                      재고소진
+                      인기상품
                     </div>
                     {!isAvailable && (
                       <div

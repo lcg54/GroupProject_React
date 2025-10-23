@@ -32,11 +32,18 @@
 }
 
 .side-menu-button {
-  width: 100%;          /* 버튼 가로폭 전체 채우기 */
-  text-align: left;     /* 텍스트 왼쪽 정렬 */
-  padding: 0.5rem 1rem; /* 위아래 0.5rem, 좌우 1rem 패딩 */
-  box-sizing: border-box; /* 패딩 포함해서 너비 계산 */
-  white-space: nowrap;  /* 텍스트 줄바꿈 방지 */
-  overflow: hidden;     /* 넘치는 텍스트 숨김 */
-  text-overflow: ellipsis; /* 넘칠 때 말줄임표 */
+    width: 100%;
+    /* 버튼 가로폭 전체 채우기 */
+    text-align: left;
+    /* 텍스트 왼쪽 정렬 */
+    padding: 0.5rem 1rem;
+    /* 위아래 0.5rem, 좌우 1rem 패딩 */
+    box-sizing: border-box;
+    /* 패딩 포함해서 너비 계산 */
+    white-space: nowrap;
+    /* 텍스트 줄바꿈 방지 */
+    overflow: hidden;
+    /* 넘치는 텍스트 숨김 */
+    text-overflow: ellipsis;
+    /* 넘칠 때 말줄임표 */
 }

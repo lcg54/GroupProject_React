@@ -76,8 +76,8 @@ const MyPage = ({ user }) => {
         {buttons.map((button, idx) => (
           <Col key={idx} xs={4} className="mb-4">
             <Button
-              variant="outline-primary"
-              className="w-100 d-flex flex-column align-items-center py-4 rounded-3 button button:hover button-Size"
+              variant="outline-primary "
+              className="button mypage w-100 d-flex flex-column align-items-center py-4 rounded-3"
               onClick={() => handleClick(button)} // 클릭 이벤트
             >
               <span style={{ fontSize: "2.5rem", marginBottom: "8px" }}>{button.icon}</span>

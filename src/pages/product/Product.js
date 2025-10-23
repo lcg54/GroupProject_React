@@ -109,7 +109,7 @@ export default function Product({ user }) {
       <Row className="mb-5">
         <Col md={6}>
           <Carousel>
-            {[product.mainImage, ...(product.images?.map(img => img.url) || [])].map((src, i) => (
+            {[product.mainImage, ...(product.images || [])].map((src, i) => (
               <Carousel.Item key={i}>
                 <img
                   className="d-block w-100 rounded"
@@ -163,33 +163,16 @@ export default function Product({ user }) {
               일시불(원가) : {product.price.toLocaleString()} ₩
             </p>
           </div>
-          <div className="d-flex gap-3">
-            {user && user.role === "ADMIN" ? (
-              <>
-                <Button variant="outline-primary" size="lg" onClick={() => navigate(`/admin/product/update/${id}`)}>
-                  🛒 상품 수정하기
-                </Button>
-              </>
-            ) : (
-              <>
-                <Button variant="outline-primary" size="lg" onClick={handleCart}>
-                  🛒 장바구니
-                </Button>
-                <Button variant="outline-danger" size="lg" onClick={handleRental}>
-                  📦 신청하기
-                </Button>
-              </>
-            )}
-          </div>
+
           {/* 버튼 영역 */}
-          {/* <div className="d-flex gap-3">
+          <div className="d-flex gap-3">
             <Button variant="outline-primary" size="lg" onClick={handleCart}>
               🛒 장바구니
             </Button>
             <Button variant="outline-danger" size="lg" onClick={handleRental}>
               📦 신청하기
             </Button>
-          </div> */}
+          </div>
         </Col>
       </Row>
 

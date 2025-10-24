@@ -6,6 +6,9 @@ import { API_BASE_URL } from "../config/url";
 import axios from "axios";
 
 export default function ReviewList() {
+  
+  const navigate = useNavigate();
+
   /* 2025년 10월 23일 목요일
 
   0  평균 별점 표시 → product.averageRating.toFixed(1)
@@ -144,10 +147,9 @@ export default function ReviewList() {
     <Container style={{ maxWidth: "800px" }}>
       <h2 className="mb-3 text-center">상품후기</h2>
 
-      {/* <div className="text-end mb-3">
-        <button>후기 작성</button>
-      </div> */}
-
+      <div className="text-end mb-3">
+        <button onClick={() => navigate(`/review/write`)}>후기 작성</button>
+      </div>
 
       <div className="mb-3 text-center" >
         <Card>

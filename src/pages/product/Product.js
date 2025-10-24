@@ -133,6 +133,18 @@ export default function Product({ user }) {
     );
   }
 
+  const getDateString = (d) => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const todayStr = getDateString(new Date());
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = getDateString(tomorrow);
+
   return (
     <Container className="mt-4" style={{ maxWidth: "700px" }}>
       <Row className="mb-5">
@@ -160,8 +172,17 @@ export default function Product({ user }) {
             <Form.Control
               type="date"
               value={rentalStart}
-              min={new Date().toISOString().split("T")[0]}
-              onChange={(e) => setRentalStart(e.target.value)}
+              min={tomorrowStr} // 오늘이 아닌 '내일'부터 선택 가능
+              onChange={(e) => {
+                const val = e.target.value;
+                // 사용자가 직접 오늘 날짜를 입력한 경우 처리
+                if (val === todayStr) {
+                  alert("대여 시작일은 내일부터 신청이 가능합니다.");
+                  setRentalStart(""); // 선택 취소
+                  return;
+                }
+                setRentalStart(val);
+              }}
             />
           </div>
 

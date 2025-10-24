@@ -9,14 +9,6 @@ export default function App() {
   const [content, setContent] = useState('');
   const [file, setFile] = useState(null);
 
-  useEffect(() => {
-    const mockPurchases = [
-      { id: 1, name: "Galaxy Book Pro" },
-      { id: 2, name: "LG Gram 16" }
-    ];
-    setPurchases(mockPurchases);
-  }, []);
-
   const handleSubmit = (event) => {
     event.preventDefault()
     if (!selectedProduct || !rating || !content) {

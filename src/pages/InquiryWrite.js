@@ -44,10 +44,10 @@ function App({ }) {
                     </Form.Group>
                     <Form.Group as={Row}>
                         <Form.Label column sm={1}>문의 내용</Form.Label>
-                        <Col sm={9}><Form.Control placeholder="내용 작성" value={content} rows={10} as="textarea" maxLength={4000}></Form.Control></Col>
+                        <Col sm={9}><Form.Control placeholder="내용 작성" value={content} rows={10} as="textarea" maxLength={4000} onChange={(e) => setContent(e.target.value)}></Form.Control></Col>
                     </Form.Group>
                     <Form.Group className="d-flex justify-content-end" >
-                        <Form.Check type="checkbox" label="비공개 체크박스" value={isPrivate} style={{ position: 'relative', right: 225, flexShrink: 0 }} />
+                        <Form.Check type="checkbox" label="비공개 체크박스" value={isPrivate} onChange={(e) => setIsPrivate(e.target.value)} style={{ position: 'relative', right: 225, flexShrink: 0 }} />
                     </Form.Group>
                     <Button type="submit">제출</Button>
                 </Form>

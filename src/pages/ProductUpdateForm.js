@@ -39,14 +39,15 @@ export default function ProductUpdateForm({ user }) {
 
   useEffect(() => {
     console.log("ProductUpdate - ID from params:", id); 
-    console.warn("⚠️ ID가 아직 준비되지 않음:", id);
+    
     if (!id || id === "undefined" || id === ":id" ) {
-      
+      console.warn("⚠️ 유효하지 않은 ID 감지:", id);
       setInitialLoading(false);
       return;
     }
 
     loadProductData();
+    
   }, [id, navigate]);
 
   const loadProductData = async () => {
@@ -74,6 +75,10 @@ export default function ProductUpdateForm({ user }) {
         repairStock: Number(product.repairStock) || 0,
       });
       
+      setExistingImages(product.images || []);
+      setInitialLoading(false);
+      console.log("✅ 상품 데이터 불러오기 완료:", product);
+
       let imageUrls = [];
       if (product.images && Array.isArray(product.images)) {
         imageUrls = product.images.map(img => {
@@ -164,9 +169,13 @@ export default function ProductUpdateForm({ user }) {
     try {
       const formDataToSend = new FormData();
       
-      Object.keys(formData).forEach(key => {
-        formDataToSend.append(key, formData[key].toString());
-      });
+      formDataToSend.append("name", formData.name);
+      formDataToSend.append("category", formData.category);
+      formDataToSend.append("brand", formData.brand);
+      formDataToSend.append("description", formData.description);
+      formDataToSend.append("price", formData.price);
+      formDataToSend.append("available", formData.available); 
+      formDataToSend.append("totalStock", formData.totalStock);
       
       const cleanExistingImages = existingImages.map(url => {
         if (url.includes('/images/')) {
@@ -176,16 +185,19 @@ export default function ProductUpdateForm({ user }) {
       });
       formDataToSend.append("existingImages", JSON.stringify(cleanExistingImages));
       
-      newImages.forEach(img => formDataToSend.append("mainImage", img));
+      newImages.forEach(img => formDataToSend.append("images", img));
 
-      const config = {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
-      };
+      console.log("📦 FormData to send:");
+      for (let pair of formDataToSend.entries()) {
+      console.log(pair[0], "→", pair[1]);
+    }
 
       console.log("Updating product with ID:", id); 
       
-      await axios.put(`${API_BASE_URL}/product/${id}`, formDataToSend, config);
+      await axios.put(`${API_BASE_URL}/product/${id}`, formDataToSend, {
+        headers: {"Content-Type": "multipart/form-data"},
+        withCredentials: true,
+    });
       alert("✅ 상품 수정이 완료되었습니다!");
       
       navigate("/product/list");

@@ -134,14 +134,19 @@ export default function Header({ user, onLogout }) {
         <Button variant="light" onClick={() => { navigate('/cart'); setMenuOpen(false); }}>
           장바구니
         </Button>
-        <Button variant="light" onClick={() => { navigate('/admin/product/register'); setMenuOpen(false); }}>
-          상품등록
-        </Button>
-        <Button variant="light" onClick={() => { navigate('/admin/product/update/:id'); setMenuOpen(false); }}>
-          상품수정
-        </Button>
-        
-
+              {user?.role === "ADMIN" && (
+                  <>
+                <Button
+                  variant="light"
+                  onClick={() => { 
+                    navigate('/admin/product/register'); 
+                    setMenuOpen(false); 
+                  }}
+                  >
+                    상품등록
+                </Button>
+        </>
+        )}
         <hr />
 
         {user ? (

@@ -280,11 +280,14 @@ export default function ProductList({ user }) {
                                 <Button 
                                     size="sm" 
                                     variant="outline-primary" 
-                                    onClick={(e) => handleUpdate(e,p.id)}
+                                    onClick={(e) => {
+                                      console.log("🧩 인기상품 수정 클릭 - productId:", p.id);
+                                      handleUpdate(e, p.id);
+                                    }}
                                     style={{ flex: 1 }}
-                                >
+                                  >
                                     <PencilSquare size={14} className="me-1" /> 수정
-                                </Button>
+                                  </Button>
                                 <Button 
                                     size="sm" 
                                     variant="outline-danger" 
@@ -375,11 +378,14 @@ export default function ProductList({ user }) {
                     <Button 
                         size="sm" 
                         variant="outline-primary" 
-                        onClick={(e) => handleUpdate(e, product.id)}
-                    >
+                        onClick={(e) => {
+                          console.log("🧩 수정 버튼 클릭됨 - productId:", product.id);
+                          handleUpdate(e, product.id);
+                        }}
+                      >
                         <PencilSquare size={14} className="me-1" /> 
                         수정
-                    </Button>
+                      </Button>
                     <Button 
                         size="sm" 
                         variant="outline-danger" 

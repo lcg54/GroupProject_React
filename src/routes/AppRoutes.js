@@ -7,7 +7,7 @@ import Product from '../pages/product/Product';
 
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
-
+import SalesHistory from '../pages/SalesHistory';
 import ReviewList from '../pages/ReviewList';
 import ReviewWrite from '../pages/ReviewWrite';
 
@@ -33,10 +33,10 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
 
       <Route path="/inquiry/list" element={<InquiryList />} />
       <Route path="/inquiry/write" element={<InquiryWrite />} />
+      <Route path="/saleshistory" element={<SalesHistory user={user} />} />
 
       <Route path="/review/list" element={<ReviewList />} />
       <Route path="/review/write" element={<ReviewWrite />} />
-
       <Route path="/cart" element={<CartList user={user} />} />
       <Route path="/rental/done" element={<RentalCompleted user={user} />} />
 

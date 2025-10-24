@@ -10,6 +10,7 @@ import Receipt from './Receipt';
 import { useNavigate } from "react-router-dom";
 import '../commonness/commonness.css'
 import EditPage from "../EditPage";
+import MyCalendar from "./calendar/MyRentalCalender";
 
 const MyPage = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const MyPage = ({ user, setUser }) => {
       case '결제 내역':
         return <Receipt />;
       case '서비스 알림':
-        return <ServiceDate />;
+        return <MyCalendar />;
       case '내 문의사항':
         return <InquiryList />;
       // navigate('/inquiry/list');

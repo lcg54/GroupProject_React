@@ -1,0 +1,19 @@
+/* 형광펜 느낌 */
+.highlight {
+    background-color: #fff176 !important;
+    border-radius: 8px !important;
+    color: black !important;
+}
+
+/* DayPicker 기본 스타일 오버라이드 */
+.rdp {
+    width: 100%;
+    height: 100%;
+}
+
+
+.highlight {
+    background-color: #fff176 !important;
+    border-radius: 5px !important;
+    color: black !important;
+}

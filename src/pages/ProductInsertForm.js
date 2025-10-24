@@ -48,10 +48,10 @@ export default function ProductInsertForm({ user }) {
     if (!formData.name.trim()) errs.name = "상품명을 입력하세요.";
     if (!formData.category) errs.category = "카테고리를 선택하세요.";
     if (!formData.brand) errs.brand = "브랜드를 선택하세요.";
-    const priceNumber = Number(String(formData.price).replaceAll(",", ""));
+    const priceNumber = parseInt(String(formData.price).replace(/[^0-9]/g, ""), 10) || 0;
     if (!priceNumber || priceNumber <= 0) errs.price = "가격은 0보다 커야 합니다.";
-    const stockNumber = Number(String(formData.totalStock).replaceAll(",", ""));
-    if (Number.isNaN(stockNumber) || stockNumber < 0) errs.totalStock = "총 보유 수량을 확인하세요.";
+    const stockNumber = parseInt(String(formData.totalStock).replace(/[^0-9]/g, ""), 10) || 0;
+    if (Number.isNaN(stockNumber) || stockNumber <= 0) errs.totalStock = "총 보유 수량은 1개 이상이어야 합니다.";
     if (images.length === 0) errs.images = "상품 이미지는 최소 1개 이상 필요합니다.";
     return errs;
   }, [formData, images]);
@@ -123,18 +123,18 @@ export default function ProductInsertForm({ user }) {
 
   const buildFormData = () => {
     const fd = new FormData();
-    const priceNumber = Number(String(formData.price).replaceAll(",", ""));
-    const stockNumber = Number(String(formData.totalStock).replaceAll(",", ""));
+    const priceNumber = Number(String(formData.price).replace(/[^0-9]/g,"")) || 0;
+    const stockNumber = Number(String(formData.totalStock).replace(/[^0-9]/g, "")) || 0;
 
-    fd.append("name", formData.name);
-    fd.append("category", formData.category);
-    fd.append("brand", formData.brand);
-    fd.append("description", formData.description ?? "");
-    fd.append("price", String(priceNumber));
-    fd.append("totalStock", String(stockNumber));
-    fd.append("available", String(formData.available));
-
-    images.forEach((img) => fd.append("mainImage", img));
+    fd.set("name", formData.name);
+    fd.set("category", formData.category);
+    fd.set("brand", formData.brand);
+    fd.set("description", formData.description ?? "");
+    fd.set("price", String(priceNumber));
+    fd.set("available", String(!!formData.available));
+    fd.set("totalStock", String(stockNumber));
+    images.forEach((file) => fd.append("images", file, file.name));
+    
     return fd;
   };
 
@@ -159,16 +159,16 @@ export default function ProductInsertForm({ user }) {
 
     try {
       const formDataToSend = buildFormData();
-      const config = {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
-      };
-
-      await axios.post(`${API_BASE_URL}/product/register`, formDataToSend, config);
+      await axios.post(`${API_BASE_URL}/product/register`, formDataToSend,{
+        withCredentials: true
+      });
       setShowSuccess(true);
       setAskAnother(true);
+
+      navigate("/product/list");
     } catch (err) {
-      setErrorMsg("상품 등록 중 오류가 발생했습니다: " + (err?.message || "알 수 없는 오류"));
+      const serverMsg = err?.response?.data?.message || err?.response?.data?.error || "";
+      setErrorMsg(`상품 등록 중 오류가 발생했습니다 (${err?.response?.status || ""}) : || ${serverMsg || err?.message}`);
     } finally {
       setLoading(false);
     }
@@ -195,11 +195,6 @@ export default function ProductInsertForm({ user }) {
             <div>
               <h3 className="mb-0">상품 등록</h3>
               </div>
-            {images.length > 0 && (
-              <Badge bg="light" text="dark" className="fs-6">
-                이미지 {images.length}개
-              </Badge>
-            )}
           </div>
         </div>
 
@@ -383,9 +378,11 @@ export default function ProductInsertForm({ user }) {
                 <Stack direction="horizontal" gap={2} className="justify-content-center flex-wrap mt-2">
                   <Button
                     type="submit"
-                    variant="primary"
+                    variant="outline-primary"
                     disabled={loading}
                     className="px-4"
+                    
+                    
                   >
                     {loading ? "⏳ 등록 중..." : "✅ 상품 등록"}
                   </Button>

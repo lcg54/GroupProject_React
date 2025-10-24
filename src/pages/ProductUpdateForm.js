@@ -556,9 +556,6 @@ export default function ProductUpdateForm({ user }) {
                         </Col>
                       ))}
                     </Row>
-                    <div className="mt-2">
-                      <Button size="sm" variant="outline-secondary" onClick={resetImages}>🔄 새 이미지 초기화</Button>
-                    </div>
                   </>
                 )}
               </Col>
@@ -568,7 +565,7 @@ export default function ProductUpdateForm({ user }) {
               {/* 액션 버튼 */}
               <Col md={12}>
                 <Stack direction="horizontal" gap={2} className="justify-content-center flex-wrap mt-2">
-                  <Button type="submit" variant="primary" disabled={loading} className="px-4">
+                  <Button type="submit" variant="outline-primary" disabled={loading} className="px-4">
                     {loading ? "⏳ 수정 중..." : "✅ 상품 수정"}
                   </Button>
                   <Button variant="secondary" onClick={() => navigate("/product/list")} disabled={loading} className="px-4">

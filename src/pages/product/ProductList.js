@@ -98,17 +98,17 @@ export default function ProductList({ user }) {
   const fetchProductList = async (reset = false) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/product/list`, {
-        params: {
-          page: reset ? 1 : page,
-          size: 10,
-          category: category.length > 0 ? category : null,
-          brand: brand.length > 0 ? brand : null,
-          available: available,
-          sortBy: sortBy,
-          keyword: keyword.trim() || null,
-        },
-      });
+      const sp = new URLSearchParams();
+          sp.set("page", reset ? 1 : page);
+          sp.set("size", 10);
+          if (category.length) category.forEach( c => sp.append("category", c));
+          if (brand.length) brand.forEach( b => sp.append("brand", b));
+          if (available !== null) sp.set("available", String(available));
+          if (sortBy) sp.set("sortBy", sortBy);
+          if (keyword.trim()) sp.set("keyword", keyword.trim());
+        
+      const res= await axios.get(`${API_BASE_URL}/product/list`, {params: sp});
+
       const newProducts = res.data.products.map(p => ({
         ...p, monthlyPrice: p.price / (6 * 10) - 2100,
       }));

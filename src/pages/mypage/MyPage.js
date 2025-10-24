@@ -1,14 +1,13 @@
-import { useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import '../commonness/commonness.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import ServiceDate from './ServiceDate';
 import ExtensionOrReturn from './EOR/ExtensionOrReturn';
 import CartList from '../cart/CartList';
 import InquiryList from '../InquiryList';
 import Receipt from './Receipt';
-import { useNavigate } from "react-router-dom";
-import '../commonness/commonness.css'
 import EditPage from "../EditPage";
 import MyCalendar from "./calendar/MyRentalCalender";
 

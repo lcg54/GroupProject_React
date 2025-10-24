@@ -7,12 +7,11 @@ import Product from '../pages/product/Product';
 
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
-
+import SalesHistory from '../pages/SalesHistory';
 import ReviewList from '../pages/ReviewList';
 import ReviewWrite from '../pages/ReviewWrite';
 
 import CartList from "../pages/cart/CartList";
-import RentalCompleted from "../pages/RentalCompleted";
 
 import ProductInsertForm from "../pages/ProductInsertForm";
 import ProductUpdateForm from "../pages/ProductUpdateForm";
@@ -30,18 +29,17 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
 
       <Route path="/product/list" element={<ProductList user={user} />} />
       <Route path="/product/:id" element={<Product user={user} />} />
+      <Route path="/cart" element={<CartList user={user} />} />
+
+      <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
+      <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />
 
       <Route path="/inquiry/list" element={<InquiryList />} />
       <Route path="/inquiry/write" element={<InquiryWrite />} />
-
       <Route path="/review/list" element={<ReviewList />} />
       <Route path="/review/write" element={<ReviewWrite />} />
 
-      <Route path="/cart" element={<CartList user={user} />} />
-      <Route path="/rental/done" element={<RentalCompleted user={user} />} />
-
-      <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
-      <Route path="/admin/product/update/:id?" element={<ProductUpdateForm user={user} />} />
+      <Route path="/saleshistory" element={<SalesHistory user={user} />} />
 
       {/* 로그인/회원가입을 하나의 페이지로 통합 */}
       <Route path="/member/login" element={<AuthPage setUser={setUser} />} />

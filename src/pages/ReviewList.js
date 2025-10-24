@@ -5,27 +5,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 import axios from "axios";
 
-export default function ReviewList() {
+export default function ReviewList({ user }) {
   
   const navigate = useNavigate();
 
-  /* 2025년 10월 23일 목요일
-
-  0  평균 별점 표시 → product.averageRating.toFixed(1)
-
-  0  별점 그림 랜더링  → renderStars(product.averageRating.toFixed(1))
-
-  0  별점구간별 비율 막대그래프 표시 → ProgressBar
-
-  0  정렬 - 추천순, 최신순, 오래된순, 평점높은순, 평점낮은순 → Dropdown
-
-  0  회원이름 가운데글자 *처리
-
-  0  추천버튼  → <button onClick={(e)=>{추천올라가는메서드}}>도움이 돼요 👍{review.recommend}</button>
-
-  X  사진 첨부 기능 (다 되면 나중에)
-
-  */
   const { id } = useParams();
   const [reviews, setReviews] = useState([]);
   const [sortOrder, setSortOrder] = useState("latest");
@@ -154,15 +137,18 @@ export default function ReviewList() {
       <div className="mb-3 text-center" >
         <Card>
           <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
-            <div style={{ fontSize: "1.2rem", width: "50%", textAlign: "center", }}>
-              전체 평균 평점
-              <p>
-                {renderStars(averageRating)}{" "}
-                <span className="text-muted" style={{ fontSize: "1rem" }}>
+            <div style={{ fontSize: "1.5rem", width: "50%", textAlign: "center" }}>
+              평점
+              <p style={{ margin: "0.5rem 0" }}>
+                <span style={{ fontSize: "1.5rem", display: "inline-block" }}>
+                  {renderStars(averageRating)}
+                </span>{" "}
+                <span className="text-muted" style={{ fontSize: "1.3rem" }}>
                   ({averageRating.toFixed(1)})
                 </span>
               </p>
             </div>
+
             <div style={{ width: "50%", textAlign: "center" }}>
               {/* ProgressBar */}
               <div className="m-2">

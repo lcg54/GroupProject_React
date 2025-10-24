@@ -211,7 +211,7 @@ export default function Product({ user }) {
       )}
       {activeTab === "review" && (
         <div className="p-3 border rounded">
-          <ReviewList />
+          <ReviewList user={user} />
         </div>
       )}
       {activeTab === "inquiry" && (

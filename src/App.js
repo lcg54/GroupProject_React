@@ -37,9 +37,15 @@ export default function App() {
   };
 
   return (
-    <AppWrapper>
+    <AppWrapper className="app-container">
+      {/* 헤더 + 라우트 영역 */}
+
       <Header user={user} onLogout={handleLogout} />
-      <AppRoutes user={user} setUser={setUser} handleLogout={handleLogout} />
+      <div className="content">
+        <AppRoutes user={user} setUser={setUser} handleLogout={handleLogout} />
+      </div>
+
+      {/* 푸터 항상 맨 아래 */}
       <Footer />
     </AppWrapper>
   );

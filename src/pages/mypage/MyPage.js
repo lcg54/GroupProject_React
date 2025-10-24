@@ -57,7 +57,7 @@ const MyPage = ({ user, setUser }) => {
         // <<<<<<< HEAD
         //         return navigate('/member/edit');
         // =======
-        return <EditPage user={user} setUser={setUser} />;
+        return <EditPage user={user} setUser={setUser} isFromMyPage={true} />;
       // >>>>>>> origin/develop
       case '연장/반납':
         return <ExtensionOrReturn />;

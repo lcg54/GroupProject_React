@@ -12,7 +12,6 @@ import ReviewList from '../pages/ReviewList';
 import ReviewWrite from '../pages/ReviewWrite';
 
 import CartList from "../pages/cart/CartList";
-import RentalCompleted from "../pages/RentalCompleted";
 
 import ProductInsertForm from "../pages/ProductInsertForm";
 import ProductUpdateForm from "../pages/ProductUpdateForm";
@@ -31,7 +30,6 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/product/list" element={<ProductList user={user} />} />
       <Route path="/product/:id" element={<Product user={user} />} />
       <Route path="/cart" element={<CartList user={user} />} />
-      <Route path="/rental/done" element={<RentalCompleted user={user} />} />
 
       <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
       <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />

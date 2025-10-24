@@ -66,16 +66,12 @@ export default function Product({ user }) {
 
     try {
       const res = await axios.post(`${API_BASE_URL}/rental`, rentalData);
-
       console.log("대여 결과:", res.data);
-
       setShowCompleted(true);
     } catch (err) {
       console.error("대여 요청 실패:", err);
       alert("대여 중 오류가 발생했습니다.");
     }
-
-
   };
 
   const handleCart = async () => {

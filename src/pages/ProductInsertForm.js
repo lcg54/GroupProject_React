@@ -180,7 +180,6 @@ export default function ProductInsertForm({ user }) {
 
   return (
     <Container style={{ maxWidth: 760 }} className="py-4">
-      {/* Header Card */}
       <Card
         className="mb-4 shadow-sm border-0"
         style={{ borderRadius: 20, overflow: "hidden" }}
@@ -393,7 +392,7 @@ export default function ProductInsertForm({ user }) {
 
                   <Button
                     type="button"
-                    variant="outline-secondary"
+                    variant="outline-danger"
                     onClick={resetForm}
                     disabled={loading}
                     className="px-4"

@@ -11,9 +11,21 @@
     height: 100%;
 }
 
-
+/* ✅ 가능 날짜 구간 (연보라색 형광펜) */
 .highlight {
-    background-color: #fff176 !important;
-    border-radius: 5px !important;
-    color: black !important;
+    background-color: rgba(186, 104, 200, 0.15) !important;
+    border-radius: 8px !important;
+}
+
+/* ✅ 클릭된 날짜 (초록색 형광펜) */
+.rdp-day_selected,
+.rdp-day_selected:focus-visible,
+.rdp-day_selected:hover {
+    background-color: #3cb371 !important;
+    color: white !important;
+    border-radius: 8px !important;
+    font-weight: bold;
+    box-shadow: 0 0 8px rgba(60, 179, 113, 0.4);
+    border: none !important;
+    transform: scale(1.05);
 }

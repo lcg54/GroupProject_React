@@ -2,31 +2,47 @@ import React, { useState } from "react";
 import { DayPicker } from "react-day-picker";
 import "react-day-picker/dist/style.css";
 import styled from "styled-components";
+import "./MyRentalCalender.css";
 
-// 부모 영역(예: MyPage 내부 Row나 Container)을 가득 채움
 const CalendarWrapper = styled.div`
   width: 100%;
-  height: 100%;
-  min-height: 80vh; /* 페이지 높이에 꽉 차게 */
+  min-height: 80vh;
   display: flex;
   justify-content: center;
   align-items: center;
   background-color: #fdf6e3;
-  border-radius: 10px;
   padding: 1rem;
 `;
 
-// DayPicker 자체를 키우기 위해 내부 스타일 조정
 const StyledDayPicker = styled(DayPicker)`
   width: 100%;
-  max-width: 1000px; /* 너무 넓어지지 않게 제한 */
-  height: auto;
+  max-width: 1000px;
 
-  /* 날짜 셀 크기 조정 */
   .rdp-day {
     width: 100px;
     height: 80px;
     font-size: 1.1rem;
+    border-radius: 10px;
+    transition: all 0.2s;
+  }
+
+  .rdp-day:hover {
+    transform: scale(1.05);
+  }
+
+  /* 클릭된 날짜 */
+  .selected-day {
+    background-color: #3cb371 !important;
+    color: white !important;
+    font-weight: bold;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(60, 179, 113, 0.4);
+  }
+
+  /* 선택 가능한 날짜 구간 */
+  .highlight-day {
+    background-color: rgba(186, 104, 200, 0.15);
+    border-radius: 8px;
   }
 
   .rdp-months {
@@ -40,7 +56,7 @@ const StyledDayPicker = styled(DayPicker)`
   }
 `;
 
-function MyCalendar() {
+export default function MyCalendar() {
     const [selected, setSelected] = useState(null);
 
     const startDate = new Date(2025, 9, 20);
@@ -57,13 +73,13 @@ function MyCalendar() {
                 disabled={isDisabled}
                 modifiers={{
                     highlight: { from: startDate, to: endDate },
+                    selected: selected ? [selected] : [],
                 }}
                 modifiersClassNames={{
-                    highlight: "highlight",
+                    highlight: "highlight-day",
+                    selected: "selected-day",
                 }}
             />
         </CalendarWrapper>
     );
 }
-
-export default MyCalendar;

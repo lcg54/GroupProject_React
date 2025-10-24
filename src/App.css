@@ -46,33 +46,25 @@ body,
 }
 
 .app-container {
-  min-height: 100vh;
-  /* 화면 전체 높이 */
   display: flex;
   flex-direction: column;
+  min-height: 100vh;
+  /* 화면 전체 높이 */
 }
 
 .content {
   flex: 1;
-  /* 푸터 제외한 공간을 다 차지 */
-  padding-bottom: 20px;
-  /* 필요시 padding */
+  /* 푸터 제외한 공간 차지 */
+  padding: 10px 20px;
+  box-sizing: border-box;
 }
 
-.fixed-footer {
-  position: fixed;
-  /* 화면에 고정 */
-  left: 0;
-  /* 좌측 끝 */
-  bottom: 0;
-  /* 화면 하단에 붙음 */
-  width: 100%;
-  /* 화면 너비 꽉 채움 */
+.footer {
+  /* fixed 하지 말고 flex로 맨 아래 */
+  height: 80px;
   background-color: #222;
   color: white;
-  padding: 1rem 0;
   text-align: center;
-  z-index: 1000;
-  /* 다른 요소보다 위에 나오도록 */
+  padding: 1rem 0;
   box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
 }

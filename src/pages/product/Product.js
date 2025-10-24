@@ -5,6 +5,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import InquiryList from "../InquiryList";
 import ReviewList from "../ReviewList";
+import Completed from "../completed/completed";
 
 export default function Product({ user }) {
   const { id } = useParams(); // 상품 ID
@@ -13,6 +14,7 @@ export default function Product({ user }) {
   const [rentalStart, setRentalStart] = useState("");
   const [activeTab, setActiveTab] = useState("detail");
   const [loading, setLoading] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const navigate = useNavigate();
 
@@ -64,12 +66,16 @@ export default function Product({ user }) {
 
     try {
       const res = await axios.post(`${API_BASE_URL}/rental`, rentalData);
-      alert("대여가 완료되었습니다!");
+
       console.log("대여 결과:", res.data);
+
+      setShowCompleted(true);
     } catch (err) {
       console.error("대여 요청 실패:", err);
       alert("대여 중 오류가 발생했습니다.");
     }
+
+
   };
 
   const handleCart = async () => {
@@ -216,6 +222,13 @@ export default function Product({ user }) {
         <div className="p-3 border rounded">
           <InquiryList />
         </div>
+      )}
+      {showCompleted && (
+        <Completed
+          product={product}
+          period={selectedPeriod}
+          onClose={() => setShowCompleted(false)}
+        />
       )}
     </Container>
   );

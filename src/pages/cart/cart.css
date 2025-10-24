@@ -1,0 +1,10 @@
+.container {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.card {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-radius: 0 !important;
+}

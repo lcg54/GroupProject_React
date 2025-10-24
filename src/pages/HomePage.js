@@ -49,8 +49,8 @@ const HeroSection = () => {
       {/* 캐러셀 영역 - Container 안의 너비 유지 */}
       <div style={{ textAlign: 'center' }}>
         <Carousel
-          fade
-          interval={4000}
+          // fade
+          interval={3000}
           indicators={true}
           controls={true}
           nextIcon={<span className="carousel-control-next-icon" aria-hidden="true" />}
@@ -89,7 +89,7 @@ const HeroSection = () => {
         <CategoryGrid
           category={[]}
           onClickCategory={handleCategoryClick}
-          styleType="mini"
+        // styleType="mini"
         />
       </div>
     </Container>

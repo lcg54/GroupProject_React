@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import ServiceDate from './ServiceDate';
 import ExtensionOrReturn from './EOR/ExtensionOrReturn';
-import CartList from '../CartList';
+import CartList from '../cart/CartList';
+import InquiryList from '../InquiryList';
 import Receipt from './Receipt';
 import EditPage from "../EditPage";
+import MyCalendar from "./calendar/MyRentalCalender";
 
 const MyPage = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -41,16 +43,22 @@ const MyPage = ({ user, setUser }) => {
   function renderContent(button) {
     switch (button.text) {
       case '내 카트':
+        // return navigate('/cart')
         return <CartList user={user} />;
       // 이렇게 간의 페이지처럼 보여주던지 경로로 아에 넘기든 할 생각
       case '결제 내역':
         return <Receipt />;
       case '서비스 알림':
-        return <ServiceDate />;
+        return <MyCalendar />;
       case '내 문의사항':
-        return navigate('/inquiry/list');
+        return <InquiryList />;
+      // navigate('/inquiry/list');
       case '내 정보 수정':
-        return <EditPage user={user} setUser={setUser} />;
+        // <<<<<<< HEAD
+        //         return navigate('/member/edit');
+        // =======
+        return <EditPage user={user} setUser={setUser} isFromMyPage={true} />;
+      // >>>>>>> origin/develop
       case '연장/반납':
         return <ExtensionOrReturn />;
       default:
@@ -89,10 +97,10 @@ const MyPage = ({ user, setUser }) => {
 
       {/* 버튼중 내 카트, 서비스 알림(달력으로 표시), 내 문의사항, 연장 반납 선택시 보여주는 화면 추가 */}
       {clickedButton?.text && (
-        <div className="mt-4 p-3 border rounded bg-light">
-          <h5>🔍 선택한 메뉴: {clickedButton.text}</h5>
-          {renderContent(clickedButton)}
-        </div>
+
+
+        <>{renderContent(clickedButton)}</>
+
       )}
 
       {/* 1개~3개정도 주문내역 생각중 */}

@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Button, Form, Card, Spinner } from 'react-bootstrap';
 import axios from "axios";
-import { API_BASE_URL } from "../config/url";
+import { API_BASE_URL } from '../../config/url';
+import "./cart.css"
 
 export default function CartList({ user }) {
   const [products, setProducts] = useState([]);
@@ -157,7 +158,7 @@ export default function CartList({ user }) {
               </Card>
             ))}
 
-            <Card className="shadow-sm p-4 mt-4 bg-light">
+            {/* <Card className="shadow-sm p-4 mt-4 bg-light">
               <h4 className="mb-3 text-center">📊 전체 요약</h4>
               <div className="d-flex justify-content-between fs-5 fw-semibold">
                 <span>총 상품 수량</span>
@@ -167,7 +168,7 @@ export default function CartList({ user }) {
                 <span>총 금액</span>
                 <span>{totalAmount.toLocaleString()} ₩ / 월</span>
               </div>
-            </Card>
+            </Card> */}
           </>
         )}
       </Container>
@@ -176,8 +177,7 @@ export default function CartList({ user }) {
 
   // 일반회원 화면
   return (
-    <Container style={{ maxWidth: '900px', backgroundColor: '#f1ead7', padding: '2rem', borderRadius: '10px' }}>
-      <h2 className="mb-4 text-center">{user.name}님의 장바구니</h2>
+    <Container style={{ maxWidth: '900px', backgroundColor: '#ffffffff', padding: '2rem 2rem', borderRadius: '10px' }}>
 
       <Card className="mb-4 shadow-sm">
         <Card.Body>
@@ -205,7 +205,7 @@ export default function CartList({ user }) {
             <p className="text-center text-muted my-5">장바구니가 비어있습니다.</p>
           ) : (
             products.map(product => (
-              <Card key={product.id} className="mb-4 shadow-sm p-3">
+              <Card key={product.id} className="shadow-sm">
                 <Card.Body>
                   <div className="d-flex align-items-start mb-3">
                     <Form.Check

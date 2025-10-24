@@ -1,7 +1,43 @@
 .app-wrapper {
+    display: flex;
+    flex-direction: column;
     min-height: 100vh;
+    /* 화면 전체 높이 기준 */
     transition: background-color 0.3s ease;
 }
+
+/* 각 페이지별 배경 */
+.home-bg {
+    background-color: #3CB371;
+}
+
+.other-bg {
+    background-color: #fbeacc;
+}
+
+.productlist-bg {
+    background-color: #ffffff;
+}
+
+/* 콘텐츠 영역: 푸터 제외한 공간을 flex로 자동 확장 */
+.app-wrapper .content {
+    flex: 1;
+    padding: 10px 20px;
+    /* 상하좌우 여백 */
+    box-sizing: border-box;
+}
+
+/* 푸터는 fixed 하지 말고 flex 구조로 맨 아래 */
+.app-wrapper .footer {
+    height: 80px;
+    /* 푸터 높이 */
+    background-color: #222;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+}
+
 
 .home-bg {
     background-color: #3CB371;

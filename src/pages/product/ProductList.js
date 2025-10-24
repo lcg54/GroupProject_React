@@ -77,7 +77,7 @@ export default function ProductList({ user }) {
     try {
       const res = await axios.get(`${API_BASE_URL}/product/popular`);
       const pop = res.data.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 10) - 2100,
+        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
       }));
       setPopularProducts(pop);
     } catch (err) {
@@ -100,7 +100,7 @@ export default function ProductList({ user }) {
         },
       });
       const newProducts = res.data.products.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 10) - 2100,
+        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
       }));
 
       if (reset) {

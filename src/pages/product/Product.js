@@ -34,7 +34,7 @@ export default function Product({ user }) {
 
   const getMonthlyPrice = () => {
     if (!product) return 0;
-    return Math.round(product.price / (selectedPeriod * 8) - 5100);
+    return Math.round(product.price / (selectedPeriod * 20) - 5100);
   };
 
   const handleRental = async () => {

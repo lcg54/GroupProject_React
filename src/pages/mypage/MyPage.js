@@ -1,14 +1,15 @@
-import { useState } from "react";
-import { Container, Row, Col, Button } from "react-bootstrap";
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import '../commonness/commonness.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Container, Row, Col, Button } from "react-bootstrap";
 import ServiceDate from './ServiceDate';
 import ExtensionOrReturn from './EOR/ExtensionOrReturn';
-import CartList from '../CartList';
+import CartList from '../cart/CartList';
+import InquiryList from '../InquiryList';
 import Receipt from './Receipt';
-import { useNavigate } from "react-router-dom";
-import '../commonness/commonness.css'
 import EditPage from "../EditPage";
+import MyCalendar from "./calendar/MyRentalCalender";
 
 const MyPage = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -42,16 +43,22 @@ const MyPage = ({ user, setUser }) => {
   function renderContent(button) {
     switch (button.text) {
       case '내 카트':
-        return navigate('/cart')
+        // return navigate('/cart')
+        return <CartList user={user} />;
       // 이렇게 간의 페이지처럼 보여주던지 경로로 아에 넘기든 할 생각
       case '결제 내역':
         return <Receipt />;
       case '서비스 알림':
-        return <ServiceDate />;
+        return <MyCalendar />;
       case '내 문의사항':
-        return <p>메뉴4 전용 내용</p>;
+        return <InquiryList />;
+      // navigate('/inquiry/list');
       case '내 정보 수정':
-        return <EditPage user={user} setUser={setUser} />;
+        // <<<<<<< HEAD
+        //         return navigate('/member/edit');
+        // =======
+        return <EditPage user={user} setUser={setUser} isFromMyPage={true} />;
+      // >>>>>>> origin/develop
       case '연장/반납':
         return <ExtensionOrReturn />;
       default:
@@ -77,8 +84,8 @@ const MyPage = ({ user, setUser }) => {
         {buttons.map((button, idx) => (
           <Col key={idx} xs={4} className="mb-4">
             <Button
-              variant="outline-primary"
-              className="w-100 d-flex flex-column align-items-center py-4 rounded-3 button button:hover button-Size"
+              variant="outline-primary "
+              className="button mypage w-100 d-flex flex-column align-items-center py-4 rounded-3"
               onClick={() => handleClick(button)} // 클릭 이벤트
             >
               <span style={{ fontSize: "2.5rem", marginBottom: "8px" }}>{button.icon}</span>
@@ -90,10 +97,10 @@ const MyPage = ({ user, setUser }) => {
 
       {/* 버튼중 내 카트, 서비스 알림(달력으로 표시), 내 문의사항, 연장 반납 선택시 보여주는 화면 추가 */}
       {clickedButton?.text && (
-        <div className="mt-4 p-3 border rounded bg-light">
-          <h5>🔍 선택한 메뉴: {clickedButton.text}</h5>
-          {renderContent(clickedButton)}
-        </div>
+
+
+        <>{renderContent(clickedButton)}</>
+
       )}
 
       {/* 1개~3개정도 주문내역 생각중 */}

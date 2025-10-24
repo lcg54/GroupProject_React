@@ -1,4 +1,4 @@
-import { Container, Card, Pagination, Spinner } from "react-bootstrap";
+import { Container, Card, Pagination, Spinner, ProgressBar, Dropdown, DropdownButton } from "react-bootstrap";
 import { StarFill, StarHalf, Star } from "react-bootstrap-icons";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -6,6 +6,26 @@ import { API_BASE_URL } from "../config/url";
 import axios from "axios";
 
 export default function ReviewList() {
+  
+  const navigate = useNavigate();
+
+  /* 2025년 10월 23일 목요일
+
+  0  평균 별점 표시 → product.averageRating.toFixed(1)
+
+  0  별점 그림 랜더링  → renderStars(product.averageRating.toFixed(1))
+
+  0  별점구간별 비율 막대그래프 표시 → ProgressBar
+
+  0  정렬 - 추천순, 최신순, 오래된순, 평점높은순, 평점낮은순 → Dropdown
+
+  0  회원이름 가운데글자 *처리
+
+  0  추천버튼  → <button onClick={(e)=>{추천올라가는메서드}}>도움이 돼요 👍{review.recommend}</button>
+
+  X  사진 첨부 기능 (다 되면 나중에)
+
+  */
   const { id } = useParams();
   const [reviews, setReviews] = useState([]);
   const [sortOrder, setSortOrder] = useState("latest");
@@ -14,6 +34,10 @@ export default function ReviewList() {
   const [currentPage, setCurrentPage] = useState(1); // 1 기반
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 5;
+
+  const [averageRating, setAverageRating] = useState(0);
+  const [ratingCounts, setRatingCounts] = useState([0, 0, 0, 0, 0]);
+
 
   // 리뷰 불러오기
   useEffect(() => {
@@ -34,6 +58,11 @@ export default function ReviewList() {
       const data = res.data;
       setReviews(data.content);
       setTotalPages(data.totalPages);
+
+      // 평점 전체 평균값 들어가야 함
+      if (data.averageRating !== undefined) setAverageRating(data.averageRating);
+      if (data.ratingCounts !== undefined) setRatingCounts(data.ratingCounts);
+
     } catch (err) {
       console.error("리뷰 불러오기 실패:", err);
       alert("리뷰를 불러오는 중 오류가 발생했습니다.");
@@ -46,8 +75,8 @@ export default function ReviewList() {
   const renderStars = (rating) => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
-      if (rating >= i) stars.push(<StarFill key={`full-${i}`} color="#FFD700" />); 
-      else if (rating >= i - 0.5)  stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
+      if (rating >= i) stars.push(<StarFill key={`full-${i}`} color="#FFD700" />);
+      else if (rating >= i - 0.5) stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
       else stars.push(<Star key={`empty-${i}`} color="#ccc" />);
     }
     console.log(typeof rating, rating);
@@ -84,40 +113,104 @@ export default function ReviewList() {
     return <Pagination className="justify-content-center">{items}</Pagination>;
   };
 
+  const maskName = (name) => {
+    if (!name) return "";
+    if (name.length === 1) return name;
+    return name[0] + "*".repeat(name.length - 1);
+  };
+
+
+  const calculateRatingCounts = (reviews) => {
+    const counts = [0, 0, 0, 0, 0];
+    reviews.forEach((r) => {
+      const rating = Math.round(r.rating);
+      if (rating >= 1 && rating <= 5) counts[rating - 1]++;
+    });
+    return counts;
+  };
+
+  const handleRecommend = async (reviewId) => {
+    try {
+      await axios.post(`${API_BASE_URL}/review/recommend`, { reviewId });
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === reviewId ? { ...r, recommend: (r.recommend || 0) + 1 } : r
+        )
+      );
+    } catch (err) {
+      console.error("실패:", err);
+      alert("오류가 발생했습니다.");
+    }
+  };
+
   return (
     <Container style={{ maxWidth: "800px" }}>
       <h2 className="mb-3 text-center">상품후기</h2>
 
       <div className="text-end mb-3">
-        <button>후기 작성</button>
+        <button onClick={() => navigate(`/review/write`)}>후기 작성</button>
+      </div>
+
+      <div className="mb-3 text-center" >
+        <Card>
+          <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
+            <div style={{ fontSize: "1.2rem", width: "50%", textAlign: "center", }}>
+              전체 평균 평점
+              <p>
+                {renderStars(averageRating)}{" "}
+                <span className="text-muted" style={{ fontSize: "1rem" }}>
+                  ({averageRating.toFixed(1)})
+                </span>
+              </p>
+            </div>
+            <div style={{ width: "50%", textAlign: "center" }}>
+              {/* ProgressBar */}
+              <div className="m-2">
+                {(() => {
+                  const maxCount = Math.max(...ratingCounts, 1); // 0 나눗셈 방지
+                  return [5, 4, 3, 2, 1].map((level) => {
+                    const count = ratingCounts[level - 1];
+                    const percent = (count / maxCount) * 100; // 상대 비율
+                    const variant =
+                      level === 5 ? "success"
+                        : level === 4 ? "info"
+                          : level === 3 ? "warning"
+                            : level === 2 ? "danger"
+                              : "secondary";
+                    return (
+                      <div
+                        key={level}
+                        className="d-flex align-items-center"
+                        style={{ gap: "10px", marginBottom: "6px" }}
+                      >
+                        <span style={{ width: "50px", textAlign: "right" }}>{level}점</span>
+                        <ProgressBar
+                          now={percent}
+                          variant="secondary"
+                          style={{ flex: 1, height: "15px" }}
+                        />
+                        <span style={{ width: "50px", textAlign: "left" }}>{count}개</span>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+          </div>
+        </Card>
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-3">
         <span>전체 {reviews.length}</span>
-        <div>
-          <span
-            style={{
-              cursor: "pointer",
-              color: sortOrder === "latest" ? "blue" : "inherit",
-              textDecoration: sortOrder === "latest" ? "underline" : "none",
-              marginRight: "10px",
-            }}
-            onClick={() => setCurrentPage(1) || setSortOrder("latest")}
-          >
-            최신순
-          </span>
-          <span
-            style={{
-              cursor: "pointer",
-              color: sortOrder === "oldest" ? "blue" : "inherit",
-              textDecoration: sortOrder === "oldest" ? "underline" : "none",
-            }}
-            onClick={() => setCurrentPage(1) || setSortOrder("oldest")}
-          >
-            오래된순
-          </span>
-        </div>
+        <DropdownButton title="정렬">
+          <Dropdown.Item onClick={() => { setSortOrder("recommend"); setCurrentPage(1) }}>추천순</Dropdown.Item>
+          <Dropdown.Item onClick={() => { setSortOrder("latest"); setCurrentPage(1) }}>최신순</Dropdown.Item>
+          <Dropdown.Item onClick={() => { setSortOrder("oldest"); setCurrentPage(1) }}>오래된순</Dropdown.Item>
+          <Dropdown.Item onClick={() => { setSortOrder("high"); setCurrentPage(1) }}>평점높은순</Dropdown.Item>
+          <Dropdown.Item onClick={() => { setSortOrder("low"); setCurrentPage(1) }}>평점낮은순</Dropdown.Item>
+        </DropdownButton>
       </div>
+
 
       {loading ? (
         <div className="text-center">
@@ -136,7 +229,7 @@ export default function ReviewList() {
                 </span>
               </p>
               <div className="d-flex justify-content-between text-muted">
-                <span>{review.memberName}</span>
+                <span>{maskName(review.memberName)}</span>
                 <span>{new Date(review.regDate).toLocaleString()}</span>
               </div>
               <div className="my-2">{review.content}</div>
@@ -147,6 +240,17 @@ export default function ReviewList() {
                   ))}
                 </div>
               )}
+
+              <div className="mt-1">
+                <button
+                  className="btn btn-outline-primary"
+                  onClick={() => handleRecommend(review.id)}>
+                  추천 👍
+                </button>
+                {review.recommend > 0 && (
+                  <span className="ms-2">{review.recommend}</span>
+                )}
+              </div>
             </Card.Body>
           </Card>
         ))

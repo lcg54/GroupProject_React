@@ -37,3 +37,34 @@
     transform: rotate(360deg);
   }
 }
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  /* 화면 전체 높이 */
+}
+
+.content {
+  flex: 1;
+  /* 푸터 제외한 공간 차지 */
+  padding: 10px 20px;
+  box-sizing: border-box;
+}
+
+.footer {
+  /* fixed 하지 말고 flex로 맨 아래 */
+  height: 80px;
+  background-color: #222;
+  color: white;
+  text-align: center;
+  padding: 1rem 0;
+  box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.3);
+}

@@ -1,10 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from "react";
-
 import { Card, Col, Container, Form, Row, Spinner, Button } from "react-bootstrap";
 import { Search, PencilSquare, Trash } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
 import CategoryGrid from "./CategoryGrid";
@@ -26,22 +24,15 @@ export default function ProductList({ user }) {
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
-  const location = useLocation();  // 추가된 부분: URL 쿼리 파라미터 사용
+  const location = useLocation();
   const observer = useRef();
   const searchRef = useRef(null);
 
-
   // 관리자 여부 확인
   const isAdmin = user?.role === 'ADMIN';
-  
-  console.log("Current User:", user);
-  console.log("Is Admin:", isAdmin);
-
   useEffect(() =>{
-    console.log("ProdctList - user prop:", user);
-    console.log("ProductList - user.role:", user?.role);
-    console.log("ProductList - isAdmin:", isAdmin);
-  }, [user,isAdmin]);
+    console.log("user: ", user);
+  }, [user, isAdmin]);
 
   // URL의 쿼리 파라미터에서 category 값 파싱하여 초기 설정
   useEffect(() => {
@@ -51,7 +42,6 @@ export default function ProductList({ user }) {
       setCategory([cat]);
     }
   }, [location.search]);
-
 
   // 필터 바뀌면 목록 리셋
   useEffect(() => {
@@ -65,7 +55,7 @@ export default function ProductList({ user }) {
     if (hasMore) {
       fetchProductList();
     }
-  }, [page, category, brand, available, sortBy, keyword]);
+  }, [page, category, brand, available, sortBy]);
 
   // 인기상품 3개 불러오기 (고정)
   useEffect(() => {
@@ -87,7 +77,7 @@ export default function ProductList({ user }) {
     try {
       const res = await axios.get(`${API_BASE_URL}/product/popular`);
       const pop = res.data.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 10) - 2100,
+        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
       }));
       setPopularProducts(pop);
     } catch (err) {
@@ -110,7 +100,7 @@ export default function ProductList({ user }) {
       const res= await axios.get(`${API_BASE_URL}/product/list`, {params: sp});
 
       const newProducts = res.data.products.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 10) - 2100,
+        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
       }));
 
       if (reset) {
@@ -123,7 +113,6 @@ export default function ProductList({ user }) {
         setHasMore(false);
       }
     }
-
     } catch (err) {
       alert("상품 목록을 불러오는 중 오류가 발생했습니다.");
     } finally {
@@ -175,7 +164,7 @@ export default function ProductList({ user }) {
   };
 
   return (
-    <Container className="mt-4" style={{ maxWidth: "900px" }}>
+    <Container className="mt-4 productlist-bg" style={{ maxWidth: "900px" }}>
       {/* 상단 카테고리 영역 */}
       <CategoryGrid
         category={category}

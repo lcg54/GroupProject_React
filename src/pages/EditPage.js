@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 import "./EditPage.css";
 
-export default function EditPage({ user, setUser }) {
+export default function EditPage({ user, setUser, isFromMyPage = false }) {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -190,9 +190,9 @@ export default function EditPage({ user, setUser }) {
   }
 
   return (
-    <div className="edit-page">
-      <div className="wrapper">
-        <div className="container">
+    <div className={`edit-page ${isFromMyPage ? "fromMyPage" : ""}`}>
+      <div className={`wrapper ${isFromMyPage ? "full" : ""}`}>
+        <div className={`container ${isFromMyPage ? "full" : ""}`}>
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             <h1>내 정보 수정</h1>
 

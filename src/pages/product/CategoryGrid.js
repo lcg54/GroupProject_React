@@ -11,7 +11,6 @@ export default function CategoryGrid({ category = [], setCategory, onClickCatego
     axios
       .get(`${API_BASE_URL}/product/category/images`)
       .then((res) => {
-        console.log("카테고리 이미지 API 결과:", res.data);
         setImages(res.data);
       })
       .catch((err) => {

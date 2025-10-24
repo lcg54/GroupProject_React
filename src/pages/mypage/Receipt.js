@@ -38,6 +38,7 @@ export default function Receipt() {
                                         {/* 여기 내용을 넣으세요 */}
                                         월 납입금: {bean.price.toLocaleString()}원
                                     </Card.Text>
+                                    
                                 </div>
                             </Card>
                         </Col>

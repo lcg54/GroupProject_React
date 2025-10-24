@@ -7,7 +7,7 @@ import InquiryList from '../InquiryList';
 import ReviewList from "../ReviewList";
 
 export default function Product({ user }) {
-  const { id } = useParams(); // 상품아이디
+  const { id } = useParams();
   const [product, setProduct] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(6);
   const [rentalStart, setRentalStart] = useState("");
@@ -32,15 +32,22 @@ export default function Product({ user }) {
     }
   };
 
-  // 월 대여료 계산 로직 (임시) (rentalService에 있는 것과 동일)
+  // 월 대여료 계산 로직
   const getMonthlyPrice = () => {
     if (!product) return 0;
-    return product.price / (selectedPeriod * 8) - 5100;
+    return Math.floor(product.price / (selectedPeriod * 8) - 5100);
   };
 
   const handleRental = async () => {
-    if (!user) { alert("로그인이 필요합니다."); return; }
-    if (!rentalStart) { alert("대여 시작일을 선택해주세요."); return; }
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      navigate('/member/login');
+      return;
+    }
+    if (!rentalStart) {
+      alert("대여 시작일을 선택해주세요.");
+      return;
+    }
 
     const rentalData = {
       memberId: user.id,
@@ -49,39 +56,61 @@ export default function Product({ user }) {
           productId: Number(id),
           quantity: 1,
           periodYears: selectedPeriod,
-          rentalStart,
+          rentalStart: rentalStart,
         },
       ],
     };
 
     if (!window.confirm(`
-      상품명: ${product.name}
-      대여시작일: ${rentalStart}
-      대여기간: ${selectedPeriod}년
-      월 납부액: ${getMonthlyPrice().toLocaleString()}원
-      총 납부액: ${(getMonthlyPrice()*selectedPeriod*12).toLocaleString()}원\n
-      대여를 신청하시겠습니까?
+상품명: ${product.name}
+대여시작일: ${rentalStart}
+대여기간: ${selectedPeriod}년
+월 납부액: ${getMonthlyPrice().toLocaleString()}원
+총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원
+
+대여를 신청하시겠습니까?
     `)) return;
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/rental`, rentalData);
+      const res = await axios.post(`${API_BASE_URL}/api/rental`, rentalData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
       alert("대여가 완료되었습니다!");
       console.log("대여 결과:", res.data);
+
+      // 마이페이지로 이동
+      if (window.confirm("결제 내역을 확인하시겠습니까?")) {
+        navigate('/mypage');
+      }
     } catch (err) {
       console.error("대여 요청 실패:", err);
-      alert("대여 중 오류가 발생했습니다.");
+
+      // 에러 메시지 상세 표시
+      if (err.response) {
+        const errorMsg = err.response.data?.message || "대여 신청에 실패했습니다.";
+        alert(errorMsg);
+      } else if (err.request) {
+        alert("서버에 연결할 수 없습니다. 네트워크를 확인해주세요.");
+      } else {
+        alert("대여 중 오류가 발생했습니다: " + err.message);
+      }
     }
   };
 
   const handleCart = () => {
     if (!user) {
       alert("로그인이 필요합니다.");
+      navigate('/member/login');
       return;
     }
     if (!window.confirm(`
-      상품명: ${product.name}
-      대여기간: ${selectedPeriod}년\n
-      장바구니에 추가하시겠습니까?
+상품명: ${product.name}
+대여기간: ${selectedPeriod}년
+
+장바구니에 추가하시겠습니까?
     `)) return;
     // 추가할것: try {카트아이템 추가하는 axios} catch
     navigate(`/cart`);
@@ -109,11 +138,11 @@ export default function Product({ user }) {
       <Row className="mb-5">
         <Col md={6}>
           <Carousel>
-            {[product.mainImage, ...(product.images?.map(img => img.url) || [])].map((src, i) => (
+            {[product.mainImage, ...(product.images || [])].map((src, i) => (
               <Carousel.Item key={i}>
                 <img
                   className="d-block w-100 rounded"
-                  src={`${API_BASE_URL}/images/${src}`}
+                  src={`${API_BASE_URL}/images/${typeof src === 'string' ? src : src.url || src}`}
                   alt={`상품 이미지 ${i + 1}`}
                   style={{ height: "400px", objectFit: "cover" }}
                 />
@@ -124,14 +153,14 @@ export default function Product({ user }) {
 
         <Col md={6}>
           <h2 className="mb-3 fw-bold">{product.name}</h2>
-          <p className="text-muted mb-4">{product.brand} / {product.category}</p> 
+          <p className="text-muted mb-4">{product.brand} / {product.category}</p>
 
           <div className="mb-3">
             <strong>대여 시작일</strong>
             <Form.Control
               type="date"
               value={rentalStart}
-              min={new Date().toISOString().split("T")[0]} // 오늘 이후만 선택
+              min={new Date().toISOString().split("T")[0]}
               onChange={(e) => setRentalStart(e.target.value)}
             />
           </div>
@@ -146,7 +175,7 @@ export default function Product({ user }) {
                     className="w-100 py-3"
                     onClick={() => setSelectedPeriod(year)}
                   >
-                    {year}년 ({year*12}개월)
+                    {year}년 ({year * 12}개월)
                   </Button>
                 </Col>
               ))}
@@ -158,7 +187,7 @@ export default function Product({ user }) {
               {getMonthlyPrice().toLocaleString()} ₩ / 월
             </h4>
             <p className="text-muted">
-              총 납부액 : {(getMonthlyPrice()*selectedPeriod*12).toLocaleString()} ₩
+              총 납부액 : {(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()} ₩
               <br />
               일시불(원가) : {product.price.toLocaleString()} ₩
             </p>

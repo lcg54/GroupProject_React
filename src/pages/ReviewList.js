@@ -102,16 +102,6 @@ export default function ReviewList({ user }) {
     return name[0] + "*".repeat(name.length - 1);
   };
 
-
-  const calculateRatingCounts = (reviews) => {
-    const counts = [0, 0, 0, 0, 0];
-    reviews.forEach((r) => {
-      const rating = Math.round(r.rating);
-      if (rating >= 1 && rating <= 5) counts[rating - 1]++;
-    });
-    return counts;
-  };
-
   const handleRecommend = async (reviewId) => {
     try {
       await axios.post(`${API_BASE_URL}/review/recommend`, { reviewId });

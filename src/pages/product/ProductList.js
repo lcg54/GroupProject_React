@@ -91,7 +91,7 @@ export default function ProductList({ user }) {
       const res = await axios.get(`${API_BASE_URL}/product/list`, {
         params: {
           page: reset ? 1 : page,
-          size: 10,
+          size: 12,
           category: category.length > 0 ? category : null,
           brand: brand.length > 0 ? brand : null,
           available: available,

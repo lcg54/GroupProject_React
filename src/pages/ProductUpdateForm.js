@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Container, Form, Button, Alert, Card, Row, Col, InputGroup,
-  Badge, Toast, ToastContainer, ProgressBar, Modal, OverlayTrigger, Tooltip, Stack
+  Badge, OverlayTrigger, Tooltip, Stack
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
@@ -197,7 +197,7 @@ export default function ProductUpdateForm() {
       await axios.put(`${API_BASE_URL}/product/${id}`, body, {
         withCredentials: true,
       });
-      alert("✅ 상품 수정이 완료되었습니다.");
+      alert("상품 수정이 완료되었습니다.");
       navigate("/product/list");
     } catch (err) {
       const data = err.response?.data;
@@ -205,7 +205,7 @@ export default function ProductUpdateForm() {
        (data && typeof data === "object" && data.message) ? data.message :
        (typeof data === "string" ? data : null) ||
        err.message;
-      setErrorMsg(`❌ 상품 수정 중 오류가 발생했습니다: ${serverMsg}`);
+      setErrorMsg(`상품 수정 중 오류가 발생했습니다: ${serverMsg}`);
     } finally {
       setSaving(false);
     }
@@ -214,7 +214,7 @@ export default function ProductUpdateForm() {
   // 삭제
   const handleDelete = async () => {
     if (!id) { 
-      setErrorMsg("❌ 삭제할 상품 ID를 찾을 수 없습니다."); 
+      setErrorMsg("삭제할 상품 ID를 찾을 수 없습니다."); 
       return; 
     }
     const ok = window.confirm(`"${formData.name}" 상품을 정말로 삭제하시겠습니까?`);
@@ -224,10 +224,10 @@ export default function ProductUpdateForm() {
     setErrorMsg("");
     try {
       await axios.delete(`${API_BASE_URL}/product/${id}`, { withCredentials: true });
-      alert(`✅ 상품 "${formData.name}"이(가) 삭제되었습니다.`);
+      alert(`상품 "${formData.name}"이(가) 삭제되었습니다.`);
       navigate("/product/list");
     } catch (err) {
-      setErrorMsg(`❌ 상품 삭제 중 오류가 발생했습니다: ${err.response?.data?.message || err.message}`);
+      setErrorMsg(`상품 삭제 중 오류가 발생했습니다: ${err.response?.data?.message || err.message}`);
     } finally {
       setDeleting(false);
     }

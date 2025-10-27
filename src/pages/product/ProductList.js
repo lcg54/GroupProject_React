@@ -151,10 +151,10 @@ export default function ProductList({ user }) {
       await axios.delete(`${API_BASE_URL}/product/${product.id}`);
       setProducts(prev => prev.filter(p => p.id !== product.id));
       setPopularProducts(prev => prev.filter(p => p.id !== product.id));
+      alert(`"${product.name}" 상품이 성공적으로 삭제되었습니다.`);
       
       fetchProductList(true); 
     } catch (err) {
-      console.error("상품 삭제 중 오류 발생:", err);
       alert("상품 삭제 중 오류가 발생했습니다. 권한을 확인해주세요.");
     } finally{
       setLoading(false);

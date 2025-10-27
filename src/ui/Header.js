@@ -131,7 +131,7 @@ export default function Header({ user, onLogout }) {
         <Button variant="light" onClick={() => { navigate('/cart'); setMenuOpen(false); }}>
           장바구니
         </Button>
-<<<<<<< HEAD
+
               {user?.role === "ADMIN" && (
                   <>
                 <Button
@@ -145,27 +145,13 @@ export default function Header({ user, onLogout }) {
                 </Button>
         </>
         )}
-=======
+
         <Button variant="light" onClick={() => { navigate('/'); setMenuOpen(false); }}>
           주문내역
         </Button>
-
-        {user && user.role === "ADMIN" && (
-          <>
-            <Button variant="light" onClick={() => { navigate('/admin/product/register'); setMenuOpen(false); }}>
-              상품등록
-            </Button>
             <Button variant="light" onClick={() => { navigate('/saleshistory'); setMenuOpen(false); }}>
               판매실적
             </Button>
-          </>
-
-        )}
-
-
-
-
->>>>>>> 56ad30af012a834a4e7e041df02a5a0a5f064d7e
         <hr />
 
         {user ? (

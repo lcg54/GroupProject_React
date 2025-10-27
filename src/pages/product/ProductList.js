@@ -73,11 +73,16 @@ export default function ProductList({ user }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const calcMonthly = (price) => {
+  const monthlyRaw = price / (6 * 20) - 5100; // 기존 공식 유지
+  return Math.max(0, Math.round(monthlyRaw)); // 정수 반올림, 음수 방지
+  };
+
   const fetchPopularProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/product/popular`);
       const pop = res.data.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
+        ...p, monthlyPrice: calcMonthly(p.price),
       }));
       setPopularProducts(pop);
     } catch (err) {
@@ -100,7 +105,7 @@ export default function ProductList({ user }) {
       const res= await axios.get(`${API_BASE_URL}/product/list`, {params: sp});
 
       const newProducts = res.data.products.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
+        ...p, monthlyPrice: calcMonthly(p.price),
       }));
 
       if (reset) {
@@ -143,7 +148,7 @@ export default function ProductList({ user }) {
 
     setLoading(true);
     try {
-      await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
+      await axios.delete(`${API_BASE_URL}/product/${product.id}`);
       setProducts(prev => prev.filter(p => p.id !== product.id));
       setPopularProducts(prev => prev.filter(p => p.id !== product.id));
       
@@ -278,6 +283,7 @@ export default function ProductList({ user }) {
                                     <PencilSquare size={14} className="me-1" /> 수정
                                   </Button>
                                 <Button 
+                                    type="button"
                                     size="sm" 
                                     variant="outline-danger" 
                                     onClick={(e) => handleDelete(e, p)}
@@ -376,6 +382,7 @@ export default function ProductList({ user }) {
                         수정
                       </Button>
                     <Button 
+                        type="button"
                         size="sm" 
                         variant="outline-danger" 
                         onClick={(e) => handleDelete(e, product)}

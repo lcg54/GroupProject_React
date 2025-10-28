@@ -36,6 +36,13 @@ const MyPage = ({ user, setUser }) => {
     return (
       <Container className="mt-4 text-center">
         <h4>로그인이 필요합니다.</h4>
+        <Button
+          variant="primary"
+          className="mt-3"
+          onClick={() => navigate('/member/login')}
+        >
+          로그인하기
+        </Button>
       </Container>
     );
   }
@@ -47,7 +54,7 @@ const MyPage = ({ user, setUser }) => {
         return <CartList user={user} />;
       // 이렇게 간의 페이지처럼 보여주던지 경로로 아에 넘기든 할 생각
       case '결제 내역':
-        return <Receipt />;
+        return <Receipt user={user} />;
       case '서비스 알림':
         return <MyCalendar />;
       case '내 문의사항':

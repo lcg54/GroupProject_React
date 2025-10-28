@@ -4,17 +4,18 @@ import MyPage from "../pages/mypage/MyPage";
 
 import ProductList from '../pages/product/ProductList';
 import Product from '../pages/product/Product';
+import CartList from "../pages/cart/CartList";
+import Receipt from "../pages/mypage/Receipt";
+
+import AdminRentalListPage from "../pages/AdminRentalListPage";
+import SalesHistory from '../pages/SalesHistory';
+import ProductInsertForm from "../pages/ProductInsertForm";
+import ProductUpdateForm from "../pages/ProductUpdateForm";
 
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
-import SalesHistory from '../pages/SalesHistory';
 import ReviewList from '../pages/ReviewList';
 import ReviewWrite from '../pages/ReviewWrite';
-
-import CartList from "../pages/cart/CartList";
-
-import ProductInsertForm from "../pages/ProductInsertForm";
-import ProductUpdateForm from "../pages/ProductUpdateForm";
 
 import AuthPage from './../pages/AuthPage';
 import LogoutPage from './../pages/LogoutPage';
@@ -30,7 +31,10 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/product/list" element={<ProductList user={user} />} />
       <Route path="/product/:id" element={<Product user={user} />} />
       <Route path="/cart" element={<CartList user={user} />} />
+      <Route path="/receipt" element={<Receipt user={user} />} />
 
+      <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
+      <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />
       <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
       <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />
 
@@ -38,8 +42,6 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/inquiry/write" element={<InquiryWrite />} />
       <Route path="/review/list" element={<ReviewList />} />
       <Route path="/review/write" element={<ReviewWrite />} />
-
-      <Route path="/saleshistory" element={<SalesHistory user={user} />} />
 
       {/* 로그인/회원가입을 하나의 페이지로 통합 */}
       <Route path="/member/login" element={<AuthPage setUser={setUser} />} />

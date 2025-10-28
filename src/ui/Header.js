@@ -125,30 +125,35 @@ export default function Header({ user, onLogout }) {
         <Button variant="light" onClick={() => { navigate('/product/list'); setMenuOpen(false); }}>
           상품목록
         </Button>
-        <Button variant="light" onClick={() => { navigate('/mypage'); setMenuOpen(false); }}>
-          마이페이지
-        </Button>
-        <Button variant="light" onClick={() => { navigate('/cart'); setMenuOpen(false); }}>
-          장바구니
-        </Button>
-        <Button variant="light" onClick={() => { navigate('/'); setMenuOpen(false); }}>
-          주문내역
-        </Button>
-
+        {user && user.role === "USER" && (
+          <>
+            <Button variant="light" onClick={() => { navigate('/mypage'); setMenuOpen(false); }}>
+              마이페이지
+            </Button>
+            <Button variant="light" onClick={() => { navigate('/receipt'); setMenuOpen(false); }}>
+              주문내역
+            </Button>
+            <Button variant="light" onClick={() => { navigate('/cart'); setMenuOpen(false); }}>
+              장바구니
+            </Button>
+          </>
+        )}
         {user && user.role === "ADMIN" && (
           <>
             <Button variant="light" onClick={() => { navigate('/admin/product/register'); setMenuOpen(false); }}>
               상품등록
             </Button>
-            <Button variant="light" onClick={() => { navigate('/saleshistory'); setMenuOpen(false); }}>
-              판매실적
+            <Button variant="light" onClick={() => { navigate('/admin/rental'); setMenuOpen(false); }}>
+              대여현황관리
+            </Button>
+            <Button variant="light" onClick={() => { navigate('/admin/saleshistory'); setMenuOpen(false); }}>
+              판매실적조회
+            </Button>
+            <Button variant="light" onClick={() => { navigate('/cart'); setMenuOpen(false); }}>
+              장바구니조회
             </Button>
           </>
-
         )}
-
-
-
 
         <hr />
 

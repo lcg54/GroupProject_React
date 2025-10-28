@@ -73,11 +73,16 @@ export default function ProductList({ user }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const calcMonthly = (price) => {
+    const monthlyRaw = price / (6 * 20) - 5100; // 기존 공식 유지
+    return Math.max(0, Math.round(monthlyRaw)); // 정수 반올림, 음수 방지
+  };
+
   const fetchPopularProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/product/popular`);
       const pop = res.data.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
+        ...p, monthlyPrice: calcMonthly(p.price),
       }));
       setPopularProducts(pop);
     } catch (err) {
@@ -88,19 +93,19 @@ export default function ProductList({ user }) {
   const fetchProductList = async (reset = false) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/product/list`, {
-        params: {
-          page: reset ? 1 : page,
-          size: 10,
-          category: category.length > 0 ? category : null,
-          brand: brand.length > 0 ? brand : null,
-          available: available,
-          sortBy: sortBy,
-          keyword: keyword.trim() || null,
-        },
-      });
+      const sp = new URLSearchParams();
+      sp.set("page", reset ? 1 : page);
+      sp.set("size", 10);
+      if (category.length) category.forEach(c => sp.append("category", c));
+      if (brand.length) brand.forEach(b => sp.append("brand", b));
+      if (available !== null) sp.set("available", String(available));
+      if (sortBy) sp.set("sortBy", sortBy);
+      if (keyword.trim()) sp.set("keyword", keyword.trim());
+
+      const res = await axios.get(`${API_BASE_URL}/product/list`, { params: sp });
+
       const newProducts = res.data.products.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
+        ...p, monthlyPrice: calcMonthly(p.price),
       }));
 
       if (reset) {
@@ -143,13 +148,15 @@ export default function ProductList({ user }) {
 
     setLoading(true);
     try {
-      await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
+      await axios.delete(`${API_BASE_URL}/product/${product.id}`);
       setProducts(prev => prev.filter(p => p.id !== product.id));
       setPopularProducts(prev => prev.filter(p => p.id !== product.id));
 
+      alert(`"${product.name}" 상품이 성공적으로 삭제되었습니다.`);
+
       fetchProductList(true);
+
     } catch (err) {
-      console.error("상품 삭제 중 오류 발생:", err);
       alert("상품 삭제 중 오류가 발생했습니다. 권한을 확인해주세요.");
     } finally {
       setLoading(false);
@@ -270,17 +277,22 @@ export default function ProductList({ user }) {
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
                         <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
 
-                        {isAdmin && (
+
+                        {isAdmin && isAvailable && (
                           <div className="d-flex gap-2 mt-2">
                             <Button
                               size="sm"
                               variant="outline-primary"
-                              onClick={(e) => handleUpdate(e, p.id)}
+                              onClick={(e) => {
+                                console.log("🧩 인기상품 수정 클릭 - productId:", p.id);
+                                handleUpdate(e, p.id);
+                              }}
                               style={{ flex: 1 }}
                             >
                               <PencilSquare size={14} className="me-1" /> 수정
                             </Button>
                             <Button
+                              type="button"
                               size="sm"
                               variant="outline-danger"
                               onClick={(e) => handleDelete(e, p)}
@@ -289,9 +301,10 @@ export default function ProductList({ user }) {
                               <Trash size={14} className="me-1" /> 삭제
                             </Button>
                           </div>
-                        )}
-                      </Card.Body>
-                    </Card>
+                        )
+                        }
+                      </Card.Body >
+                    </Card >
                     <div
                       style={{
                         position: 'absolute',
@@ -307,113 +320,129 @@ export default function ProductList({ user }) {
                     >
                       인기상품
                     </div>
-                    {!isAvailable && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: 8,
-                          right: 8,
-                          background: 'rgba(255, 0, 0, 0.75)',
-                          color: '#fff',
-                          padding: '4px 8px',
-                          borderRadius: 12,
-                          fontSize: 12,
-                          zIndex: 3,
-                        }}
-                      >
-                        재고소진
-                      </div>
-                    )}
-                  </div>
-                </Col>
+                    {
+                      !isAvailable && (
+                        <div
+                          style={{
+                            position: 'absolute',
+                            top: 8,
+                            right: 8,
+                            background: 'rgba(255, 0, 0, 0.75)',
+                            color: '#fff',
+                            padding: '4px 8px',
+                            borderRadius: 12,
+                            fontSize: 12,
+                            zIndex: 3,
+                          }}
+                        >
+                          재고소진
+                        </div>
+                      )
+                    }
+                  </div >
+                </Col >
               );
             })}
-          </Row>
+          </Row >
         </>
       )}
 
       {/* 일반 목록 (가로형 카드) */}
-      {products.map((product, idx) => {
-        const availableStock = getAvailableStock(product);
-        const isAvailable = availableStock > 0;
-        return (
-          <div
-            key={product.id}
-            ref={idx === products.length - 1 ? lastProductRef : null}
-            className="d-flex align-items-center mb-3 p-2 border rounded"
-            style={{
-              backgroundColor: isAvailable ? "#fff" : "#f8f8f8",
-              opacity: isAvailable ? 1 : 0.55,
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-            onClick={() => navigate(`/product/${product.id}`)}
-          >
-            <img
-              src={`${API_BASE_URL}/images/${product.mainImage}`}
-              alt={product.name}
+      {
+        products.map((product, idx) => {
+          const availableStock = getAvailableStock(product);
+          const isAvailable = availableStock > 0;
+          return (
+            <div
+              key={product.id}
+              ref={idx === products.length - 1 ? lastProductRef : null}
+              className="d-flex align-items-center mb-3 p-2 border rounded"
               style={{
-                width: 120,
-                height: 120,
-                objectFit: "contain",
-                borderRadius: 8,
-                marginRight: 16,
+                backgroundColor: isAvailable ? "#fff" : "#f8f8f8",
+                opacity: isAvailable ? 1 : 0.55,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
               }}
-            />
-            <div className="flex-grow-1">
-              <h5 className="mb-1">{product.name}</h5>
-              <p className="mb-1 text-muted">⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})</p>
-              <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
-            </div>
-            {isAdmin && (
-              <div className="d-flex flex-column gap-1 ms-3">
-                <Button
-                  size="sm"
-                  variant="outline-primary"
-                  onClick={(e) => handleUpdate(e, product.id)}
-                >
-                  <PencilSquare size={14} className="me-1" />
-                  수정
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline-danger"
-                  onClick={(e) => handleDelete(e, product)}
-                >
-                  <Trash size={14} className="me-1" />
-                  삭제
-                </Button>
-              </div>
-            )}
-            {!isAvailable && (
-              <div
+              onClick={() => navigate(`/product/${product.id}`)}
+            >
+              <img
+                src={`${API_BASE_URL}/images/${product.mainImage}`}
+                alt={product.name}
                 style={{
-                  background: "rgba(255,0,0,0.75)",
-                  color: "#fff",
-                  padding: "4px 8px",
+                  width: 120,
+                  height: 120,
+                  objectFit: "contain",
                   borderRadius: 8,
-                  fontSize: 12,
+                  marginRight: 16,
                 }}
-              >
-                재고소진
+              />
+              <div className="flex-grow-1">
+                <h5 className="mb-1">{product.name}</h5>
+                <p className="mb-1 text-muted">⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})</p>
+                <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
               </div>
-            )}
+
+              {isAdmin && isAvailable && (
+                <div className="d-flex flex-column gap-1 ms-3">
+                  <Button
+                    size="sm"
+                    variant="outline-primary"
+                    onClick={(e) => {
+                      console.log("🧩 수정 버튼 클릭됨 - productId:", product.id);
+                      handleUpdate(e, product.id);
+                    }}
+                  >
+                    <PencilSquare size={14} className="me-1" />
+                    수정
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline-danger"
+                    onClick={(e) => handleDelete(e, product)}
+                  >
+                    <Trash size={14} className="me-1" />
+                    삭제
+                  </Button>
+                </div>
+
+              )
+              }
+              {
+                !isAvailable && (
+                  <div
+                    style={{
+                      background: "rgba(255,0,0,0.75)",
+                      color: "#fff",
+                      padding: "4px 8px",
+                      borderRadius: 8,
+                      fontSize: 12,
+                    }}
+                  >
+                    재고소진
+                  </div>
+                )
+              }
+            </div >
+          );
+        })}
+
+      {
+        loading && (
+          <div className="text-center mt-3">
+            <Spinner animation="border" />
+            <h5 className="mt-2">상품 정보를 불러오는 중입니다...</h5>
           </div>
-        );
-      })}
+        )
+      }
 
-      {loading && (
-        <div className="text-center mt-3">
-          <Spinner animation="border" />
-          <h5 className="mt-2">상품 정보를 불러오는 중입니다...</h5>
-        </div>
-      )}
-
-      {!hasMore && (
-        <div className="text-center mt-3 mb-5 text-muted">
-          모든 상품을 불러왔습니다.
-        </div>
-      )}
-    </Container>
+      {
+        !hasMore && (
+          <div className="text-center mt-3 mb-5 text-muted">
+            모든 상품을 불러왔습니다.
+          </div>
+        )
+      }
+    </Container >
   );
 }

@@ -34,18 +34,15 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    alert(`로그아웃 되었습니다.`)
   };
 
   return (
     <AppWrapper className="app-container">
-      {/* 헤더 + 라우트 영역 */}
-
       <Header user={user} onLogout={handleLogout} />
       <div className="content">
         <AppRoutes user={user} setUser={setUser} handleLogout={handleLogout} />
       </div>
-
-      {/* 푸터 항상 맨 아래 */}
       <Footer />
     </AppWrapper>
   );

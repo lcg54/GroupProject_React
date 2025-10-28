@@ -126,8 +126,8 @@ export default function CartList({ user }) {
 
   // 관리자 전용 화면
   if (user.role === "ADMIN") {
-    const totalQuantity = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
-    const totalAmount = products.reduce((sum, p) => sum + ((p.estimatedPrice || 0) * (p.quantity || 0)), 0);
+    // const totalQuantity = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
+    // const totalAmount = products.reduce((sum, p) => sum + ((p.estimatedPrice || 0) * (p.quantity || 0)), 0);
 
     return (
       <Container style={{ maxWidth: '900px', backgroundColor: '#f1ead7', padding: '2rem', borderRadius: '10px' }}>

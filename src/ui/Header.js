@@ -76,7 +76,7 @@ export default function Header({ user, onLogout }) {
           aria-expanded={menuOpen}
           className="me-3"
         >
-          <List size={30} color="#fff" />
+          <List size={30} color="#000" />
         </Button>
 
         <Nav className="ms-auto d-none d-lg-flex align-items-center me-3">

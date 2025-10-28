@@ -204,13 +204,15 @@ export default function Product({ user }) {
               <Button
                 variant="outline-secondary"
                 onClick={() => setQuantity(prev => Math.max(prev - 1, 1))}
+                disabled={product.availableStock === 0}
               >
                 -
               </Button>
-              <span className="px-3">{quantity}</span>
+              <span className="px-3">{product.availableStock === 0 ? 0 : quantity}</span>
               <Button
                 variant="outline-secondary"
                 onClick={() => setQuantity(prev => Math.min(prev + 1, product.availableStock))}
+                disabled={product.availableStock === 0}
               >
                 +
               </Button>
@@ -229,16 +231,14 @@ export default function Product({ user }) {
             </p>
           </div>
 
-          { user.role !== "ADMIN" && ( // 관리자면 버튼 없애버림
-            <div className="d-flex gap-3">
-              <Button variant="outline-primary" size="lg" onClick={handleCart}>
-                🛒 장바구니
-              </Button>
-              <Button variant="outline-danger" size="lg" onClick={handleRental}>
-                📦 신청하기
-              </Button>
-            </div>
-          )}
+          <div className="d-flex gap-3">
+            <Button variant="outline-primary" size="lg" onClick={handleCart} disabled={product.availableStock === 0 || user?.role === "ADMIN"}>
+              🛒 장바구니
+            </Button>
+            <Button variant="outline-danger" size="lg" onClick={handleRental} disabled={product.availableStock === 0  || user?.role === "ADMIN"}>
+              📦 신청하기
+            </Button>
+          </div>
         </Col>
       </Row>
 
@@ -272,10 +272,12 @@ export default function Product({ user }) {
 
       {showModal && (
         <Purchased
-          products={[{ 
-            ...product, 
-            rentalPeriod: selectedPeriod, 
-            imageUrl: product.mainImage 
+          products={[{
+            name: product.name,
+            imageUrl: product.mainImage,
+            rentalPeriod: selectedPeriod,
+            quantity: quantity,
+            estimatedPrice: calcMonthlyPrice(selectedPeriod, product.price)
           }]}
           onClose={() => setShowModal(false)}
         />

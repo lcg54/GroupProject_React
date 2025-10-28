@@ -290,7 +290,13 @@ export default function CartList({ user }) {
 
       {showModal && (
         <Purchased
-          products={purchasedInfo.products}
+          products={purchasedInfo.products.map(p => ({
+            name: p.name,
+            imageUrl: p.imageUrl,
+            rentalPeriod: p.rentalPeriod,
+            quantity: p.quantity,
+            estimatedPrice: p.estimatedPrice
+          }))}
           onClose={() => setShowModal(false)}
         />
       )}

@@ -31,6 +31,7 @@ export default function ProductList({ user }) {
 
   // 관리자 여부 확인
   const isAdmin = user?.role === 'ADMIN';
+
   useEffect(() =>{
     console.log("user: ", user);
   }, [user, isAdmin]);
@@ -358,34 +359,41 @@ export default function ProductList({ user }) {
                 marginRight: 16,
               }}
             />
-            <div className="flex-grow-1">
-              <h5 className="mb-1">{product.name}</h5>
-              <p className="mb-1 text-muted">⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})</p>
-              <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
+
+            <div className="d-flex flex-grow-1 justify-content-between align-items-center">
+              <div>
+                <h5 className="mb-1">{product.name}</h5>
+                <p className="mb-1">{product.brand}</p>
+                <p className="mb-1 text-muted">
+                  ⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})
+                </p>
+              </div>
+              <div className="text-end" style={{ marginRight: '20px' }}>
+                <div style={{ fontSize: '1.2rem' }}> 최대 월 {product.monthlyPrice.toLocaleString()}원</div>
+                <div style={{ fontSize: '0.9rem' }} className="mt-1"> x 6년 (72개월)</div>
+              </div>
             </div>
+            
             {isAdmin && isAvailable && (
-                <div className="d-flex flex-column gap-1 ms-3">
-                    <Button 
-                        size="sm" 
-                        variant="outline-primary" 
-                        onClick={(e) => {
-                          handleUpdate(e, product.id);
-                        }}
-                      >
-                        <PencilSquare size={14} className="me-1" /> 
-                        수정
-                      </Button>
-                    <Button 
-                        type="button"
-                        size="sm" 
-                        variant="outline-danger" 
-                        onClick={(e) => handleDelete(e, product)}
-                    >
-                        <Trash size={14} className="me-1" />
-                        삭제
-                    </Button>
-                </div>
+              <div className="d-flex flex-column gap-1 ms-3">
+                <Button 
+                  size="sm" 
+                  variant="outline-primary" 
+                  onClick={(e) => { handleUpdate(e, product.id); }}
+                >
+                  <PencilSquare size={14} className="me-1" /> 수정
+                </Button>
+                <Button 
+                  type="button"
+                  size="sm" 
+                  variant="outline-danger" 
+                  onClick={(e) => handleDelete(e, product)}
+                >
+                  <Trash size={14} className="me-1" /> 삭제
+                </Button>
+              </div>
             )}
+
             {!isAvailable && (
               <div
                 style={{

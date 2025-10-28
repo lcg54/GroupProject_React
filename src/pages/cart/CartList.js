@@ -1,13 +1,18 @@
 import { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Button, Form, Card, Spinner } from 'react-bootstrap';
-import axios from "axios";
 import { API_BASE_URL } from '../../config/url';
+import Purchased from "../modal/Purchased";
+import axios from "axios";
 import "./cart.css"
 
 export default function CartList({ user }) {
   const [products, setProducts] = useState([]);
   const [cartId, setCartId] = useState(null);
+
+  const [purchasedInfo, setPurchasedInfo] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -85,7 +90,11 @@ export default function CartList({ user }) {
           rentalStart: p.rentalStart
         }))
       });
-      alert("주문이 완료되었습니다!");
+      setPurchasedInfo({
+        products: selectedProducts,
+        totalPrice,
+      });
+      setShowModal(true);
       fetchCart();
     } catch (err) {
       console.error(err);
@@ -101,6 +110,7 @@ export default function CartList({ user }) {
       }
       fetchCart();
       alert(`선택하신 상품이 장바구니에서 삭제되었습니다.`);
+
     } catch (err) {
       console.error(err);
       alert("상품 삭제 중 오류가 발생했습니다.");
@@ -276,6 +286,13 @@ export default function CartList({ user }) {
             구매하기 ({selectedProducts.length})
           </Button>
         </Card>
+      )}
+
+      {showModal && (
+        <Purchased
+          products={purchasedInfo.products}
+          onClose={() => setShowModal(false)}
+        />
       )}
     </Container>
   );

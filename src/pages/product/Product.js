@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import InquiryList from "../InquiryList";
 import ReviewList from "../ReviewList";
-import Completed from "../modal/Purchased";
+import Purchased from "../modal/Purchased";
 import calcMonthlyPrice from "./calcMonthlyPrice";
 import axios from "axios";
 
@@ -269,10 +269,14 @@ export default function Product({ user }) {
           <InquiryList />
         </div>
       )}
+
       {showModal && (
-        <Completed
-          product={product}
-          period={selectedPeriod}
+        <Purchased
+          products={[{ 
+            ...product, 
+            rentalPeriod: selectedPeriod, 
+            imageUrl: product.mainImage 
+          }]}
           onClose={() => setShowModal(false)}
         />
       )}

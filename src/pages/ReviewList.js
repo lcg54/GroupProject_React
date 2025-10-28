@@ -147,12 +147,6 @@ export default function ReviewList({ user }) {
                   return [5, 4, 3, 2, 1].map((level) => {
                     const count = ratingCounts[level - 1];
                     const percent = (count / maxCount) * 100; // 상대 비율
-                    const variant =
-                      level === 5 ? "success"
-                        : level === 4 ? "info"
-                          : level === 3 ? "warning"
-                            : level === 2 ? "danger"
-                              : "secondary";
                     return (
                       <div
                         key={level}

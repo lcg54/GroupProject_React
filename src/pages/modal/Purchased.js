@@ -1,5 +1,3 @@
-// ExtensionOrReturnDetail.js
-import React from 'react';
 import { Modal, Button, Image, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { API_BASE_URL } from '../../config/url';

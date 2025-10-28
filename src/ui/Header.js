@@ -55,6 +55,7 @@ export default function Header({ user, onLogout }) {
   }, [menuOpen]);
 
   const handleLogoutClick = () => {
+    if (!window.confirm(`로그아웃 하시겠습니까?`)) return;
     if (onLogout) {
       onLogout();
     }

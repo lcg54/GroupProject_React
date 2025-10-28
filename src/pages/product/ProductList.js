@@ -2,10 +2,11 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, Col, Container, Form, Row, Spinner, Button } from "react-bootstrap";
 import { Search, PencilSquare, Trash } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
 import CategoryGrid from "./CategoryGrid";
+import calcMonthlyPrice from "./calcMonthlyPrice";
+import axios from "axios";
 
 export default function ProductList({ user }) {
   const [products, setProducts] = useState([]);
@@ -73,16 +74,11 @@ export default function ProductList({ user }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const calcMonthly = (price) => {
-  const monthlyRaw = price / (6 * 20) - 5100; // 기존 공식 유지
-  return Math.max(0, Math.round(monthlyRaw)); // 정수 반올림, 음수 방지
-  };
-
   const fetchPopularProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/product/popular`);
       const pop = res.data.map(p => ({
-        ...p, monthlyPrice: calcMonthly(p.price),
+        ...p, monthlyPrice: calcMonthlyPrice(6, p.price),
       }));
       setPopularProducts(pop);
     } catch (err) {
@@ -105,7 +101,7 @@ export default function ProductList({ user }) {
       const res= await axios.get(`${API_BASE_URL}/product/list`, {params: sp});
 
       const newProducts = res.data.products.map(p => ({
-        ...p, monthlyPrice: calcMonthly(p.price),
+        ...p, monthlyPrice: calcMonthlyPrice(6, p.price),
       }));
 
       if (reset) {
@@ -138,12 +134,12 @@ export default function ProductList({ user }) {
   }, [loading, hasMore]);
 
   const handleUpdate = useCallback((e, productId) => {
-  e.stopPropagation(); // 카드 클릭 방지
-  navigate(`/admin/product/update/${productId}`);
+    e.stopPropagation();
+    navigate(`/admin/product/update/${productId}`);
   }, [navigate]);
 
   const handleDelete = useCallback(async (e, product) => {
-    e.stopPropagation(); // 카드 클릭 이벤트 막기
+    e.stopPropagation();
    if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
 
     setLoading(true);
@@ -275,7 +271,6 @@ export default function ProductList({ user }) {
                                     size="sm" 
                                     variant="outline-primary" 
                                     onClick={(e) => {
-                                      console.log("🧩 인기상품 수정 클릭 - productId:", p.id);
                                       handleUpdate(e, p.id);
                                     }}
                                     style={{ flex: 1 }}
@@ -374,7 +369,6 @@ export default function ProductList({ user }) {
                         size="sm" 
                         variant="outline-primary" 
                         onClick={(e) => {
-                          console.log("🧩 수정 버튼 클릭됨 - productId:", product.id);
                           handleUpdate(e, product.id);
                         }}
                       >

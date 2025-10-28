@@ -68,7 +68,7 @@ const MyPage = ({ user, setUser }) => {
 
 
   return (
-    <Container className="mt-4" style={{ maxWidth: "750px" }}>
+    <Container className="mt-4" style={{ maxWidth: "750px", backgroundColor: '#f1f1f1ff' }}>
       {/* 인사말 */}
       <div
         className="mb-4 d-flex justify-content-between align-items-center"

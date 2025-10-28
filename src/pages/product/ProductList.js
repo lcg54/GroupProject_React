@@ -30,7 +30,7 @@ export default function ProductList({ user }) {
 
   // 관리자 여부 확인
   const isAdmin = user?.role === 'ADMIN';
-  useEffect(() =>{
+  useEffect(() => {
     console.log("user: ", user);
   }, [user, isAdmin]);
 
@@ -110,9 +110,9 @@ export default function ProductList({ user }) {
       } else {
         setProducts(prev => [...prev, ...newProducts]);
         if (newProducts.length === 0) {
-        setHasMore(false);
+          setHasMore(false);
+        }
       }
-    }
     } catch (err) {
       alert("상품 목록을 불러오는 중 오류가 발생했습니다.");
     } finally {
@@ -133,38 +133,44 @@ export default function ProductList({ user }) {
   }, [loading, hasMore]);
 
   const handleUpdate = useCallback((e, productId) => {
-  e.stopPropagation(); // 카드 클릭 방지
-  navigate(`/admin/product/update/${productId}`);
+    e.stopPropagation(); // 카드 클릭 방지
+    navigate(`/admin/product/update/${productId}`);
   }, [navigate]);
 
   const handleDelete = useCallback(async (e, product) => {
     e.stopPropagation(); // 카드 클릭 이벤트 막기
-   if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
+    if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
 
     setLoading(true);
     try {
       await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
       setProducts(prev => prev.filter(p => p.id !== product.id));
       setPopularProducts(prev => prev.filter(p => p.id !== product.id));
-      
-      fetchProductList(true); 
+
+      fetchProductList(true);
     } catch (err) {
       console.error("상품 삭제 중 오류 발생:", err);
       alert("상품 삭제 중 오류가 발생했습니다. 권한을 확인해주세요.");
-    } finally{
+    } finally {
       setLoading(false);
     }
   }, [navigate, fetchProductList]);
 
   // 재고 계산
   const getAvailableStock = (p) => {
-    return(
-    (p.totalStock ?? 0) - (p.reservedStock ?? 0) - (p.rentedStock ?? 0) - (p.repairStock ?? 0)
+    return (
+      (p.totalStock ?? 0) - (p.reservedStock ?? 0) - (p.rentedStock ?? 0) - (p.repairStock ?? 0)
     );
   };
 
   return (
-    <Container className="mt-4 productlist-bg" style={{ maxWidth: "900px" }}>
+    <Container className="mt-4 productlist-bg" style={{
+      maxWidth: "1000px",
+      backgroundColor: '#f1f1f1ff',
+      padding: "10px 20px",
+      width: "100%",
+      boxSizing: "border-box"
+    }}>
       {/* 상단 카테고리 영역 */}
       <CategoryGrid
         category={category}
@@ -249,7 +255,7 @@ export default function ProductList({ user }) {
                         cursor: "pointer",
                         opacity: isAvailable ? 1 : 0.55,
                         filter: isAvailable ? 'none' : 'grayscale(40%)',
-                        backgroundColor: isAvailable ? undefined : '#f7f7f7',
+                        backgroundColor: isAvailable ? undefined : '#ffffffff',
                       }}
                       onClick={() => navigate(`/product/${p.id}`)}
                     >
@@ -263,26 +269,26 @@ export default function ProductList({ user }) {
                         <Card.Title className="mb-1">{p.name}</Card.Title>
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
                         <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
-                        
+
                         {isAdmin && (
-                            <div className="d-flex gap-2 mt-2">
-                                <Button 
-                                    size="sm" 
-                                    variant="outline-primary" 
-                                    onClick={(e) => handleUpdate(e,p.id)}
-                                    style={{ flex: 1 }}
-                                >
-                                    <PencilSquare size={14} className="me-1" /> 수정
-                                </Button>
-                                <Button 
-                                    size="sm" 
-                                    variant="outline-danger" 
-                                    onClick={(e) => handleDelete(e, p)}
-                                    style={{ flex: 1 }}
-                                >
-                                    <Trash size={14} className="me-1" /> 삭제
-                                </Button>
-                            </div>
+                          <div className="d-flex gap-2 mt-2">
+                            <Button
+                              size="sm"
+                              variant="outline-primary"
+                              onClick={(e) => handleUpdate(e, p.id)}
+                              style={{ flex: 1 }}
+                            >
+                              <PencilSquare size={14} className="me-1" /> 수정
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline-danger"
+                              onClick={(e) => handleDelete(e, p)}
+                              style={{ flex: 1 }}
+                            >
+                              <Trash size={14} className="me-1" /> 삭제
+                            </Button>
+                          </div>
                         )}
                       </Card.Body>
                     </Card>
@@ -292,7 +298,7 @@ export default function ProductList({ user }) {
                         top: 8,
                         left: 8,
                         background: 'rgba(221, 217, 0, 1)',
-                        color: '#fff',
+                        color: '#ffffffff',
                         padding: '4px 8px',
                         borderRadius: 12,
                         fontSize: 12,
@@ -360,24 +366,24 @@ export default function ProductList({ user }) {
               <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
             </div>
             {isAdmin && (
-                <div className="d-flex flex-column gap-1 ms-3">
-                    <Button 
-                        size="sm" 
-                        variant="outline-primary" 
-                        onClick={(e) => handleUpdate(e, product.id)}
-                    >
-                        <PencilSquare size={14} className="me-1" /> 
-                        수정
-                    </Button>
-                    <Button 
-                        size="sm" 
-                        variant="outline-danger" 
-                        onClick={(e) => handleDelete(e, product)}
-                    >
-                        <Trash size={14} className="me-1" />
-                        삭제
-                    </Button>
-                </div>
+              <div className="d-flex flex-column gap-1 ms-3">
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  onClick={(e) => handleUpdate(e, product.id)}
+                >
+                  <PencilSquare size={14} className="me-1" />
+                  수정
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={(e) => handleDelete(e, product)}
+                >
+                  <Trash size={14} className="me-1" />
+                  삭제
+                </Button>
+              </div>
             )}
             {!isAvailable && (
               <div

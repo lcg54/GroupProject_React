@@ -57,29 +57,33 @@ const StyledDayPicker = styled(DayPicker)`
 `;
 
 export default function MyCalendar() {
-    const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(null);
 
-    const startDate = new Date(2025, 9, 20);
-    const endDate = new Date(2025, 9, 30);
+  const startDate = new Date(2025, 9, 20);
+  const endDate = new Date(2025, 9, 30);
+  const today = new Date();
 
-    const isDisabled = (date) => date < startDate || date > endDate;
+  const isDisabled = (date) => date < startDate || date > endDate;
 
-    return (
-        <CalendarWrapper>
-            <StyledDayPicker
-                mode="single"
-                selected={selected}
-                onSelect={setSelected}
-                disabled={isDisabled}
-                modifiers={{
-                    highlight: { from: startDate, to: endDate },
-                    selected: selected ? [selected] : [],
-                }}
-                modifiersClassNames={{
-                    highlight: "highlight-day",
-                    selected: "selected-day",
-                }}
-            />
-        </CalendarWrapper>
+  return (
+    <StyledDayPicker
+      mode="single"
+      selected={selected}
+      onSelect={setSelected}
+      disabled={(date) => {
+        const day = date.getDay();
+        const isWeekend = day === 0 || day === 6;
+        const isToday = date.toDateString() === today.toDateString();
+        return isWeekend || isToday;
+      }}
+      modifiers={{
+        highlight: { from: startDate, to: endDate },
+        selected: selected ? [selected] : [],
+      }}
+      modifiersClassNames={{
+        highlight: "highlight-day",
+        selected: "selected-day",
+      }}
+    />
     );
 }

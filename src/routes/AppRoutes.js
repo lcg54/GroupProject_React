@@ -5,7 +5,7 @@ import MyPage from "../pages/mypage/MyPage";
 import ProductList from '../pages/product/ProductList';
 import Product from '../pages/product/Product';
 import CartList from "../pages/cart/CartList";
-// import RentalList from "../pages/cart/RentalList"
+import Receipt from "../pages/mypage/Receipt";
 
 import AdminRentalListPage from "../pages/AdminRentalListPage";
 import SalesHistory from '../pages/SalesHistory';
@@ -31,7 +31,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/product/list" element={<ProductList user={user} />} />
       <Route path="/product/:id" element={<Product user={user} />} />
       <Route path="/cart" element={<CartList user={user} />} />
-      {/* <Route path="/rental" element={<RentalList user={user} />} /> */}
+      <Route path="/receipt" element={<Receipt user={user} />} />
 
       <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
       <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />

@@ -130,7 +130,7 @@ export default function Header({ user, onLogout }) {
             <Button variant="light" onClick={() => { navigate('/mypage'); setMenuOpen(false); }}>
               마이페이지
             </Button>
-            <Button variant="light" onClick={() => { navigate('/rental'); setMenuOpen(false); }}>
+            <Button variant="light" onClick={() => { navigate('/receipt'); setMenuOpen(false); }}>
               주문내역
             </Button>
             <Button variant="light" onClick={() => { navigate('/cart'); setMenuOpen(false); }}>

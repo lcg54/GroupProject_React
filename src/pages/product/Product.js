@@ -40,8 +40,15 @@ export default function Product({ user }) {
   };
 
   const handleRental = async () => {
-    if (!user) { alert("로그인이 필요합니다."); return; }
-    if (!rentalStart) { alert("대여 시작일을 선택해주세요."); return; }
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      navigate('/member/login');
+      return;
+    }
+    if (!rentalStart) {
+      alert("대여 시작일을 선택해주세요.");
+      return;
+    }
 
     const rentalData = {
       memberId: user.id,
@@ -50,7 +57,7 @@ export default function Product({ user }) {
           productId: Number(id),
           quantity: 1,
           periodYears: selectedPeriod,
-          rentalStart,
+          rentalStart: rentalStart,
         },
       ],
     };
@@ -60,26 +67,50 @@ export default function Product({ user }) {
       대여시작일: ${rentalStart}
       대여기간: ${selectedPeriod}년
       월 납부액: ${getMonthlyPrice().toLocaleString()}원
-      총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원\n
+      총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원
+      
       대여를 신청하시겠습니까?
     `)) return;
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/rental`, rentalData);
+      const res = await axios.post(`${API_BASE_URL}/api/rental`, rentalData, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      alert("대여가 완료되었습니다!");
       console.log("대여 결과:", res.data);
-      setShowCompleted(true);
+
+      // 마이페이지로 이동
+      if (window.confirm("결제 내역을 확인하시겠습니까?")) {
+        navigate('/mypage');
+      }
     } catch (err) {
       console.error("대여 요청 실패:", err);
-      alert("대여 중 오류가 발생했습니다.");
+
+      // 에러 메시지 상세 표시
+      if (err.response) {
+        const errorMsg = err.response.data?.message || "대여 신청에 실패했습니다.";
+        alert(errorMsg);
+      } else if (err.request) {
+        alert("서버에 연결할 수 없습니다. 네트워크를 확인해주세요.");
+      } else {
+        alert("대여 중 오류가 발생했습니다: " + err.message);
+      }
     }
   };
 
   const handleCart = async () => {
-    if (!user) { alert("로그인이 필요합니다."); return; }
-
+    if (!user) {
+      alert("로그인이 필요합니다.");
+      navigate('/member/login');
+      return;
+    }
     if (!window.confirm(`
       상품명: ${product.name}
       대여기간: ${selectedPeriod}년
+          
       장바구니에 추가하시겠습니까?
     `)) return;
 
@@ -121,6 +152,18 @@ export default function Product({ user }) {
     );
   }
 
+  const getDateString = (d) => {
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
+  const todayStr = getDateString(new Date());
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = getDateString(tomorrow);
+
   return (
     <Container className="mt-4" style={{ maxWidth: "700px" }}>
       <Row className="mb-5">
@@ -130,7 +173,7 @@ export default function Product({ user }) {
               <Carousel.Item key={i}>
                 <img
                   className="d-block w-100 rounded"
-                  src={`${API_BASE_URL}/images/${src}`}
+                  src={`${API_BASE_URL}/images/${typeof src === 'string' ? src : src.url || src}`}
                   alt={`상품 이미지 ${i + 1}`}
                   style={{ height: "400px", objectFit: "contain" }}
                 />
@@ -148,8 +191,17 @@ export default function Product({ user }) {
             <Form.Control
               type="date"
               value={rentalStart}
-              min={new Date().toISOString().split("T")[0]}
-              onChange={(e) => setRentalStart(e.target.value)}
+              min={tomorrowStr} // 오늘이 아닌 '내일'부터 선택 가능
+              onChange={(e) => {
+                const val = e.target.value;
+                // 사용자가 직접 오늘 날짜를 입력한 경우 처리
+                if (val === todayStr) {
+                  alert("대여 시작일은 내일부터 신청이 가능합니다.");
+                  setRentalStart(""); // 선택 취소
+                  return;
+                }
+                setRentalStart(val);
+              }}
             />
           </div>
 

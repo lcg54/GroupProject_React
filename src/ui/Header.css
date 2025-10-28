@@ -1,49 +1,25 @@
+/* Header */
 .header {
-    position: absolute;
+    position: sticky;
+    /* sticky로 스크롤 시 상단 고정 */
     top: 0;
-    /* 페이지 맨 위로 딱 붙게 */
-    left: 0;
-    right: 0;
-    height: 60px;
-    /* 헤더 높이 지정 */
-
     width: 100%;
-    transition: top 0.3s ease, opacity 0.3s ease;
+    height: 60px;
     z-index: 1100;
-    background-color: rgba(255, 255, 255, 0.01) !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    margin-top: 0;
-    /* 혹시 여백이나 경계 생기는 걸 막으려고 border, outline 없애기 */
-    border: none !important;
-    outline: none !important;
-    border-top: -20px solid transparent;
-
+    background-color: rgba(255, 255, 255, 0);
+    /* 살짝 투명도 조정 가능 */
+    transition: top 0.3s ease, opacity 0.3s ease;
+    /* box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); */
 }
 
-
+/* 스크롤에 따라 숨기기/보이기 */
 .header-visible {
+    top: 0;
     opacity: 1;
 }
 
 .header-hidden {
+    top: -70px;
+    /* 헤더 높이 + 여유 */
     opacity: 0;
-}
-
-.side-menu-button {
-    width: 100%;
-    /* 버튼 가로폭 전체 채우기 */
-    text-align: left;
-    /* 텍스트 왼쪽 정렬 */
-    padding: 0.5rem 1rem;
-    /* 위아래 0.5rem, 좌우 1rem 패딩 */
-    box-sizing: border-box;
-    /* 패딩 포함해서 너비 계산 */
-    white-space: nowrap;
-    /* 텍스트 줄바꿈 방지 */
-    overflow: hidden;
-    /* 넘치는 텍스트 숨김 */
-    text-overflow: ellipsis;
-    /* 넘칠 때 말줄임표 */
 }

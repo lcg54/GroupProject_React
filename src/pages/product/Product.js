@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Carousel, Nav, Spinner, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { API_BASE_URL } from "../../config/url";
 import axios from "axios";
-import InquiryList from '../InquiryList';
+import { API_BASE_URL } from "../../config/url";
+import InquiryList from "../InquiryList";
 import ReviewList from "../ReviewList";
+import Completed from "../completed/completed";
 
 export default function Product({ user }) {
-  const { id } = useParams();
+  const { id } = useParams(); // 상품 ID
   const [product, setProduct] = useState(null);
   const [selectedPeriod, setSelectedPeriod] = useState(6);
   const [rentalStart, setRentalStart] = useState("");
   const [activeTab, setActiveTab] = useState("detail");
   const [loading, setLoading] = useState(true);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const navigate = useNavigate();
 
@@ -32,10 +34,9 @@ export default function Product({ user }) {
     }
   };
 
-  // 월 대여료 계산 로직
   const getMonthlyPrice = () => {
     if (!product) return 0;
-    return Math.floor(product.price / (selectedPeriod * 8) - 5100);
+    return Math.round(product.price / (selectedPeriod * 20) - 5100);
   };
 
   const handleRental = async () => {
@@ -62,13 +63,13 @@ export default function Product({ user }) {
     };
 
     if (!window.confirm(`
-상품명: ${product.name}
-대여시작일: ${rentalStart}
-대여기간: ${selectedPeriod}년
-월 납부액: ${getMonthlyPrice().toLocaleString()}원
-총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원
-
-대여를 신청하시겠습니까?
+      상품명: ${product.name}
+      대여시작일: ${rentalStart}
+      대여기간: ${selectedPeriod}년
+      월 납부액: ${getMonthlyPrice().toLocaleString()}원
+      총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원
+      
+      대여를 신청하시겠습니까?
     `)) return;
 
     try {
@@ -100,21 +101,39 @@ export default function Product({ user }) {
     }
   };
 
-  const handleCart = () => {
+  const handleCart = async () => {
     if (!user) {
       alert("로그인이 필요합니다.");
       navigate('/member/login');
       return;
     }
     if (!window.confirm(`
-상품명: ${product.name}
-대여기간: ${selectedPeriod}년
-
-장바구니에 추가하시겠습니까?
+      상품명: ${product.name}
+      대여기간: ${selectedPeriod}년
+          
+      장바구니에 추가하시겠습니까?
     `)) return;
-    // 추가할것: try {카트아이템 추가하는 axios} catch
-    navigate(`/cart`);
-  }
+
+    try {
+      await axios.post(`${API_BASE_URL}/cart/add`, {
+        memberId: user.id,
+        items: [
+        {
+          productId: Number(id),
+          quantity: 1,
+          periodYears: selectedPeriod,
+          rentalStart: rentalStart || null, // 장바구니에 담을 땐 대여시작일 선택 안해도 가능
+        },
+      ],
+        
+      });
+      alert("장바구니에 추가되었습니다!");
+      navigate("/cart");
+    } catch (err) {
+      console.error("장바구니 추가 실패:", err);
+      alert("장바구니 추가 중 오류가 발생했습니다.");
+    }
+  };
 
   if (loading) {
     return (
@@ -156,7 +175,7 @@ export default function Product({ user }) {
                   className="d-block w-100 rounded"
                   src={`${API_BASE_URL}/images/${typeof src === 'string' ? src : src.url || src}`}
                   alt={`상품 이미지 ${i + 1}`}
-                  style={{ height: "400px", objectFit: "cover" }}
+                  style={{ height: "400px", objectFit: "contain" }}
                 />
               </Carousel.Item>
             ))}
@@ -208,13 +227,12 @@ export default function Product({ user }) {
               {getMonthlyPrice().toLocaleString()} ₩ / 월
             </h4>
             <p className="text-muted">
-              총 납부액 : {(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()} ₩
+              총 납부액: {(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()} ₩
               <br />
-              일시불(원가) : {product.price.toLocaleString()} ₩
+              일시불(원가): {product.price.toLocaleString()} ₩
             </p>
           </div>
 
-          {/* 버튼 영역 */}
           <div className="d-flex gap-3">
             <Button variant="outline-primary" size="lg" onClick={handleCart}>
               🛒 장바구니
@@ -226,13 +244,7 @@ export default function Product({ user }) {
         </Col>
       </Row>
 
-      {/* 탭 */}
-      <Nav
-        variant="tabs"
-        activeKey={activeTab}
-        onSelect={(k) => setActiveTab(k)}
-        className="mb-3"
-      >
+      <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
         <Nav.Item>
           <Nav.Link eventKey="detail">상세정보</Nav.Link>
         </Nav.Item>
@@ -244,7 +256,6 @@ export default function Product({ user }) {
         </Nav.Item>
       </Nav>
 
-      {/* 탭 내용 */}
       {activeTab === "detail" && (
         <div className="p-3 border rounded">
           <p className="mt-3">{product.description}</p>
@@ -252,13 +263,20 @@ export default function Product({ user }) {
       )}
       {activeTab === "review" && (
         <div className="p-3 border rounded">
-          <ReviewList />
+          <ReviewList user={user} />
         </div>
       )}
       {activeTab === "inquiry" && (
         <div className="p-3 border rounded">
           <InquiryList />
         </div>
+      )}
+      {showCompleted && (
+        <Completed
+          product={product}
+          period={selectedPeriod}
+          onClose={() => setShowCompleted(false)}
+        />
       )}
     </Container>
   );

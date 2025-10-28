@@ -2,30 +2,26 @@ import { useState, useEffect } from "react";
 import { Alert, Card, Col, Container, Row, Spinner, Form, InputGroup, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
+// API_BASE_URL 직접 정의
 const API_BASE_URL = "http://localhost:9000";
 
 export default function Receipt({ user }) {
     const navigate = useNavigate();
 
+    // 실제 API 데이터
     const [rentals, setRentals] = useState([]);
     const [filteredRentals, setFilteredRentals] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
 
     // 필터 및 정렬 상태
-    const [sortOption, setSortOption] = useState("recent"); // recent, oldest, priceHigh, priceLow, returnSoon
+    const [sortOption, setSortOption] = useState("recent");
     const [searchTerm, setSearchTerm] = useState("");
 
     // API에서 데이터 가져오기
     useEffect(() => {
-        console.log("Receipt 컴포넌트 마운트됨");
-        console.log("전달받은 user:", user);
-
-        if (user && user.id) {
-            console.log("fetchRentals 호출 예정");
+        if (user?.id) {
             fetchRentals();
-        } else {
-            console.warn("user 또는 user.id가 없음:", user);
         }
     }, [user]);
 
@@ -39,22 +35,13 @@ export default function Receipt({ user }) {
             setLoading(true);
             setError(null);
 
-            console.log("=== 대여 내역 조회 시작 ===");
-            console.log("사용자 정보:", user);
-            console.log("API URL:", `${API_BASE_URL}/api/rental/member/${user.id}`);
-
             const res = await fetch(`${API_BASE_URL}/api/rental/member/${user.id}`);
-
-            console.log("응답 상태:", res.status);
 
             if (!res.ok) {
                 throw new Error('대여 내역을 불러오는데 실패했습니다.');
             }
 
             const data = await res.json();
-            console.log("조회된 대여 내역:", data);
-            console.log("대여 건수:", data.length);
-
             setRentals(data);
         } catch (err) {
             console.error("에러 발생:", err);
@@ -76,11 +63,12 @@ export default function Receipt({ user }) {
             );
         }
 
+        // 정렬
         switch (sortOption) {
-            case "recent": // 최근 임대 시작
+            case "recent": // 최근 주문 순
                 filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 break;
-            case "oldest": // 첫 임대 시작
+            case "oldest": // 오래된 주문 순
                 filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
                 break;
             case "priceHigh": // 가격 높은순
@@ -88,13 +76,6 @@ export default function Receipt({ user }) {
                 break;
             case "priceLow": // 가격 낮은순
                 filtered.sort((a, b) => a.totalPrice - b.totalPrice);
-                break;
-            case "returnSoon": // 반납일 임박
-                filtered.sort((a, b) => {
-                    const aEndDate = new Date(Math.min(...a.items.map(item => new Date(item.rentalEnd))));
-                    const bEndDate = new Date(Math.min(...b.items.map(item => new Date(item.rentalEnd))));
-                    return aEndDate - bEndDate;
-                });
                 break;
             default:
                 break;
@@ -133,8 +114,10 @@ export default function Receipt({ user }) {
     return (
         <Container>
             <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2>{user?.name || "000"}님의 결제내역</h2>
-
+                <h2>{user?.name || "회원"}님의 결제내역</h2>
+                <Button variant="outline-secondary" size="sm" onClick={fetchRentals}>
+                    🔄 새로고침
+                </Button>
             </div>
 
             {/* 정렬 및 검색 옵션 */}
@@ -145,9 +128,8 @@ export default function Receipt({ user }) {
                         onChange={(e) => setSortOption(e.target.value)}
                         size="sm"
                     >
-                        <option value="recent">최근 임대 시작</option>
-                        <option value="oldest">첫 임대 시작</option>
-                        <option value="returnSoon">반납일 임박</option>
+                        <option value="recent">최근 주문 순</option>
+                        <option value="oldest">오래된 주문 순</option>
                         <option value="priceHigh">가격 높은순</option>
                         <option value="priceLow">가격 낮은순</option>
                     </Form.Select>
@@ -190,6 +172,7 @@ export default function Receipt({ user }) {
                 </Alert>
             )}
 
+            {/* 실제 API 데이터 */}
             {!loading && !error && (
                 <>
                     {filteredRentals.length === 0 && rentals.length === 0 ? (
@@ -197,57 +180,55 @@ export default function Receipt({ user }) {
                     ) : filteredRentals.length === 0 ? (
                         <Alert variant="info">검색 결과가 없습니다.</Alert>
                     ) : (
-                        <>
-                            <Row>
-                                {filteredRentals.map((rental) => (
-                                    <Col key={rental.id} md={12} className="mb-4">
-                                        <Card className="h-100 shadow-sm">
-                                            <Card.Header className="bg-light d-flex justify-content-between align-items-center">
-                                                <span>
-                                                    <strong>주문번호:</strong> #{rental.id}
-                                                    <span className="ms-3 text-muted" style={{ fontSize: '0.9rem' }}>
-                                                        {formatDate(rental.createdAt)}
-                                                    </span>
+                        <Row>
+                            {filteredRentals.map((rental) => (
+                                <Col key={rental.id} md={12} className="mb-4">
+                                    <Card className="h-100 shadow-sm">
+                                        <Card.Header className="bg-light d-flex justify-content-between align-items-center">
+                                            <span>
+                                                <strong>주문번호:</strong> #{rental.id}
+                                                <span className="ms-3 text-muted" style={{ fontSize: '0.9rem' }}>
+                                                    {formatDate(rental.createdAt)}
                                                 </span>
-                                                {getStatusBadge(rental.status)}
-                                            </Card.Header>
-                                            <Card.Body>
-                                                {rental.items.map((item, idx) => (
-                                                    <div key={idx} className="mb-3 pb-3" style={{ borderBottom: idx < rental.items.length - 1 ? '1px solid #dee2e6' : 'none' }}>
-                                                        <div className="d-flex justify-content-between align-items-start">
-                                                            <div className="flex-grow-1">
-                                                                <Card.Title className="h6 mb-2">{item.productName}</Card.Title>
-                                                                <Card.Text className="text-muted mb-1" style={{ fontSize: '0.9rem' }}>
-                                                                    수량: {item.quantity}개 | 월 {formatPrice(item.pricePerUnit)} × {item.rentalPeriodYears}년
-                                                                </Card.Text>
-                                                                <Card.Text className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>
-                                                                    📅 대여 기간: {formatDate(item.rentalStart)} ~ {formatDate(item.rentalEnd)}
-                                                                </Card.Text>
-                                                            </div>
-                                                            <div className="text-end ms-3 d-flex flex-column align-items-end gap-2">
-                                                                <strong className="text-primary">{formatPrice(item.itemTotalPrice)}</strong>
-                                                                <Button
-                                                                    variant="outline-success"
-                                                                    size="sm"
-                                                                    onClick={() => navigate(`/product/${item.productId}`)}
-                                                                >
-                                                                    ✍️ 리뷰 작성
-                                                                </Button>
-                                                            </div>
+                                            </span>
+                                            {getStatusBadge(rental.status)}
+                                        </Card.Header>
+                                        <Card.Body>
+                                            {rental.items.map((item, idx) => (
+                                                <div key={idx} className="mb-3 pb-3" style={{ borderBottom: idx < rental.items.length - 1 ? '1px solid #dee2e6' : 'none' }}>
+                                                    <div className="d-flex justify-content-between align-items-start">
+                                                        <div className="flex-grow-1">
+                                                            <Card.Title className="h6 mb-2">{item.productName}</Card.Title>
+                                                            <Card.Text className="text-muted mb-1" style={{ fontSize: '0.9rem' }}>
+                                                                수량: {item.quantity}개 | 월 {formatPrice(item.pricePerUnit)} × {item.rentalPeriodYears}년
+                                                            </Card.Text>
+                                                            <Card.Text className="text-muted mb-0" style={{ fontSize: '0.85rem' }}>
+                                                                📅 대여 기간: {formatDate(item.rentalStart)} ~ {formatDate(item.rentalEnd)}
+                                                            </Card.Text>
+                                                        </div>
+                                                        <div className="text-end ms-3 d-flex flex-column align-items-end gap-2">
+                                                            <strong className="text-primary">{formatPrice(item.itemTotalPrice)}</strong>
+                                                            <Button
+                                                                variant="outline-success"
+                                                                size="sm"
+                                                                onClick={() => navigate(`/product/${item.productId}`)}
+                                                            >
+                                                                ✍️ 리뷰 작성
+                                                            </Button>
                                                         </div>
                                                     </div>
-                                                ))}
-
-                                                <div className="d-flex justify-content-between align-items-center mt-3 pt-3" style={{ borderTop: '2px solid #dee2e6' }}>
-                                                    <h5 className="mb-0">총 결제금액</h5>
-                                                    <h5 className="mb-0 text-success">{formatPrice(rental.totalPrice)}</h5>
                                                 </div>
-                                            </Card.Body>
-                                        </Card>
-                                    </Col>
-                                ))}
-                            </Row>
-                        </>
+                                            ))}
+
+                                            <div className="d-flex justify-content-between align-items-center mt-3 pt-3" style={{ borderTop: '2px solid #dee2e6' }}>
+                                                <h5 className="mb-0">총 결제금액</h5>
+                                                <h5 className="mb-0 text-success">{formatPrice(rental.totalPrice)}</h5>
+                                            </div>
+                                        </Card.Body>
+                                    </Card>
+                                </Col>
+                            ))}
+                        </Row>
                     )}
                 </>
             )}

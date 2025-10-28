@@ -1,0 +1,279 @@
+import { useEffect, useState } from "react";
+import { Container, Card, Row, Col, Spinner, Dropdown, Badge, Tabs, Tab, Pagination, Form } from "react-bootstrap";
+import axios from "axios";
+import { API_BASE_URL } from "../config/url";
+import { OrderStatus } from "../config/orderStatus";
+
+export default function AdminRentalListPage({ user }) {
+  const [rentals, setRentals] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("RESERVED");
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [currentPage, setCurrentPage] = useState({});
+  const [totalPagesMap, setTotalPagesMap] = useState({});
+  const [totalItemsMap, setTotalItemsMap] = useState({});
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    if (!user || user.role !== "ADMIN") return;
+    fetchTotalItems();
+    fetchRentals(activeTab, currentPage[activeTab] || 1);
+  }, [user, activeTab, currentPage]);
+
+  // 탭/페이지별 조회
+  const fetchRentals = async (status, page) => {
+    setLoading(true);
+    try {
+      const res = await axios.get(`${API_BASE_URL}/rental/control`, {
+        params: { status, page, size: itemsPerPage }
+      });
+      setRentals(res.data.items);
+      setTotalPagesMap((prev) => ({ ...prev, [status]: res.data.totalPages }));
+      setTotalItemsMap((prev) => ({ ...prev, [status]: res.data.totalItems }));
+    } catch (err) {
+      console.error("대여 내역 불러오기 실패:", err);
+      alert("대여 내역을 불러오는 중 오류가 발생했습니다.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 각 탭별 총 아이템 수 조회
+  const fetchTotalItems = async () => {
+    const counts = {};
+    await Promise.all(
+      OrderStatus.map(async (status) => {
+        try {
+          const res = await axios.get(`${API_BASE_URL}/rental/control/count`, { params: { status } });
+          counts[status] = res.data.totalItems;
+        } catch (err) {
+          console.error("총 아이템 수 조회 실패:", err);
+          counts[status] = 0;
+        }
+      })
+    );
+    setTotalItemsMap(counts);
+  };
+
+  // 상태 변경 (단일 상품)
+  const handleStatusChange = async (itemId, newStatus) => {
+    try {
+      await axios.patch(`${API_BASE_URL}/rental/control/status/${itemId}`, { newStatus });
+      setCurrentPage({});
+      await fetchTotalItems();
+      fetchRentals(activeTab, 1);
+      setSelectedItems([]);
+    } catch (err) {
+      console.error("상태 변경 실패:", err);
+      alert("상태 변경 중 오류가 발생했습니다.");
+    }
+  };
+
+  // 상태 변경 (체크된 상품)
+  const handleBulkStatusChange = async (newStatus) => {
+    if (selectedItems.length === 0) {
+      alert("변경할 상품을 선택해주세요.");
+      return;
+    }
+    if (!window.confirm(`선택한 ${selectedItems.length}개의 상품 상태를 '${statusLabel(newStatus)}'로 변경하시겠습니까?`)) return;
+
+    try {
+      await Promise.all(
+        selectedItems.map((id) =>
+          axios.patch(`${API_BASE_URL}/rental/control/status/${id}`, { newStatus })
+        )
+      );
+      alert("상태가 성공적으로 변경되었습니다.");
+      setCurrentPage({});
+      await fetchTotalItems();
+      fetchRentals(activeTab, 1);
+      setSelectedItems([]);
+    } catch (err) {
+      console.error("일괄 상태 변경 실패:", err);
+      alert("상태 변경 중 오류가 발생했습니다.");
+    }
+  };
+
+  const toggleSelectItem = (itemId) => {
+    setSelectedItems((prev) =>
+      prev.includes(itemId) ? prev.filter((id) => id !== itemId) : [...prev, itemId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    const allSelected = rentals.every((i) => selectedItems.includes(i.itemId));
+    if (allSelected) {
+      setSelectedItems((prev) => prev.filter((id) => !rentals.map((i) => i.itemId).includes(id)));
+    } else {
+      setSelectedItems((prev) => [...new Set([...prev, ...rentals.map((i) => i.itemId)])]);
+    }
+  };
+
+  if (loading) {
+    return (
+      <Container className="my-5 text-center">
+        <Spinner animation="border" />
+        <h4 className="mt-3">대여 현황을 불러오는 중입니다...</h4>
+      </Container>
+    );
+  }
+
+  return (
+    <Container className="mt-4" style={{ maxWidth: "1000px" }}>
+      <h2 className="mb-4 text-center">대여 현황 관리</h2>
+
+      {selectedItems.length > 0 && (
+        <div className="text-center mb-3">
+          <Dropdown>
+            <Dropdown.Toggle variant="success">
+              ✅ 선택된 상품 일괄 상태 변경 ({selectedItems.length}개)
+            </Dropdown.Toggle>
+            <Dropdown.Menu>
+              {OrderStatus.map((s) => (
+                <Dropdown.Item key={s} onClick={() => handleBulkStatusChange(s)}>
+                  {statusLabel(s)}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
+      )}
+
+      <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-4">
+        {OrderStatus.map((status) => (
+          <Tab
+            key={status}
+            eventKey={status}
+            title={
+              <>
+                {statusLabel(status)}{" "}
+                <Badge bg="secondary" pill>
+                  {totalItemsMap[status] || 0}
+                </Badge>
+              </>
+            }
+          >
+            {rentals.length > 0 ? (
+              <>
+                <Form.Check
+                  type="checkbox"
+                  label="전체 선택"
+                  className="mb-2"
+                  checked={rentals.every((i) => selectedItems.includes(i.itemId))}
+                  onChange={toggleSelectAll}
+                />
+                <Row xs={1} md={2} lg={2} className="g-4 mt-2">
+                  {rentals.map((item) => (
+                    <RentalCard
+                      key={item.itemId}
+                      item={item}
+                      selected={selectedItems.includes(item.itemId)}
+                      onSelect={() => toggleSelectItem(item.itemId)}
+                      onStatusChange={handleStatusChange}
+                    />
+                  ))}
+                </Row>
+
+                {totalPagesMap[status] > 1 && (
+                  <Pagination className="justify-content-center mt-4">
+                    <Pagination.First
+                      onClick={() => setCurrentPage((prev) => ({ ...prev, [status]: 1 }))}
+                      disabled={(currentPage[status] || 1) === 1}
+                    />
+                    <Pagination.Prev
+                      onClick={() => setCurrentPage((prev) => ({ ...prev, [status]: prev[status] - 1 }))}
+                      disabled={(currentPage[status] || 1) === 1}
+                    />
+                    {(() => {
+                      const current = currentPage[status] || 1;
+                      const startPage = Math.floor((current - 1) / 10) * 10 + 1;
+                      const endPage = Math.min(startPage + 9, totalPagesMap[status]);
+                      const pages = [];
+                      for (let i = startPage; i <= endPage; i++) {
+                        pages.push(
+                          <Pagination.Item
+                            key={i}
+                            active={current === i}
+                            onClick={() => setCurrentPage((prev) => ({ ...prev, [status]: i }))}
+                          >
+                            {i}
+                          </Pagination.Item>
+                        );
+                      }
+                      return pages;
+                    })()}
+                    <Pagination.Next
+                      onClick={() => setCurrentPage((prev) => ({ ...prev, [status]: prev[status] + 1 }))}
+                      disabled={(currentPage[status] || 1) === totalPagesMap[status]}
+                    />
+                    <Pagination.Last
+                      onClick={() => setCurrentPage((prev) => ({ ...prev, [status]: totalPagesMap[status] }))}
+                      disabled={(currentPage[status] || 1) === totalPagesMap[status]}
+                    />
+                  </Pagination>
+                )}
+              </>
+            ) : (
+              <p className="text-center text-muted my-5">해당 상태의 상품이 없습니다.</p>
+            )}
+          </Tab>
+        ))}
+      </Tabs>
+    </Container>
+  );
+}
+
+function statusLabel(status) {
+  const map = {
+    RESERVED: "⏳ 예약중",
+    SHIPPING: "🚚 배송중",
+    RENTED: "📦 대여중",
+    REPAIR: "🔧 수리중",
+    RETURNED: "📬 반납완료",
+    CANCELED: "❌ 취소",
+    LATE: "⚠️ 연체",
+  };
+  return map[status] || status;
+}
+
+function RentalCard({ item, onStatusChange, onSelect, selected }) {
+  return (
+    <Col>
+      <Card className={selected ? "border-primary shadow-sm" : ""}>
+        <Card.Body>
+          <div className="d-flex justify-content-between align-items-start mb-2">
+            <div className="d-flex align-items-start">
+              <Form.Check
+                type="checkbox"
+                checked={selected}
+                onChange={onSelect}
+                className="me-2"
+              />
+              <Card.Title className="mb-0">{item.productName}</Card.Title>
+            </div>
+            <Dropdown>
+              <Dropdown.Toggle variant="outline-primary" size="sm">
+                상태 변경
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {OrderStatus.map((s) => (
+                  <Dropdown.Item key={s} onClick={() => onStatusChange(item.itemId, s)}>
+                    {statusLabel(s)}
+                  </Dropdown.Item>
+                ))}
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+
+          <p className="mt-2 mb-0">
+            주문번호: {item.itemId}<br />
+            수량: {item.quantity}개<br />
+            대여 기간: {item.rentalPeriodYears}년<br />
+            시작일: {item.rentalStart}<br />
+            종료일: {item.rentalEnd}
+          </p>
+        </Card.Body>
+      </Card>
+    </Col>
+  );
+}

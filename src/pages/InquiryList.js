@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { Container, Row, Accordion, Card, Pagination } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
 
 function App() {
+    
+    const navigate = useNavigate();
 
     const inquiries = [
         {
@@ -142,7 +145,7 @@ function App() {
         <Container style={{ maxWidth: '800px' }}>
             <h2 className="mb-3 text-center">상품문의</h2>
             <div className="text-end mb-3">
-                <button>문의 작성</button>
+                <button onClick={() => navigate(`/inquiry/write`)}>문의 작성</button>
             </div>
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <span>전체 {inquiries.length}</span>

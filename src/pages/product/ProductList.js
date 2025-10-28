@@ -73,11 +73,16 @@ export default function ProductList({ user }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  const calcMonthly = (price) => {
+  const monthlyRaw = price / (6 * 20) - 5100; // 기존 공식 유지
+  return Math.max(0, Math.round(monthlyRaw)); // 정수 반올림, 음수 방지
+  };
+
   const fetchPopularProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/product/popular`);
       const pop = res.data.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
+        ...p, monthlyPrice: calcMonthly(p.price),
       }));
       setPopularProducts(pop);
     } catch (err) {
@@ -88,19 +93,19 @@ export default function ProductList({ user }) {
   const fetchProductList = async (reset = false) => {
     setLoading(true);
     try {
-      const res = await axios.get(`${API_BASE_URL}/product/list`, {
-        params: {
-          page: reset ? 1 : page,
-          size: 12,
-          category: category.length > 0 ? category : null,
-          brand: brand.length > 0 ? brand : null,
-          available: available,
-          sortBy: sortBy,
-          keyword: keyword.trim() || null,
-        },
-      });
+      const sp = new URLSearchParams();
+          sp.set("page", reset ? 1 : page);
+          sp.set("size", 10);
+          if (category.length) category.forEach( c => sp.append("category", c));
+          if (brand.length) brand.forEach( b => sp.append("brand", b));
+          if (available !== null) sp.set("available", String(available));
+          if (sortBy) sp.set("sortBy", sortBy);
+          if (keyword.trim()) sp.set("keyword", keyword.trim());
+        
+      const res= await axios.get(`${API_BASE_URL}/product/list`, {params: sp});
+
       const newProducts = res.data.products.map(p => ({
-        ...p, monthlyPrice: p.price / (6 * 20) - 5100,
+        ...p, monthlyPrice: calcMonthly(p.price),
       }));
 
       if (reset) {
@@ -143,13 +148,13 @@ export default function ProductList({ user }) {
 
     setLoading(true);
     try {
-      await axios.delete(`${API_BASE_URL}/product/delete/${product.id}`);
+      await axios.delete(`${API_BASE_URL}/product/${product.id}`);
       setProducts(prev => prev.filter(p => p.id !== product.id));
       setPopularProducts(prev => prev.filter(p => p.id !== product.id));
+      alert(`"${product.name}" 상품이 성공적으로 삭제되었습니다.`);
       
       fetchProductList(true); 
     } catch (err) {
-      console.error("상품 삭제 중 오류 발생:", err);
       alert("상품 삭제 중 오류가 발생했습니다. 권한을 확인해주세요.");
     } finally{
       setLoading(false);
@@ -264,17 +269,21 @@ export default function ProductList({ user }) {
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
                         <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
                         
-                        {isAdmin && (
+                        {isAdmin && isAvailable && (
                             <div className="d-flex gap-2 mt-2">
                                 <Button 
                                     size="sm" 
                                     variant="outline-primary" 
-                                    onClick={(e) => handleUpdate(e,p.id)}
+                                    onClick={(e) => {
+                                      console.log("🧩 인기상품 수정 클릭 - productId:", p.id);
+                                      handleUpdate(e, p.id);
+                                    }}
                                     style={{ flex: 1 }}
-                                >
+                                  >
                                     <PencilSquare size={14} className="me-1" /> 수정
-                                </Button>
+                                  </Button>
                                 <Button 
+                                    type="button"
                                     size="sm" 
                                     variant="outline-danger" 
                                     onClick={(e) => handleDelete(e, p)}
@@ -359,17 +368,21 @@ export default function ProductList({ user }) {
               <p className="mb-1 text-muted">⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})</p>
               <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
             </div>
-            {isAdmin && (
+            {isAdmin && isAvailable && (
                 <div className="d-flex flex-column gap-1 ms-3">
                     <Button 
                         size="sm" 
                         variant="outline-primary" 
-                        onClick={(e) => handleUpdate(e, product.id)}
-                    >
+                        onClick={(e) => {
+                          console.log("🧩 수정 버튼 클릭됨 - productId:", product.id);
+                          handleUpdate(e, product.id);
+                        }}
+                      >
                         <PencilSquare size={14} className="me-1" /> 
                         수정
-                    </Button>
+                      </Button>
                     <Button 
+                        type="button"
                         size="sm" 
                         variant="outline-danger" 
                         onClick={(e) => handleDelete(e, product)}

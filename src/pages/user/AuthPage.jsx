@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { API_BASE_URL } from "../config/url";
+import { API_BASE_URL } from "../../config/url";
 import "./SignupPage.css";
 
 export default function AuthPage({ setUser }) {

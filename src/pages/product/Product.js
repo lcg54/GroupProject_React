@@ -5,7 +5,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import InquiryList from "../InquiryList";
 import ReviewList from "../ReviewList";
-import Completed from "../completed/completed";
+import Completed from "../purchased/completed";
 
 export default function Product({ user }) {
   const { id } = useParams(); // 상품 ID

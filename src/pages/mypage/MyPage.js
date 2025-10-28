@@ -8,7 +8,7 @@ import ExtensionOrReturn from './EOR/ExtensionOrReturn';
 import CartList from '../cart/CartList';
 import InquiryList from '../InquiryList';
 import Receipt from './Receipt';
-import EditPage from "../EditPage";
+import EditPage from "../user/EditPage";
 import MyCalendar from "./calendar/MyRentalCalender";
 
 const MyPage = ({ user, setUser }) => {

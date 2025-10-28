@@ -7,19 +7,19 @@ import Product from '../pages/product/Product';
 import CartList from "../pages/cart/CartList";
 import Receipt from "../pages/mypage/Receipt";
 
-import AdminRentalListPage from "../pages/AdminRentalListPage";
-import SalesHistory from '../pages/SalesHistory';
-import ProductInsertForm from "../pages/ProductInsertForm";
-import ProductUpdateForm from "../pages/ProductUpdateForm";
+import AdminRentalListPage from "../pages/admin/AdminRentalListPage";
+import SalesHistory from '../pages/admin/SalesHistory';
+import ProductInsertForm from "../pages/admin/ProductInsertForm";
+import ProductUpdateForm from "../pages/admin/ProductUpdateForm";
 
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
 import ReviewList from '../pages/ReviewList';
 import ReviewWrite from '../pages/ReviewWrite';
 
-import AuthPage from './../pages/AuthPage';
-import LogoutPage from './../pages/LogoutPage';
-import EditPage from './../pages/EditPage';
+import AuthPage from './../pages/user/AuthPage';
+import LogoutPage from './../pages/user/LogoutPage';
+import EditPage from './../pages/user/EditPage';
 // import DrawalPage from './../pages/DrawalPage';
 
 export default function AppRoutes({ user, setUser, handleLogout }) {

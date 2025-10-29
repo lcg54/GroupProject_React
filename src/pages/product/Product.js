@@ -1,20 +1,23 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Carousel, Nav, Spinner, Form } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import InquiryList from "../InquiryList";
 import ReviewList from "../ReviewList";
-import Completed from "../completed/completed";
+import Purchased from "../modal/Purchased";
+import calcMonthlyPrice from "./calcMonthlyPrice";
+import axios from "axios";
 
 export default function Product({ user }) {
   const { id } = useParams(); // 상품 ID
   const [product, setProduct] = useState(null);
-  const [selectedPeriod, setSelectedPeriod] = useState(6);
   const [rentalStart, setRentalStart] = useState("");
+  const [selectedPeriod, setSelectedPeriod] = useState(6);
+  const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("detail");
+
+  const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [showCompleted, setShowCompleted] = useState(false);
 
   const navigate = useNavigate();
 
@@ -34,11 +37,6 @@ export default function Product({ user }) {
     }
   };
 
-  const getMonthlyPrice = () => {
-    if (!product) return 0;
-    return Math.round(product.price / (selectedPeriod * 20) - 5100);
-  };
-
   const handleRental = async () => {
     if (!user) {
       alert("로그인이 필요합니다.");
@@ -49,55 +47,38 @@ export default function Product({ user }) {
       alert("대여 시작일을 선택해주세요.");
       return;
     }
-
-    const rentalData = {
-      memberId: user.id,
-      items: [
-        {
-          productId: Number(id),
-          quantity: 1,
-          periodYears: selectedPeriod,
-          rentalStart: rentalStart,
-        },
-      ],
-    };
-
     if (!window.confirm(`
       상품명: ${product.name}
       대여시작일: ${rentalStart}
       대여기간: ${selectedPeriod}년
-      월 납부액: ${getMonthlyPrice().toLocaleString()}원
-      총 납부액: ${(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()}원
+      대여수량: ${quantity}개
+
+      월 납부액: ${calcMonthlyPrice(selectedPeriod, product.price).toLocaleString()}원
+      총 납부액: ${(calcMonthlyPrice(selectedPeriod, product.price) * selectedPeriod * 12).toLocaleString()}원
       
       대여를 신청하시겠습니까?
     `)) return;
 
     try {
-      const res = await axios.post(`${API_BASE_URL}/api/rental`, rentalData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+      await axios.post(`${API_BASE_URL}/rental`,
+        {
+          memberId: user.id,
+          items: [
+            {
+              productId: Number(id),
+              quantity: quantity,
+              periodYears: selectedPeriod,
+              rentalStart: rentalStart,
+            },
+          ],
+        }, 
+        { headers: {'Content-Type': 'application/json'} }
+      );
+      setShowModal(true);
 
-      alert("대여가 완료되었습니다!");
-      console.log("대여 결과:", res.data);
-
-      // 마이페이지로 이동
-      if (window.confirm("결제 내역을 확인하시겠습니까?")) {
-        navigate('/mypage');
-      }
     } catch (err) {
       console.error("대여 요청 실패:", err);
-
-      // 에러 메시지 상세 표시
-      if (err.response) {
-        const errorMsg = err.response.data?.message || "대여 신청에 실패했습니다.";
-        alert(errorMsg);
-      } else if (err.request) {
-        alert("서버에 연결할 수 없습니다. 네트워크를 확인해주세요.");
-      } else {
-        alert("대여 중 오류가 발생했습니다: " + err.message);
-      }
+      alert("대여 처리 중 오류가 발생했습니다.");
     }
   };
 
@@ -109,8 +90,13 @@ export default function Product({ user }) {
     }
     if (!window.confirm(`
       상품명: ${product.name}
+      대여시작일: ${rentalStart ? rentalStart : "미정"}
       대여기간: ${selectedPeriod}년
-          
+      대여수량: ${quantity}개
+
+      월 납부액: ${calcMonthlyPrice(selectedPeriod, product.price).toLocaleString()}원
+      총 납부액: ${(calcMonthlyPrice(selectedPeriod, product.price) * selectedPeriod * 12).toLocaleString()}원
+      
       장바구니에 추가하시겠습니까?
     `)) return;
 
@@ -118,17 +104,17 @@ export default function Product({ user }) {
       await axios.post(`${API_BASE_URL}/cart/add`, {
         memberId: user.id,
         items: [
-        {
-          productId: Number(id),
-          quantity: 1,
-          periodYears: selectedPeriod,
-          rentalStart: rentalStart || null, // 장바구니에 담을 땐 대여시작일 선택 안해도 가능
-        },
-      ],
-        
+          {
+            productId: Number(id),
+            quantity: quantity,
+            periodYears: selectedPeriod,
+            rentalStart: rentalStart || null, // 장바구니에 담을 땐 대여시작일 선택 안해도 가능하게
+          },
+        ],
       });
       alert("장바구니에 추가되었습니다!");
       navigate("/cart");
+
     } catch (err) {
       console.error("장바구니 추가 실패:", err);
       alert("장바구니 추가 중 오류가 발생했습니다.");
@@ -159,7 +145,6 @@ export default function Product({ user }) {
     return `${yyyy}-${mm}-${dd}`;
   };
 
-  const todayStr = getDateString(new Date());
   const tomorrow = new Date();
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = getDateString(tomorrow);
@@ -191,17 +176,8 @@ export default function Product({ user }) {
             <Form.Control
               type="date"
               value={rentalStart}
-              min={tomorrowStr} // 오늘이 아닌 '내일'부터 선택 가능
-              onChange={(e) => {
-                const val = e.target.value;
-                // 사용자가 직접 오늘 날짜를 입력한 경우 처리
-                if (val === todayStr) {
-                  alert("대여 시작일은 내일부터 신청이 가능합니다.");
-                  setRentalStart(""); // 선택 취소
-                  return;
-                }
-                setRentalStart(val);
-              }}
+              min={tomorrowStr} // 내일부터 선택 가능
+              onChange={(e) => { setRentalStart(e.target.value)}}
             />
           </div>
 
@@ -223,21 +199,43 @@ export default function Product({ user }) {
           </div>
 
           <div className="mb-4">
+            <strong>수량</strong>
+            <div className="d-flex align-items-center gap-2 mt-1">
+              <Button
+                variant="outline-secondary"
+                onClick={() => setQuantity(prev => Math.max(prev - 1, 1))}
+                disabled={product.availableStock === 0}
+              >
+                -
+              </Button>
+              <span className="px-3">{product.availableStock === 0 ? 0 : quantity}</span>
+              <Button
+                variant="outline-secondary"
+                onClick={() => setQuantity(prev => Math.min(prev + 1, product.availableStock))}
+                disabled={product.availableStock === 0}
+              >
+                +
+              </Button>
+            </div>
+            <small className="text-muted">최대 {product.availableStock}개까지 선택 가능</small>
+          </div>
+
+          <div className="mb-4">
             <h4 className="text-danger fw-bold">
-              {getMonthlyPrice().toLocaleString()} ₩ / 월
+              {calcMonthlyPrice(selectedPeriod, product.price).toLocaleString()} ₩ / 월
             </h4>
             <p className="text-muted">
-              총 납부액: {(getMonthlyPrice() * selectedPeriod * 12).toLocaleString()} ₩
+              총 납부액: {(calcMonthlyPrice(selectedPeriod, product.price) * selectedPeriod * 12).toLocaleString()} ₩
               <br />
               일시불(원가): {product.price.toLocaleString()} ₩
             </p>
           </div>
 
           <div className="d-flex gap-3">
-            <Button variant="outline-primary" size="lg" onClick={handleCart}>
+            <Button variant="outline-primary" size="lg" onClick={handleCart} disabled={product.availableStock === 0 || user?.role === "ADMIN"}>
               🛒 장바구니
             </Button>
-            <Button variant="outline-danger" size="lg" onClick={handleRental}>
+            <Button variant="outline-danger" size="lg" onClick={handleRental} disabled={product.availableStock === 0  || user?.role === "ADMIN"}>
               📦 신청하기
             </Button>
           </div>
@@ -271,11 +269,17 @@ export default function Product({ user }) {
           <InquiryList />
         </div>
       )}
-      {showCompleted && (
-        <Completed
-          product={product}
-          period={selectedPeriod}
-          onClose={() => setShowCompleted(false)}
+
+      {showModal && (
+        <Purchased
+          products={[{
+            name: product.name,
+            imageUrl: product.mainImage,
+            rentalPeriod: selectedPeriod,
+            quantity: quantity,
+            estimatedPrice: calcMonthlyPrice(selectedPeriod, product.price)
+          }]}
+          onClose={() => setShowModal(false)}
         />
       )}
     </Container>

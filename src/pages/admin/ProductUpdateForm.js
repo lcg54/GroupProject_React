@@ -5,7 +5,7 @@ import {
   Badge, OverlayTrigger, Tooltip, Stack
 } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
-import { API_BASE_URL } from "../config/url";
+import { API_BASE_URL } from "../../config/url";
 
 const CATEGORY_OPTIONS = ["REFRIGERATOR","WASHER","DRYER","AIRCON","TV","OVEN","MICROWAVE","OTHER"];
 const BRAND_OPTIONS = ["SAMSUNG","LG","DAEWOO","WINIA","CUCKOO","SK_MAGIC"];

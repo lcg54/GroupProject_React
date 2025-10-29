@@ -5,7 +5,7 @@ import {
   Toast, ToastContainer, ProgressBar, Modal, OverlayTrigger, Tooltip, Stack
 } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../config/url";
+import { API_BASE_URL } from "../../config/url";
 
 const CATEGORY_OPTIONS = [
   "REFRIGERATOR", "WASHER", "DRYER", "AIRCON",

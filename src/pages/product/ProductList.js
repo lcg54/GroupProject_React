@@ -2,10 +2,11 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { Card, Col, Container, Form, Row, Spinner, Button } from "react-bootstrap";
 import { Search, PencilSquare, Trash } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
 import CategoryGrid from "./CategoryGrid";
+import calcMonthlyPrice from "./calcMonthlyPrice";
+import axios from "axios";
 
 export default function ProductList({ user }) {
   const [products, setProducts] = useState([]);
@@ -30,6 +31,7 @@ export default function ProductList({ user }) {
 
   // 관리자 여부 확인
   const isAdmin = user?.role === 'ADMIN';
+
   useEffect(() => {
     console.log("user: ", user);
   }, [user, isAdmin]);
@@ -73,16 +75,11 @@ export default function ProductList({ user }) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const calcMonthly = (price) => {
-    const monthlyRaw = price / (6 * 20) - 5100; // 기존 공식 유지
-    return Math.max(0, Math.round(monthlyRaw)); // 정수 반올림, 음수 방지
-  };
-
   const fetchPopularProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/product/popular`);
       const pop = res.data.map(p => ({
-        ...p, monthlyPrice: calcMonthly(p.price),
+        ...p, monthlyPrice: calcMonthlyPrice(6, p.price),
       }));
       setPopularProducts(pop);
     } catch (err) {
@@ -105,7 +102,7 @@ export default function ProductList({ user }) {
       const res = await axios.get(`${API_BASE_URL}/product/list`, { params: sp });
 
       const newProducts = res.data.products.map(p => ({
-        ...p, monthlyPrice: calcMonthly(p.price),
+        ...p, monthlyPrice: calcMonthlyPrice(6, p.price),
       }));
 
       if (reset) {
@@ -138,12 +135,12 @@ export default function ProductList({ user }) {
   }, [loading, hasMore]);
 
   const handleUpdate = useCallback((e, productId) => {
-    e.stopPropagation(); // 카드 클릭 방지
+    e.stopPropagation();
     navigate(`/admin/product/update/${productId}`);
   }, [navigate]);
 
   const handleDelete = useCallback(async (e, product) => {
-    e.stopPropagation(); // 카드 클릭 이벤트 막기
+    e.stopPropagation();
     if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
 
     setLoading(true);
@@ -151,11 +148,9 @@ export default function ProductList({ user }) {
       await axios.delete(`${API_BASE_URL}/product/${product.id}`);
       setProducts(prev => prev.filter(p => p.id !== product.id));
       setPopularProducts(prev => prev.filter(p => p.id !== product.id));
-
       alert(`"${product.name}" 상품이 성공적으로 삭제되었습니다.`);
 
       fetchProductList(true);
-
     } catch (err) {
       alert("상품 삭제 중 오류가 발생했습니다. 권한을 확인해주세요.");
     } finally {
@@ -171,13 +166,7 @@ export default function ProductList({ user }) {
   };
 
   return (
-    <Container className="mt-4 productlist-bg" style={{
-      maxWidth: "1000px",
-      backgroundColor: '#f1f1f1ff',
-      padding: "10px 20px",
-      width: "100%",
-      boxSizing: "border-box"
-    }}>
+    <Container className="mt-4 productlist-bg" style={{ maxWidth: "800px" }}>
       {/* 상단 카테고리 영역 */}
       <CategoryGrid
         category={category}
@@ -262,7 +251,7 @@ export default function ProductList({ user }) {
                         cursor: "pointer",
                         opacity: isAvailable ? 1 : 0.55,
                         filter: isAvailable ? 'none' : 'grayscale(40%)',
-                        backgroundColor: isAvailable ? undefined : '#ffffffff',
+                        backgroundColor: isAvailable ? undefined : '#f7f7f7',
                       }}
                       onClick={() => navigate(`/product/${p.id}`)}
                     >
@@ -277,14 +266,12 @@ export default function ProductList({ user }) {
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
                         <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
 
-
                         {isAdmin && isAvailable && (
                           <div className="d-flex gap-2 mt-2">
                             <Button
                               size="sm"
                               variant="outline-primary"
                               onClick={(e) => {
-                                console.log("🧩 인기상품 수정 클릭 - productId:", p.id);
                                 handleUpdate(e, p.id);
                               }}
                               style={{ flex: 1 }}
@@ -301,17 +288,16 @@ export default function ProductList({ user }) {
                               <Trash size={14} className="me-1" /> 삭제
                             </Button>
                           </div>
-                        )
-                        }
-                      </Card.Body >
-                    </Card >
+                        )}
+                      </Card.Body>
+                    </Card>
                     <div
                       style={{
                         position: 'absolute',
                         top: 8,
                         left: 8,
                         background: 'rgba(221, 217, 0, 1)',
-                        color: '#ffffffff',
+                        color: '#fff',
                         padding: '4px 8px',
                         borderRadius: 12,
                         fontSize: 12,
@@ -320,129 +306,123 @@ export default function ProductList({ user }) {
                     >
                       인기상품
                     </div>
-                    {
-                      !isAvailable && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: 8,
-                            right: 8,
-                            background: 'rgba(255, 0, 0, 0.75)',
-                            color: '#fff',
-                            padding: '4px 8px',
-                            borderRadius: 12,
-                            fontSize: 12,
-                            zIndex: 3,
-                          }}
-                        >
-                          재고소진
-                        </div>
-                      )
-                    }
-                  </div >
-                </Col >
+                    {!isAvailable && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 8,
+                          right: 8,
+                          background: 'rgba(255, 0, 0, 0.75)',
+                          color: '#fff',
+                          padding: '4px 8px',
+                          borderRadius: 12,
+                          fontSize: 12,
+                          zIndex: 3,
+                        }}
+                      >
+                        재고소진
+                      </div>
+                    )}
+                  </div>
+                </Col>
               );
             })}
-          </Row >
+          </Row>
         </>
       )}
 
       {/* 일반 목록 (가로형 카드) */}
-      {
-        products.map((product, idx) => {
-          const availableStock = getAvailableStock(product);
-          const isAvailable = availableStock > 0;
-          return (
-            <div
-              key={product.id}
-              ref={idx === products.length - 1 ? lastProductRef : null}
-              className="d-flex align-items-center mb-3 p-2 border rounded"
+      {products.map((product, idx) => {
+        const availableStock = getAvailableStock(product);
+        const isAvailable = availableStock > 0;
+        return (
+          <div
+            key={product.id}
+            ref={idx === products.length - 1 ? lastProductRef : null}
+            className="d-flex align-items-center mb-3 p-2 border rounded"
+            style={{
+              backgroundColor: isAvailable ? "#fff" : "#f8f8f8",
+              opacity: isAvailable ? 1 : 0.55,
+              cursor: "pointer",
+              transition: "all 0.15s ease",
+            }}
+            onClick={() => navigate(`/product/${product.id}`)}
+          >
+            <img
+              src={`${API_BASE_URL}/images/${product.mainImage}`}
+              alt={product.name}
               style={{
-                backgroundColor: isAvailable ? "#fff" : "#f8f8f8",
-                opacity: isAvailable ? 1 : 0.55,
-                cursor: "pointer",
-                transition: "all 0.15s ease",
+                width: 120,
+                height: 120,
+                objectFit: "contain",
+                borderRadius: 8,
+                marginRight: 16,
               }}
-              onClick={() => navigate(`/product/${product.id}`)}
-            >
-              <img
-                src={`${API_BASE_URL}/images/${product.mainImage}`}
-                alt={product.name}
-                style={{
-                  width: 120,
-                  height: 120,
-                  objectFit: "contain",
-                  borderRadius: 8,
-                  marginRight: 16,
-                }}
-              />
-              <div className="flex-grow-1">
+            />
+
+            <div className="d-flex flex-grow-1 justify-content-between align-items-center">
+              <div>
                 <h5 className="mb-1">{product.name}</h5>
-                <p className="mb-1 text-muted">⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})</p>
-                <p className="mb-0 fw-bold">월 {product.monthlyPrice.toLocaleString()} ₩</p>
+                <p className="mb-1">{product.brand}</p>
+                <p className="mb-1 text-muted">
+                  ⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})
+                </p>
               </div>
+              <div className="text-end" style={{ marginRight: '20px' }}>
+                <div style={{ fontSize: '1.2rem' }}> 최대 월 {product.monthlyPrice.toLocaleString()}원</div>
+                <div style={{ fontSize: '0.9rem' }} className="mt-1"> x 6년 (72개월)</div>
+              </div>
+            </div>
 
-              {isAdmin && isAvailable && (
-                <div className="d-flex flex-column gap-1 ms-3">
-                  <Button
-                    size="sm"
-                    variant="outline-primary"
-                    onClick={(e) => {
-                      console.log("🧩 수정 버튼 클릭됨 - productId:", product.id);
-                      handleUpdate(e, product.id);
-                    }}
-                  >
-                    <PencilSquare size={14} className="me-1" />
-                    수정
-                  </Button>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant="outline-danger"
-                    onClick={(e) => handleDelete(e, product)}
-                  >
-                    <Trash size={14} className="me-1" />
-                    삭제
-                  </Button>
-                </div>
+            {isAdmin && isAvailable && (
+              <div className="d-flex flex-column gap-1 ms-3">
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  onClick={(e) => { handleUpdate(e, product.id); }}
+                >
+                  <PencilSquare size={14} className="me-1" /> 수정
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={(e) => handleDelete(e, product)}
+                >
+                  <Trash size={14} className="me-1" /> 삭제
+                </Button>
+              </div>
+            )}
 
-              )
-              }
-              {
-                !isAvailable && (
-                  <div
-                    style={{
-                      background: "rgba(255,0,0,0.75)",
-                      color: "#fff",
-                      padding: "4px 8px",
-                      borderRadius: 8,
-                      fontSize: 12,
-                    }}
-                  >
-                    재고소진
-                  </div>
-                )
-              }
-            </div >
-          );
-        })}
-
-      {
-        loading && (
-          <div className="text-center mt-3">
-            <Spinner animation="border" />
-            <h5 className="mt-2">상품 정보를 불러오는 중입니다...</h5>
+            {!isAvailable && (
+              <div
+                style={{
+                  background: "rgba(255,0,0,0.75)",
+                  color: "#fff",
+                  padding: "4px 8px",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              >
+                재고소진
+              </div>
+            )}
           </div>
-        )
-      }
+        );
+      })}
 
-      {
-        !hasMore && (
-          <div className="text-center mt-3 mb-5 text-muted">
-            모든 상품을 불러왔습니다.
-          </div>
-        )
-      }
-    </Container >
+      {loading && (
+        <div className="text-center mt-3">
+          <Spinner animation="border" />
+          <h5 className="mt-2">상품 정보를 불러오는 중입니다...</h5>
+        </div>
+      )}
+
+      {!hasMore && (
+        <div className="text-center mt-3 mb-5 text-muted">
+          모든 상품을 불러왔습니다.
+        </div>
+      )}
+    </Container>
   );
 }

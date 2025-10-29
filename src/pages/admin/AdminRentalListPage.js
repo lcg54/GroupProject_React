@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { Container, Card, Row, Col, Spinner, Dropdown, Badge, Tabs, Tab, Pagination, Form } from "react-bootstrap";
 import axios from "axios";
-import { API_BASE_URL } from "../config/url";
-import { OrderStatus } from "../config/orderStatus";
+import { API_BASE_URL } from "../../config/url";
+import { OrderStatus } from "./orderStatus";
 
 export default function AdminRentalListPage({ user }) {
   const [rentals, setRentals] = useState([]);
@@ -120,24 +120,7 @@ export default function AdminRentalListPage({ user }) {
 
   return (
     <Container className="mt-4" style={{ maxWidth: "1000px" }}>
-      <h2 className="mb-4 text-center">대여 현황 관리</h2>
-
-      {selectedItems.length > 0 && (
-        <div className="text-center mb-3">
-          <Dropdown>
-            <Dropdown.Toggle variant="success">
-              ✅ 선택된 상품 일괄 상태 변경 ({selectedItems.length}개)
-            </Dropdown.Toggle>
-            <Dropdown.Menu>
-              {OrderStatus.map((s) => (
-                <Dropdown.Item key={s} onClick={() => handleBulkStatusChange(s)}>
-                  {statusLabel(s)}
-                </Dropdown.Item>
-              ))}
-            </Dropdown.Menu>
-          </Dropdown>
-        </div>
-      )}
+      <h2 className="mb-5 text-center">대여 현황 관리</h2>
 
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-4">
         {OrderStatus.map((status) => (
@@ -155,13 +138,34 @@ export default function AdminRentalListPage({ user }) {
           >
             {rentals.length > 0 ? (
               <>
-                <Form.Check
-                  type="checkbox"
-                  label="전체 선택"
-                  className="mb-2"
-                  checked={rentals.every((i) => selectedItems.includes(i.itemId))}
-                  onChange={toggleSelectAll}
-                />
+                <Row className="d-flex align-items-center justify-content-between mb-2">
+                  <Col xs="auto">
+                    <Form.Check
+                      type="checkbox"
+                      label="전체 선택"
+                      checked={rentals.every((i) => selectedItems.includes(i.itemId))}
+                      onChange={toggleSelectAll}
+                    />
+                  </Col>
+
+                  {selectedItems.length > 0 && (
+                    <Col xs="auto">
+                      <Dropdown>
+                        <Dropdown.Toggle variant="success" size="sm">
+                          ✅ 일괄 상태 변경 ({selectedItems.length}개)
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                          {OrderStatus.map((s) => (
+                            <Dropdown.Item key={s} onClick={() => handleBulkStatusChange(s)}>
+                              {statusLabel(s)}
+                            </Dropdown.Item>
+                          ))}
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    </Col>
+                  )}
+                </Row>
+                
                 <Row xs={1} md={2} lg={2} className="g-4 mt-2">
                   {rentals.map((item) => (
                     <RentalCard

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import { List } from 'react-bootstrap-icons';
 import './Header.css';
 
 export default function Header({ user, onLogout }) {
@@ -55,6 +56,7 @@ export default function Header({ user, onLogout }) {
   }, [menuOpen]);
 
   const handleLogoutClick = () => {
+    if (!window.confirm(`로그아웃 하시겠습니까?`)) return;
     if (onLogout) {
       onLogout();
     }
@@ -68,16 +70,16 @@ export default function Header({ user, onLogout }) {
         sticky="top"
       >
         <Button
-          variant="outline-secondary"
+          variant="link"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-controls="side-menu"
           aria-expanded={menuOpen}
           className="me-3"
         >
-          <img src="/path-to-hamburger-icon.svg" alt="Menu" />
+          <List size={30} color="#000" />
         </Button>
 
-        <Nav className="ms-auto d-none d-lg-flex align-items-center">
+        <Nav className="ms-auto d-none d-lg-flex align-items-center me-3">
           {user ? (
             <>
               <span style={{ marginRight: '1rem', fontWeight: 'bold' }}>

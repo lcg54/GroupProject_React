@@ -8,7 +8,7 @@ import ExtensionOrReturn from './EOR/ExtensionOrReturn';
 import CartList from '../cart/CartList';
 import InquiryList from '../InquiryList';
 import Receipt from './Receipt';
-import EditPage from "../EditPage";
+import EditPage from "../user/EditPage";
 import MyCalendar from "./calendar/MyRentalCalender";
 
 const MyPage = ({ user, setUser }) => {
@@ -56,7 +56,7 @@ const MyPage = ({ user, setUser }) => {
       case '결제 내역':
         return <Receipt user={user} />;
       case '서비스 알림':
-        return <MyCalendar />;
+        return <MyCalendar user={user} />;
       case '내 문의사항':
         return <InquiryList />;
       // navigate('/inquiry/list');

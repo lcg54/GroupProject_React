@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../config/url";
+import { API_BASE_URL } from "../../config/url";
 import "./EditPage.css";
 
 export default function EditPage({ user, setUser, isFromMyPage = false }) {
@@ -261,7 +261,7 @@ export default function EditPage({ user, setUser, isFromMyPage = false }) {
             {profilePreview && (
               <div style={{ marginTop: 12, marginBottom: 8 }}>
                 <div style={{ fontSize: 12, marginBottom: 4, color: "#666" }}>현재 프로필:</div>
-                <img src={profilePreview} alt="preview" style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8, border: "2px solid #e0e0e0" }} />
+                <img src={profilePreview} alt="등록된 프로필 없음" style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8, border: "2px solid #e0e0e0" }} />
               </div>
             )}
 

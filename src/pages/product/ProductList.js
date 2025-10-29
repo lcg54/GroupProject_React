@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
 import CategoryGrid from "./CategoryGrid";
-import calcMonthlyPrice from "./calcMonthlyPrice";
+import calcMonthlyPrice from "../../config/calcMonthlyPrice";
 import axios from "axios";
 
 export default function ProductList({ user }) {
@@ -166,7 +166,7 @@ export default function ProductList({ user }) {
   };
 
   return (
-    <Container className="mt-4 productlist-bg" style={{ maxWidth: "900px" }}>
+    <Container className="mt-4" style={{ maxWidth: "800px" }}>
       {/* 상단 카테고리 영역 */}
       <CategoryGrid
         category={category}
@@ -175,14 +175,7 @@ export default function ProductList({ user }) {
       />
 
       {/* 필터 영역 */}
-      <div
-        className="mb-3 sticky-top bg-white py-2"
-        style={{
-          top: "0",
-          zIndex: 1020,
-          boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
-        }}
-      >
+      <div className="mt-3 mb-3 sticky-top">
         <Row className="g-2 mb-2 align-items-center">
           <Col xs="auto"><BrandDropdown brand={brand} setBrand={setBrand} /></Col>
           <Col xs="auto"><AvailabilityDropdown available={available} setAvailable={setAvailable} /></Col>
@@ -264,30 +257,33 @@ export default function ProductList({ user }) {
                       <Card.Body>
                         <Card.Title className="mb-1">{p.name}</Card.Title>
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
-                        <Card.Text>월 {p.monthlyPrice.toLocaleString()} ₩</Card.Text>
+                        <Card.Text>
+                          <div style={{ fontSize: '1.05rem' }} className="mt-2 text-primary">
+                            최대 월 {p.monthlyPrice.toLocaleString()} ₩
+                          </div></Card.Text>
                         
-                        {isAdmin && isAvailable && (
-                            <div className="d-flex gap-2 mt-2">
-                                <Button 
-                                    size="sm" 
-                                    variant="outline-primary" 
-                                    onClick={(e) => {
-                                      handleUpdate(e, p.id);
-                                    }}
-                                    style={{ flex: 1 }}
-                                  >
-                                    <PencilSquare size={14} className="me-1" /> 수정
-                                  </Button>
-                                <Button 
-                                    type="button"
-                                    size="sm" 
-                                    variant="outline-danger" 
-                                    onClick={(e) => handleDelete(e, p)}
-                                    style={{ flex: 1 }}
-                                >
-                                    <Trash size={14} className="me-1" /> 삭제
-                                </Button>
-                            </div>
+                        {isAdmin && (
+                          <div className="d-flex gap-2 mt-2">
+                            <Button 
+                              size="sm" 
+                              variant="outline-primary" 
+                              onClick={(e) => {
+                                handleUpdate(e, p.id);
+                              }}
+                              style={{ flex: 1 }}
+                            >
+                              <PencilSquare size={14} className="me-1" /> 수정
+                            </Button>
+                            <Button 
+                              type="button"
+                              size="sm" 
+                              variant="outline-danger" 
+                              onClick={(e) => handleDelete(e, p)}
+                              style={{ flex: 1 }}
+                            >
+                              <Trash size={14} className="me-1" /> 삭제
+                            </Button>
+                          </div>
                         )}
                       </Card.Body>
                     </Card>
@@ -295,8 +291,8 @@ export default function ProductList({ user }) {
                       style={{
                         position: 'absolute',
                         top: 8,
-                        left: 8,
-                        background: 'rgba(221, 217, 0, 1)',
+                        right: 8,
+                        background: 'rgba(225, 210, 0, 0.75)',
                         color: '#fff',
                         padding: '4px 8px',
                         borderRadius: 12,
@@ -311,7 +307,7 @@ export default function ProductList({ user }) {
                         style={{
                           position: 'absolute',
                           top: 8,
-                          right: 8,
+                          left: 8,
                           background: 'rgba(255, 0, 0, 0.75)',
                           color: '#fff',
                           padding: '4px 8px',
@@ -341,6 +337,7 @@ export default function ProductList({ user }) {
             ref={idx === products.length - 1 ? lastProductRef : null}
             className="d-flex align-items-center mb-3 p-2 border rounded"
             style={{
+              position: "relative",
               backgroundColor: isAvailable ? "#fff" : "#f8f8f8",
               opacity: isAvailable ? 1 : 0.55,
               cursor: "pointer",
@@ -359,7 +356,7 @@ export default function ProductList({ user }) {
                 marginRight: 16,
               }}
             />
-
+      
             <div className="d-flex flex-grow-1 justify-content-between align-items-center">
               <div>
                 <h5 className="mb-1">{product.name}</h5>
@@ -369,12 +366,14 @@ export default function ProductList({ user }) {
                 </p>
               </div>
               <div className="text-end" style={{ marginRight: '20px' }}>
-                <div style={{ fontSize: '1.2rem' }}> 최대 월 {product.monthlyPrice.toLocaleString()}원</div>
-                <div style={{ fontSize: '0.9rem' }} className="mt-1"> x 6년 (72개월)</div>
+                <div style={{ fontSize: '1.2rem' }} className="text-primary">
+                  최대 월 {product.monthlyPrice.toLocaleString()}원
+                </div>
+                <div style={{ fontSize: '0.9rem' }} className="mt-1">× 6년 (72개월)</div>
               </div>
             </div>
             
-            {isAdmin && isAvailable && (
+            {isAdmin && (
               <div className="d-flex flex-column gap-1 ms-3">
                 <Button 
                   size="sm" 
@@ -393,15 +392,19 @@ export default function ProductList({ user }) {
                 </Button>
               </div>
             )}
-
+      
             {!isAvailable && (
               <div
                 style={{
+                  position: "absolute",
+                  top: 8,
+                  left: 8,
                   background: "rgba(255,0,0,0.75)",
                   color: "#fff",
                   padding: "4px 8px",
-                  borderRadius: 8,
+                  borderRadius: 12,
                   fontSize: 12,
+                  zIndex: 3,
                 }}
               >
                 재고소진

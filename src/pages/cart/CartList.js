@@ -141,7 +141,7 @@ export default function CartList({ user }) {
 
     return (
       <Container style={{ maxWidth: '900px', backgroundColor: '#f1ead7', padding: '2rem', borderRadius: '10px' }}>
-        <h2 className="mb-4 text-center">📦 전체 회원 장바구니 요약 일람</h2>
+        <h2 className="mb-4 text-center">전체 회원 장바구니 요약 일람</h2>
         {products.length === 0 ? (
           <p className="text-center text-muted my-5">현재 장바구니에 담긴 상품이 없습니다.</p>
         ) : (
@@ -187,7 +187,7 @@ export default function CartList({ user }) {
 
   // 일반회원 화면
   return (
-    <Container style={{ maxWidth: '900px', backgroundColor: '#ffffffff', padding: '2rem 2rem', borderRadius: '10px' }}>
+    <Container style={{ maxWidth: '800px', backgroundColor: '#ffffffff', padding: '2rem 2rem', borderRadius: '10px' }}>
 
       <Card className="mb-4 shadow-sm">
         <Card.Body>

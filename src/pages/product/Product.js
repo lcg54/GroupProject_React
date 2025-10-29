@@ -5,7 +5,7 @@ import { API_BASE_URL } from "../../config/url";
 import InquiryList from "../InquiryList";
 import ReviewList from "../ReviewList";
 import Purchased from "../modal/Purchased";
-import calcMonthlyPrice from "./calcMonthlyPrice";
+import calcMonthlyPrice from "../../config/calcMonthlyPrice";
 import axios from "axios";
 
 export default function Product({ user }) {

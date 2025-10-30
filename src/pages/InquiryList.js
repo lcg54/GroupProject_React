@@ -29,7 +29,7 @@ export default function InquiryList({ user }) {
         setLoading(true);
         const response = await axios.get(`${API_BASE_URL}/product/${id}/inquiry`, {
           params: {
-            memberId: user.id,
+            ...(user?.id ? { memberId: user.id } : {}),
             page: paging.pageNumber,
             size: paging.pageSize,
             sort: sortOrder === 'latest' ? 'desc' : 'asc',
@@ -131,7 +131,7 @@ export default function InquiryList({ user }) {
                 <Accordion.Body>
                   <p style={{ fontWeight: 'bold' }}>{inquiry.title}</p>
                   <div className="d-flex justify-content-between text-muted">
-                    {inquiry.memberId === user.id ? (
+                    {inquiry.memberId === user?.id ? (
                       <span>{inquiry.member} (나)</span>
                     ) : (
                       <span>{maskName(inquiry.member)}</span>
@@ -170,7 +170,7 @@ export default function InquiryList({ user }) {
                     </Card>
                   )}
 
-                  {user && user.role === 'ADMIN' && !inquiry.adminComment && (
+                  {user && user?.role === 'ADMIN' && !inquiry.adminComment && (
                     <Card className="p-3 mt-4">
                       <Form.Group>
                         <Form.Label>관리자 답글 작성</Form.Label>

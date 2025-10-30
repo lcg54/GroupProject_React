@@ -34,6 +34,7 @@ export default function App() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('user');
+    window.location.href = '/'; // 로그아웃시 강제로 홈페이지로
   };
 
   return (

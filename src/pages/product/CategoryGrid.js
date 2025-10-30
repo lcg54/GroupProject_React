@@ -1,5 +1,5 @@
 import { Card, Image } from "react-bootstrap";
-import { FILTER_OPTIONS } from "./Filter";
+import { FILTER_OPTIONS } from "./ProductListFilter";
 import { API_BASE_URL } from "../../config/url";
 import { useEffect, useState } from "react";
 import axios from "axios";

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState, useMemo } from "react";
 import { Container, Form, Button, Alert, Card, Row, Col, InputGroup, Badge, Stack, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import { FILTER_OPTIONS } from "../product/Filter";
+import { FILTER_OPTIONS } from "../product/ProductListFilter";
 import { prettyLabel, onlyDigits } from "../../config/replace"
 
 export default function ProductUpdateForm() {

@@ -266,7 +266,7 @@ export default function Product({ user }) {
       )}
       {activeTab === "inquiry" && (
         <div className="p-3 border rounded">
-          <InquiryList />
+          <InquiryList user={user} />
         </div>
       )}
 

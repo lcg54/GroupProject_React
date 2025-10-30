@@ -3,7 +3,7 @@ import { Card, Col, Container, Form, Row, Spinner, Button } from "react-bootstra
 import { Search, PencilSquare, Trash } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./Filter";
+import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./ProductListFilter";
 import CategoryGrid from "./CategoryGrid";
 import calcMonthlyPrice from "../../config/calcMonthlyPrice";
 import axios from "axios";
@@ -33,7 +33,7 @@ export default function ProductList({ user }) {
   const isAdmin = user?.role === 'ADMIN';
 
   useEffect(() =>{
-    console.log("user: ", user);
+
   }, [user, isAdmin]);
 
   // URL의 쿼리 파라미터에서 category 값 파싱하여 초기 설정

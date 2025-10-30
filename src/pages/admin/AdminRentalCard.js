@@ -1,7 +1,7 @@
 import { Card, Col, Dropdown, Form } from "react-bootstrap";
 import { API_BASE_URL } from "../../config/url";
 import { OrderStatus, statusLabel } from "../../config/orderStatus";
-import { formatDate, formatPrice } from "../../config/setFormat";
+import { formatDate, formatPrice } from "../../config/form";
 import calcRemainingDays from "../../config/calcRemainingDays";
 
 export default function AdminRentalCard({ item, onStatusChange, onSelect, selected }) {

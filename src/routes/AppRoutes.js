@@ -38,8 +38,8 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
       <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />
 
-      <Route path="/inquiry/list" element={<InquiryList />} />
-      <Route path="/inquiry/write" element={<InquiryWrite />} />
+      <Route path="/product/:id/inquiry/list" element={<InquiryList user={user} />} />
+      <Route path="/product/:id/inquiry/write" element={<InquiryWrite user={user} />} />
       <Route path="/review/list" element={<ReviewList />} />
       <Route path="/review/write" element={<ReviewWrite />} />
 

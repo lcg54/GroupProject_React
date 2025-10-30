@@ -3,7 +3,7 @@ import { Alert, Card, Col, Container, Row, Spinner, Form, InputGroup, Button } f
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import { statusLabel } from "../../config/orderStatus";
-import { formatDate, formatPrice } from "../../config/setFormat";
+import { formatDate, formatPrice } from "../../config/form";
 import calcRemainingDays from "../../config/calcRemainingDays";
 import axios from "axios";
 

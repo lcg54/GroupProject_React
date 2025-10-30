@@ -3,8 +3,7 @@ import '../commonness/commonness.css';
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
-import ServiceDate from './ServiceDate';
-import ExtensionOrReturn from './EOR/ExtensionOrReturn';
+import ReviewList from '../ReviewList';
 import CartList from '../cart/CartList';
 import InquiryList from '../InquiryList';
 import Receipt from './Receipt';
@@ -20,12 +19,12 @@ const MyPage = ({ user, setUser }) => {
   ];
 
   const buttons = [
+    { icon: "✏️", text: "내 정보 수정" },
+    { icon: "📢", text: "내 문의사항" },
+    { icon: "⭐️", text: "내 리뷰" },
     { icon: "🛒", text: "내 카트" },
     { icon: "🧾", text: "결제 내역" },
     { icon: "📅", text: "서비스 알림" },
-    { icon: "📢", text: "내 문의사항" },
-    { icon: "✏️", text: "내 정보 수정" },
-    { icon: "➕➖", text: "연장/반납" },
   ];
 
   const handleClick = (button) => {
@@ -66,10 +65,10 @@ const MyPage = ({ user, setUser }) => {
         // =======
         return <EditPage user={user} setUser={setUser} isFromMyPage={true} />;
       // >>>>>>> origin/develop
-      case '연장/반납':
-        return <ExtensionOrReturn />;
+      case '내 리뷰':
+        return <ReviewList user={user} />;
       default:
-        return <p>기본 내용</p>;
+        return <p></p>;
     }
   }
 
@@ -109,10 +108,6 @@ const MyPage = ({ user, setUser }) => {
         <>{renderContent(clickedButton)}</>
 
       )}
-
-      {/* 1개~3개정도 주문내역 생각중 */}
-
-
 
     </Container>
   );

@@ -1,8 +1,23 @@
 /* 형광펜 느낌 */
-.highlight {
-    background-color: #fff176 !important;
+.highlight-day {
+    background-color: #f0d9b5 !important;
+    /* 형광펜 노랑 */
     border-radius: 8px !important;
     color: black !important;
+}
+
+.selected-day {
+    background-color: #e6c59c !important;
+    /* 선택된 상품일 때 살짝 진한 주황빛 */
+    border-radius: 8px !important;
+    color: white !important;
+}
+
+/* 🌤 오늘 날짜 (파란색 원 강조) */
+.today-day {
+    color: #4a90e2 !important;
+    /* 숫자도 파란색 */
+    font-weight: 600;
 }
 
 /* DayPicker 기본 스타일 오버라이드 */
@@ -11,11 +26,6 @@
     height: 100%;
 }
 
-/* ✅ 가능 날짜 구간 (연보라색 형광펜) */
-.highlight {
-    background-color: rgba(186, 104, 200, 0.15) !important;
-    border-radius: 8px !important;
-}
 
 /* ✅ 클릭된 날짜 (초록색 형광펜) */
 .rdp-day_selected,

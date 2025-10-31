@@ -71,7 +71,7 @@ const MyPage = ({ user, setUser }) => {
       // case '연장/반납':
       //   return <ExtensionOrReturn />;
       case '내 리뷰':
-        return <MyReviewList />;
+        return <MyReviewList user={user}/>;
       default:
         return <p>기본 내용</p>;
     }

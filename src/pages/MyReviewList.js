@@ -6,6 +6,7 @@ import "./commonness/commonness.css";
 import { renderStars } from "../config/form";
 import { useNavigate } from "react-router-dom";
 import RenderPagination from "./RenderPagination.js";
+import { Bag, PencilSquare, Trash } from "react-bootstrap-icons";
 
 export default function MyReviewList({ user }) {
   const [reviews, setReviews] = useState([]);
@@ -49,6 +50,27 @@ export default function MyReviewList({ user }) {
     }
   };
 
+  const handleUpdate = (reviewId) => {
+    
+  }
+
+  const handleDelete = async (reviewId) => {
+    if (!window.confirm("이 리뷰를 정말 삭제하시겠습니까?")) return;
+    
+    try {
+      await axios.delete(`${API_BASE_URL}/review/${reviewId}/delete`, {
+        params:{ memberId: user.id }
+      });
+      alert("리뷰가 삭제되었습니다.");
+      setReviews((prev) => prev.filter((r) => r.id !== reviewId));
+      setTotalElements((prev) => prev - 1);
+
+    } catch (err) {
+      console.error("리뷰 삭제 실패:", err);
+      alert("리뷰 삭제 중 오류가 발생했습니다.");
+    }
+  };
+
   return (
     <Container style={{ maxWidth: "800px" }}>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -71,19 +93,19 @@ export default function MyReviewList({ user }) {
         </div>
       ) : (
         reviews.map((review) => (
-          <Card key={review.id} className="mb-3" onClick={() => navigate(`/product/${review.productId}`)}>
+          <Card key={review.id} className="mb-3">
             <Card.Body>
-              <h5>{review.title}</h5>
-              <p>
-                {renderStars(review.rating)}
-                <span className="text-muted" style={{ fontSize: "0.9rem" }}>
-                  &nbsp;({review.rating.toFixed(1)})
-                </span>
-              </p>
-              <div className="d-flex justify-content-between text-muted">
-                <span>{review.productName}</span>
-                <span>{new Date(review.regDate).toLocaleString()}</span>
+              <h5>{review.productName}</h5>
+              <div className="d-flex justify-content-between">
+                <p>
+                  {renderStars(review.rating)}
+                  <span className="text-muted" style={{ fontSize: "0.9rem" }}>
+                    &nbsp;({review.rating.toFixed(1)})
+                  </span>
+                </p>
+                <span className="text-muted">{new Date(review.regDate).toLocaleString()}</span>
               </div>
+              <span style={{ fontSize: "1.1rem" }}>{review.title}</span>
               <div className="my-2">{review.content}</div>
               {review.imageUrls?.length > 0 && (
                 <div className="d-flex gap-2 mt-2">
@@ -92,6 +114,42 @@ export default function MyReviewList({ user }) {
                   ))}
                 </div>
               )}
+
+              <div className="d-flex gap-3 mt-3">
+                <Button
+                  size="sm"
+                  variant="outline-primary"
+                  style={{ pointerEvents: "none" }}
+                >
+                  추천 {review.recommend} 👍
+                </Button>
+                &nbsp;
+                <Button 
+                  size="sm" 
+                  variant="outline-primary" 
+                  onClick={() => navigate(`/product/${review.productId}`)}
+                  style={{ flex: 1 }}
+                >
+                  <Bag size={14} className="me-1" /> 상품페이지로 이동
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline-success" 
+                  onClick={() => {handleUpdate(review.id)}}
+                  style={{ flex: 1 }}
+                >
+                  <PencilSquare size={14} className="me-1" /> 리뷰 수정
+                </Button>
+                <Button 
+                  type="button"
+                  size="sm" 
+                  variant="outline-danger" 
+                  onClick={() => handleDelete(review.id)}
+                  style={{ flex: 1 }}
+                >
+                  <Trash size={14} className="me-1" /> 리뷰 삭제
+                </Button>
+              </div>
             </Card.Body>
           </Card>
         ))

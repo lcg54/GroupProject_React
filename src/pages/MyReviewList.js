@@ -110,7 +110,7 @@ export default function MyReviewList({ user }) {
               {review.imageUrls?.length > 0 && (
                 <div className="d-flex gap-2 mt-2">
                   {review.imageUrls.map((url, idx) => (
-                    <img key={idx} src={url} alt={`리뷰 이미지 ${idx + 1}`} style={{ width: "100px", borderRadius: "8px" }} />
+                    <img key={idx} src={`${API_BASE_URL}/images/${url}`} alt={`리뷰 이미지 ${idx + 1}`} style={{ width: "100px", borderRadius: "8px" }} />
                   ))}
                 </div>
               )}

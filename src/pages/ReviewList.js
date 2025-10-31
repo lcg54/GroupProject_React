@@ -1,10 +1,11 @@
-import { Container, Card, Pagination, Spinner, ProgressBar, Dropdown, DropdownButton } from "react-bootstrap";
+import { Container, Card, Pagination, Spinner, ProgressBar, Dropdown, DropdownButton, Button } from "react-bootstrap";
 import { StarFill, StarHalf, Star } from "react-bootstrap-icons";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 import { maskName } from "../config/form"
 import axios from "axios";
+import "./commonness/commonness.css"
 
 export default function ReviewList({ user }) {
   
@@ -12,12 +13,13 @@ export default function ReviewList({ user }) {
 
   const { id } = useParams();
   const [reviews, setReviews] = useState([]);
-  const [sortOrder, setSortOrder] = useState("latest");
+  const [sortOrder, setSortOrder] = useState("recommend");
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1); // 1 기반
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 5;
+  const [totalElements, setTotalElements] = useState(0);
 
   const [averageRating, setAverageRating] = useState(0);
   const [ratingCounts, setRatingCounts] = useState([0, 0, 0, 0, 0]);
@@ -34,7 +36,8 @@ export default function ReviewList({ user }) {
       const res = await axios.get(`${API_BASE_URL}/review/list`, {
         params: {
           productId: id,
-          page: currentPage - 1, // 백엔드 Pageable이 0 기반이면
+          ...(user?.id ? { memberId: user.id } : {}),
+          page: currentPage - 1,
           size: pageSize,
           sortOrder,
         },
@@ -42,8 +45,7 @@ export default function ReviewList({ user }) {
       const data = res.data;
       setReviews(data.content);
       setTotalPages(data.totalPages);
-
-      // 평점 전체 평균값 들어가야 함
+      setTotalElements(data.totalElements);
       if (data.averageRating !== undefined) setAverageRating(data.averageRating);
       if (data.ratingCounts !== undefined) setRatingCounts(data.ratingCounts);
 
@@ -55,13 +57,41 @@ export default function ReviewList({ user }) {
     }
   };
 
+  // 좋아요
+  const handleRecommend = async (reviewId) => {
+    if (!user) { alert("로그인 후 이용 가능합니다."); return; }
+    try {
+      const res = await axios.post(`${API_BASE_URL}/review/recommend`, {
+        reviewId,
+        memberId: user?.id,
+      });
+
+      const { recommend, recommended } = res.data;
+
+      setReviews((prev) =>
+        prev.map((r) =>
+          r.id === reviewId ? { ...r, recommend, recommended } : r
+        )
+      );
+    } catch (err) {
+      console.error("추천 처리 실패:", err);
+      alert("추천을 처리하는 중 오류가 발생했습니다.");
+    }
+  };
+
   // 별점 렌더링
   const renderStars = (rating) => {
     const stars = [];
+    const roundedRating = Math.round(rating * 2) / 2; // 0.5 단위로 반올림
+
     for (let i = 1; i <= 5; i++) {
-      if (rating >= i) stars.push(<StarFill key={`full-${i}`} color="#FFD700" />);
-      else if (rating >= i - 0.5) stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
-      else stars.push(<Star key={`empty-${i}`} color="#ccc" />);
+      if (roundedRating >= i) {
+        stars.push(<StarFill key={`full-${i}`} color="#FFD700" />);
+      } else if (roundedRating >= i - 0.5) {
+        stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
+      } else {
+        stars.push(<Star key={`empty-${i}`} color="#ccc" />);
+      }
     }
     return <span>{stars}</span>;
   };
@@ -96,28 +126,8 @@ export default function ReviewList({ user }) {
     return <Pagination className="justify-content-center">{items}</Pagination>;
   };
 
-  const handleRecommend = async (reviewId) => {
-    try {
-      await axios.post(`${API_BASE_URL}/review/recommend`, { reviewId });
-      setReviews((prev) =>
-        prev.map((r) =>
-          r.id === reviewId ? { ...r, recommend: (r.recommend || 0) + 1 } : r
-        )
-      );
-    } catch (err) {
-      console.error("실패:", err);
-      alert("오류가 발생했습니다.");
-    }
-  };
-
   return (
     <Container style={{ maxWidth: "800px" }}>
-      <h2 className="mb-3 text-center">상품후기</h2>
-
-      <div className="text-end mb-3">
-        <button onClick={() => navigate(`/review/write`)}>후기 작성</button>
-      </div>
-
       <div className="mb-3 text-center" >
         <Card>
           <div style={{ display: "flex", width: "100%", alignItems: "center" }}>
@@ -137,17 +147,19 @@ export default function ReviewList({ user }) {
               {/* ProgressBar */}
               <div className="m-2">
                 {(() => {
-                  const maxCount = Math.max(...ratingCounts, 1); // 0 나눗셈 방지
+                  const maxCount = Math.max(...ratingCounts, 1);
+                  const ratingLabels = ["나쁨", "별로", "보통", "좋음", "최고"];
                   return [5, 4, 3, 2, 1].map((level) => {
                     const count = ratingCounts[level - 1];
-                    const percent = (count / maxCount) * 100; // 상대 비율
+                    const percent = (count / maxCount) * 100;
+                    const label = ratingLabels[level - 1];
                     return (
                       <div
                         key={level}
                         className="d-flex align-items-center"
                         style={{ gap: "10px", marginBottom: "6px" }}
                       >
-                        <span style={{ width: "50px", textAlign: "right" }}>{level}점</span>
+                        <span style={{ width: "50px", textAlign: "right" }}>{label}</span>
                         <ProgressBar
                           now={percent}
                           variant="secondary"
@@ -165,14 +177,17 @@ export default function ReviewList({ user }) {
       </div>
 
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <span>전체 {reviews.length}</span>
-        <DropdownButton title="정렬">
-          <Dropdown.Item onClick={() => { setSortOrder("recommend"); setCurrentPage(1) }}>추천순</Dropdown.Item>
-          <Dropdown.Item onClick={() => { setSortOrder("latest"); setCurrentPage(1) }}>최신순</Dropdown.Item>
-          <Dropdown.Item onClick={() => { setSortOrder("oldest"); setCurrentPage(1) }}>오래된순</Dropdown.Item>
-          <Dropdown.Item onClick={() => { setSortOrder("high"); setCurrentPage(1) }}>평점높은순</Dropdown.Item>
-          <Dropdown.Item onClick={() => { setSortOrder("low"); setCurrentPage(1) }}>평점낮은순</Dropdown.Item>
-        </DropdownButton>
+        <span>전체 {totalElements}</span>
+        <div className="d-flex gap-2">
+          <DropdownButton title="정렬">
+            <Dropdown.Item onClick={() => { setSortOrder("recommend"); setCurrentPage(1) }}>추천순</Dropdown.Item>
+            <Dropdown.Item onClick={() => { setSortOrder("latest"); setCurrentPage(1) }}>최신순</Dropdown.Item>
+            <Dropdown.Item onClick={() => { setSortOrder("oldest"); setCurrentPage(1) }}>오래된순</Dropdown.Item>
+            <Dropdown.Item onClick={() => { setSortOrder("high"); setCurrentPage(1) }}>평점높은순</Dropdown.Item>
+            <Dropdown.Item onClick={() => { setSortOrder("low"); setCurrentPage(1) }}>평점낮은순</Dropdown.Item>
+          </DropdownButton>
+          <Button className="btn-custom" size="sm" onClick={() => navigate(`/review/write`)}>후기 작성</Button>
+        </div>
       </div>
 
 
@@ -187,9 +202,9 @@ export default function ReviewList({ user }) {
             <Card.Body>
               <h5>{review.title}</h5>
               <p>
-                평점: {renderStars(review.rating)}{" "}
+                {renderStars(review.rating)}
                 <span className="text-muted" style={{ fontSize: "0.9rem" }}>
-                  ({review.rating.toFixed(1)})
+                  &nbsp;({review.rating.toFixed(1)})
                 </span>
               </p>
               <div className="d-flex justify-content-between text-muted">
@@ -205,16 +220,14 @@ export default function ReviewList({ user }) {
                 </div>
               )}
 
-              <div className="mt-1">
-                <button
-                  className="btn btn-outline-primary"
-                  onClick={() => handleRecommend(review.id)}>
-                  추천 👍
-                </button>
-                {review.recommend > 0 && (
-                  <span className="ms-2">{review.recommend}</span>
-                )}
-              </div>
+              <Button
+                className="mt-1"
+                size="sm"
+                variant={review.recommended ? "primary" : "outline-primary"}
+                onClick={() => handleRecommend(review.id)}
+              >
+                추천 {review.recommend} 👍
+              </Button>
             </Card.Body>
           </Card>
         ))

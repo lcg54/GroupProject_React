@@ -1,3 +1,4 @@
+/* 마이페이지 */
 .button.mypage {
     background-color: #ffffff;
     color: #000000;
@@ -12,4 +13,20 @@
     background-color: #3CB371;
     color: #000000;
     border: 2px solid #3CB371;
+}
+
+/* 리뷰/문의페이지 */
+.btn-custom {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #ffffff;
+    box-shadow: none;
+}
+
+.btn-custom:hover,
+.btn-custom:focus,
+.btn-custom:active {
+    background-color: #3CB371;
+    color: #ffffff;
+    border-color: #3CB371;
 }

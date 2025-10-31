@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Accordion, Card, Pagination, Dropdown, Form, Button } from 'react-bootstrap'; // ✅ Form, Button 추가
+import { Container, Row, Accordion, Card, Pagination, Dropdown, Form, Button } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE_URL } from '../config/url';
 import { maskName } from '../config/form';
+import "./commonness/commonness.css"
 
 export default function InquiryList({ user }) {
   const { id } = useParams(); // 상품 ID
@@ -59,7 +60,6 @@ export default function InquiryList({ user }) {
   // 관리자 답글 작성
   const handleAdminComment = async (inquiryId, comment) => {
     if (!user || user.role !== 'ADMIN') return;
-
     try {
       await axios.post(`${API_BASE_URL}/product/${id}/inquiry/${inquiryId}/comment`, {
         adminId: user.id,
@@ -75,7 +75,6 @@ export default function InquiryList({ user }) {
 
   return (
     <Container className="mt-4" style={{ maxWidth: "800px" }}>
-
       <div className="d-flex justify-content-between align-items-center mb-3">
         <span>전체 {paging.totalElements}</span>
 
@@ -88,9 +87,9 @@ export default function InquiryList({ user }) {
             </Dropdown.Menu>
           </Dropdown>
 
-          <button className="btn btn-primary btn-sm" onClick={() => navigate(`/product/${id}/inquiry/write`)}>
+          <Button className="btn-custom" size="sm" onClick={() => navigate(`/product/${id}/inquiry/write`)}>
             문의 작성
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -206,42 +205,46 @@ export default function InquiryList({ user }) {
           </Accordion>
         </Row>
       )}
-
-      <Pagination className="justify-content-center mt-4">
-        <Pagination.First
-          onClick={() => setPaging((prev) => ({ ...prev, pageNumber: 0 }))}
-          disabled={paging.pageNumber === 0}
-        />
-        <Pagination.Prev
-          onClick={() =>
-            setPaging((prev) => ({ ...prev, pageNumber: Math.max(0, prev.pageNumber - 1) }))
-          }
-          disabled={paging.pageNumber === 0}
-        />
-        {[...Array(paging.totalPages)].map((_, idx) => (
-          <Pagination.Item
-            key={idx}
-            active={paging.pageNumber === idx}
-            onClick={() => setPaging((prev) => ({ ...prev, pageNumber: idx }))}
-          >
-            {idx + 1}
-          </Pagination.Item>
-        ))}
-        <Pagination.Next
-          onClick={() =>
-            setPaging((prev) => ({
-              ...prev,
-              pageNumber: Math.min(prev.totalPages - 1, prev.pageNumber + 1),
-            }))
-          }
-          disabled={paging.pageNumber >= paging.totalPages - 1}
-        />
-        <Pagination.Last
-          onClick={() =>
-            setPaging((prev) => ({ ...prev, pageNumber: prev.totalPages - 1 }))}
-          disabled={paging.pageNumber === paging.totalPages - 1}
-        />
-      </Pagination>
+      
+      {!loading && paging.totalElements === 0 ? (
+        <p className="text-center text-muted">문의 내역이 없습니다.</p>
+      ) : (
+        <Pagination className="justify-content-center mt-4">
+          <Pagination.First
+            onClick={() => setPaging((prev) => ({ ...prev, pageNumber: 0 }))}
+            disabled={paging.pageNumber === 0}
+          />
+          <Pagination.Prev
+            onClick={() =>
+              setPaging((prev) => ({ ...prev, pageNumber: Math.max(0, prev.pageNumber - 1) }))
+            }
+            disabled={paging.pageNumber === 0}
+          />
+          {[...Array(paging.totalPages)].map((_, idx) => (
+            <Pagination.Item
+              key={idx}
+              active={paging.pageNumber === idx}
+              onClick={() => setPaging((prev) => ({ ...prev, pageNumber: idx }))}
+            >
+              {idx + 1}
+            </Pagination.Item>
+          ))}
+          <Pagination.Next
+            onClick={() =>
+              setPaging((prev) => ({
+                ...prev,
+                pageNumber: Math.min(prev.totalPages - 1, prev.pageNumber + 1),
+              }))
+            }
+            disabled={paging.pageNumber >= paging.totalPages - 1}
+          />
+          <Pagination.Last
+            onClick={() =>
+              setPaging((prev) => ({ ...prev, pageNumber: prev.totalPages - 1 }))}
+            disabled={paging.pageNumber === paging.totalPages - 1}
+          />
+        </Pagination>
+      )}
     </Container>
   );
 }

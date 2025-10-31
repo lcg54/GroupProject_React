@@ -10,6 +10,7 @@ import InquiryList from '../InquiryList';
 import Receipt from './Receipt';
 import EditPage from "../user/EditPage";
 import MyCalendar from "./calendar/MyRentalCalender";
+import MyReviewList from '../MyReviewList';
 
 const MyPage = ({ user, setUser }) => {
   const navigate = useNavigate();
@@ -25,7 +26,8 @@ const MyPage = ({ user, setUser }) => {
     { icon: "📅", text: "서비스 알림" },
     { icon: "📢", text: "내 문의사항" },
     { icon: "✏️", text: "내 정보 수정" },
-    { icon: "➕➖", text: "연장/반납" },
+    // { icon: "➕➖", text: "연장/반납" },
+    { icon: "⭐", text: "내 리뷰" },
   ];
 
   const handleClick = (button) => {
@@ -66,8 +68,10 @@ const MyPage = ({ user, setUser }) => {
         // =======
         return <EditPage user={user} setUser={setUser} isFromMyPage={true} />;
       // >>>>>>> origin/develop
-      case '연장/반납':
-        return <ExtensionOrReturn />;
+      // case '연장/반납':
+      //   return <ExtensionOrReturn />;
+      case '내 리뷰':
+        return <MyReviewList />;
       default:
         return <p>기본 내용</p>;
     }

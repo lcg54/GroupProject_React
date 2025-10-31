@@ -14,8 +14,10 @@ import ProductUpdateForm from "../pages/admin/ProductUpdateForm";
 
 import InquiryList from './../pages/InquiryList';
 import InquiryWrite from './../pages/InquiryWrite';
+
 import ReviewList from '../pages/ReviewList';
 import ReviewWrite from '../pages/ReviewWrite';
+import MyReviewList from "../pages/MyReviewList";
 
 import AuthPage from './../pages/user/AuthPage';
 import LogoutPage from './../pages/user/LogoutPage';
@@ -44,6 +46,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
 
       <Route path="/review/list" element={<ReviewList user={user} />} />
       <Route path="/review/write" element={<ReviewWrite user={user} />} />
+      <Route path="/mypage/review/list" element={<MyReviewList user={user} />} />
 
       {/* 로그인/회원가입을 하나의 페이지로 통합 */}
       <Route path="/member/login" element={<AuthPage setUser={setUser} />} />

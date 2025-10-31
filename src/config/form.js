@@ -1,3 +1,5 @@
+import { StarFill, StarHalf, Star } from "react-bootstrap-icons";
+
 export const formatDate = (dateString) => {
   if (!dateString) return "정보 없음";
   const d = new Date(dateString);
@@ -17,4 +19,20 @@ export const maskName = (name) => {
   if (!name) return "";
   if (name.length === 1) return name;
   return name[0] + "*".repeat(name.length - 1);
+};
+
+export const renderStars = (rating) => {
+  const stars = [];
+  const roundedRating = Math.round(rating * 2) / 2; // 0.5 단위로 반올림
+
+  for (let i = 1; i <= 5; i++) {
+    if (roundedRating >= i) {
+      stars.push(<StarFill key={`full-${i}`} color="#FFD700" />);
+    } else if (roundedRating >= i - 0.5) {
+      stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
+    } else {
+      stars.push(<Star key={`empty-${i}`} color="#ccc" />);
+    }
+  }
+  return <span>{stars}</span>;
 };

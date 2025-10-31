@@ -1,31 +1,29 @@
-import { Container, Card, Pagination, Spinner, ProgressBar, Dropdown, DropdownButton, Button } from "react-bootstrap";
-import { StarFill, StarHalf, Star } from "react-bootstrap-icons";
+import { Container, Card, Spinner, ProgressBar, Dropdown, DropdownButton, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
 import { maskName } from "../config/form"
 import axios from "axios";
 import "./commonness/commonness.css"
+import { renderStars } from "../config/form";
+import RenderPagination from "./RenderPagination.js";
 
 export default function ReviewList({ user }) {
-  
-  const navigate = useNavigate();
-
-  const { id } = useParams();
+  const { id } = useParams(); // 상품 ID
   const [reviews, setReviews] = useState([]);
   const [sortOrder, setSortOrder] = useState("recommend");
-  const [loading, setLoading] = useState(false);
-
-  const [currentPage, setCurrentPage] = useState(1); // 1 기반
+  const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 5;
-  const [totalElements, setTotalElements] = useState(0);
 
+  const [totalElements, setTotalElements] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   const [ratingCounts, setRatingCounts] = useState([0, 0, 0, 0, 0]);
 
+  const [loading, setLoading] = useState(false);
 
-  // 리뷰 불러오기
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetchReviews();
   }, [currentPage, sortOrder]);
@@ -77,53 +75,6 @@ export default function ReviewList({ user }) {
       console.error("추천 처리 실패:", err);
       alert("추천을 처리하는 중 오류가 발생했습니다.");
     }
-  };
-
-  // 별점 렌더링
-  const renderStars = (rating) => {
-    const stars = [];
-    const roundedRating = Math.round(rating * 2) / 2; // 0.5 단위로 반올림
-
-    for (let i = 1; i <= 5; i++) {
-      if (roundedRating >= i) {
-        stars.push(<StarFill key={`full-${i}`} color="#FFD700" />);
-      } else if (roundedRating >= i - 0.5) {
-        stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
-      } else {
-        stars.push(<Star key={`empty-${i}`} color="#ccc" />);
-      }
-    }
-    return <span>{stars}</span>;
-  };
-
-  // 페이지네이션 컴포넌트
-  const RenderPagination = () => {
-    const blockSize = 10;
-    const currentBlock = Math.floor((currentPage - 1) / blockSize);
-    const startPage = currentBlock * blockSize + 1;
-    const endPage = Math.min(startPage + blockSize - 1, totalPages);
-
-    const items = [];
-
-    items.push(
-      <Pagination.First key="first" onClick={() => setCurrentPage(1)} disabled={currentPage === 1} />,
-      <Pagination.Prev key="prev" onClick={() => setCurrentPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} />
-    );
-
-    for (let page = startPage; page <= endPage; page++) {
-      items.push(
-        <Pagination.Item key={page} active={page === currentPage} onClick={() => setCurrentPage(page)}>
-          {page}
-        </Pagination.Item>
-      );
-    }
-
-    items.push(
-      <Pagination.Next key="next" onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} />,
-      <Pagination.Last key="last" onClick={() => setCurrentPage(totalPages)} disabled={currentPage === totalPages} />
-    );
-
-    return <Pagination className="justify-content-center">{items}</Pagination>;
   };
 
   return (
@@ -233,7 +184,11 @@ export default function ReviewList({ user }) {
         ))
       )}
 
-      <RenderPagination />
+      {!loading && totalElements === 0 ? (
+        <p className="text-center text-muted">리뷰 내역이 없습니다.</p>
+      ) : (
+        <RenderPagination currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} />
+      )}
     </Container>
   );
 }

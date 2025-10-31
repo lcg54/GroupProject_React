@@ -1,5 +1,5 @@
 import { Button, Dropdown } from "react-bootstrap";
-import '../commonness/dropdown.css'
+import '../commonness/commonness.css'
 
 export const FILTER_OPTIONS = {
   category: [

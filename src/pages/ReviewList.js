@@ -3,6 +3,7 @@ import { StarFill, StarHalf, Star } from "react-bootstrap-icons";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../config/url";
+import { maskName } from "../config/form"
 import axios from "axios";
 
 export default function ReviewList({ user }) {
@@ -62,7 +63,6 @@ export default function ReviewList({ user }) {
       else if (rating >= i - 0.5) stars.push(<StarHalf key={`half-${i}`} color="#FFD700" />);
       else stars.push(<Star key={`empty-${i}`} color="#ccc" />);
     }
-    console.log(typeof rating, rating);
     return <span>{stars}</span>;
   };
 
@@ -94,12 +94,6 @@ export default function ReviewList({ user }) {
     );
 
     return <Pagination className="justify-content-center">{items}</Pagination>;
-  };
-
-  const maskName = (name) => {
-    if (!name) return "";
-    if (name.length === 1) return name;
-    return name[0] + "*".repeat(name.length - 1);
   };
 
   const handleRecommend = async (reviewId) => {

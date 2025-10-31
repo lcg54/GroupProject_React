@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Container, Card, Row, Col, Spinner, Dropdown, Badge, Tabs, Tab, Pagination, Form } from "react-bootstrap";
-import axios from "axios";
+import { Container, Row, Col, Spinner, Dropdown, Badge, Tabs, Tab, Pagination, Form } from "react-bootstrap";
 import { API_BASE_URL } from "../../config/url";
-import { OrderStatus } from "./orderStatus";
+import { OrderStatus, statusLabel } from "../../config/orderStatus";
+import AdminRentalCard from "./AdminRentalCard";
+import axios from "axios";
 
 export default function AdminRentalListPage({ user }) {
   const [rentals, setRentals] = useState([]);
@@ -119,8 +120,8 @@ export default function AdminRentalListPage({ user }) {
   }
 
   return (
-    <Container className="mt-4" style={{ maxWidth: "1000px" }}>
-      <h2 className="mb-5 text-center">대여 현황 관리</h2>
+    <Container className="mt-3" style={{ maxWidth: "1000px" }}>
+      <h2 className="mb-4 text-center">대여 현황 관리</h2>
 
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-4">
         {OrderStatus.map((status) => (
@@ -156,7 +157,11 @@ export default function AdminRentalListPage({ user }) {
                         </Dropdown.Toggle>
                         <Dropdown.Menu>
                           {OrderStatus.map((s) => (
-                            <Dropdown.Item key={s} onClick={() => handleBulkStatusChange(s)}>
+                            <Dropdown.Item
+                              key={s}
+                              onClick={() => handleBulkStatusChange(s)}
+                              disabled={s === "RETURN_REQUESTED" && s !== "RETURNED"}
+                            >
                               {statusLabel(s)}
                             </Dropdown.Item>
                           ))}
@@ -168,7 +173,7 @@ export default function AdminRentalListPage({ user }) {
                 
                 <Row xs={1} md={2} lg={2} className="g-4 mt-2">
                   {rentals.map((item) => (
-                    <RentalCard
+                    <AdminRentalCard
                       key={item.itemId}
                       item={item}
                       selected={selectedItems.includes(item.itemId)}
@@ -224,60 +229,5 @@ export default function AdminRentalListPage({ user }) {
         ))}
       </Tabs>
     </Container>
-  );
-}
-
-function statusLabel(status) {
-  const map = {
-    RESERVED: "⏳ 예약중",
-    SHIPPING: "🚚 배송중",
-    RENTED: "📦 대여중",
-    REPAIR: "🔧 수리중",
-    RETURNED: "📬 반납완료",
-    CANCELED: "❌ 취소",
-    LATE: "⚠️ 연체",
-  };
-  return map[status] || status;
-}
-
-function RentalCard({ item, onStatusChange, onSelect, selected }) {
-  return (
-    <Col>
-      <Card className={selected ? "border-primary shadow-sm" : ""}>
-        <Card.Body>
-          <div className="d-flex justify-content-between align-items-start mb-2">
-            <div className="d-flex align-items-start">
-              <Form.Check
-                type="checkbox"
-                checked={selected}
-                onChange={onSelect}
-                className="me-2"
-              />
-              <Card.Title className="mb-0">{item.productName}</Card.Title>
-            </div>
-            <Dropdown>
-              <Dropdown.Toggle variant="outline-primary" size="sm">
-                상태 변경
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                {OrderStatus.map((s) => (
-                  <Dropdown.Item key={s} onClick={() => onStatusChange(item.itemId, s)}>
-                    {statusLabel(s)}
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.Menu>
-            </Dropdown>
-          </div>
-
-          <p className="mt-2 mb-0">
-            주문번호: {item.itemId}<br />
-            수량: {item.quantity}개<br />
-            대여 기간: {item.rentalPeriodYears}년<br />
-            시작일: {item.rentalStart}<br />
-            종료일: {item.rentalEnd}
-          </p>
-        </Card.Body>
-      </Card>
-    </Col>
   );
 }

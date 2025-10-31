@@ -1,167 +1,89 @@
 import axios from "axios";
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Container, Form, Button, Alert, Card, Row, Col, InputGroup, Badge,
-  Toast, ToastContainer, ProgressBar, Modal, OverlayTrigger, Tooltip, Stack
-} from "react-bootstrap";
+import { useEffect, useRef, useState } from "react";
+import { Container, Form, Button, Alert, Card, Row, Col, InputGroup, Badge, Modal, Stack } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
+import { FILTER_OPTIONS } from "../product/ProductListFilter";
+import { prettyLabel, onlyDigits } from "../../config/replace"
 
-const CATEGORY_OPTIONS = [
-  "REFRIGERATOR", "WASHER", "DRYER", "AIRCON",
-  "TV", "OVEN", "MICROWAVE", "OTHER",
-];
-
-const BRAND_OPTIONS = ["SAMSUNG", "LG", "DAEWOO", "WINIA", "CUCKOO", "SK_MAGIC"];
-
-const prettyLabel = (s) => s.replaceAll("_", " ");
-
-export default function ProductInsertForm({ user }) {
+export default function ProductInsertForm() {
   const navigate = useNavigate();
 
+  // -- 최소 상태만 유지
   const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    brand: "",
-    description: "",
-    price: "",
-    totalStock: "",
-    available: true,
+    name: "", category: "", brand: "", description: "", price: "", totalStock: "", available: true,
   });
-
-  const [touched, setTouched] = useState({});
-  const [images, setImages] = useState([]);           // File[]
-  const [previews, setPreviews] = useState([]);       // {url, name, size}
+  const [images, setImages] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [askAnother, setAskAnother] = useState(false);
+  const [showLogs, setShowLogs] = useState(false);
+  const [logs, setLogs] = useState([]);
 
   const fileRef = useRef(null);
 
-  const invalid = useMemo(() => {
-    const errs = {};
-    if (!formData.name.trim()) errs.name = "상품명을 입력하세요.";
-    if (!formData.category) errs.category = "카테고리를 선택하세요.";
-    if (!formData.brand) errs.brand = "브랜드를 선택하세요.";
-    const priceNumber = parseInt(String(formData.price).replace(/[^0-9]/g, ""), 10) || 0;
-    if (!priceNumber || priceNumber <= 0) errs.price = "가격은 0보다 커야 합니다.";
-    const stockNumber = parseInt(String(formData.totalStock).replace(/[^0-9]/g, ""), 10) || 0;
-    if (Number.isNaN(stockNumber) || stockNumber <= 0) errs.totalStock = "총 보유 수량은 1개 이상이어야 합니다.";
-    if (images.length === 0) errs.images = "상품 이미지는 최소 1개 이상 필요합니다.";
-    return errs;
-  }, [formData, images]);
-
-  const isInvalid = (key) => touched[key] && invalid[key];
-
-  const handleInputChange = (field, value) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handlePriceBlur = () => {
-    const raw = String(formData.price).replaceAll(",", "").trim();
-    if (!raw) return;
-    const n = Number(raw);
-    if (!Number.isNaN(n)) handleInputChange("price", n === 0 ? "" : n.toLocaleString("ko-KR"));
-  };
-
-  const handleStockBlur = () => {
-    const raw = String(formData.totalStock).replaceAll(",", "").trim();
-    if (!raw) return;
-    const n = Number(raw);
-    if (!Number.isNaN(n)) handleInputChange("totalStock", n === 0 ? "" : n.toLocaleString("ko-KR"));
-  };
+  const onChange = (key, val) => setFormData((p) => ({ ...p, [key]: val }));
 
   const handleImagesChange = (e) => {
     const files = Array.from(e.target.files || []);
-    if (files.length === 0) return;
+    if (!files.length) return;
     setImages((prev) => [...prev, ...files]);
   };
+  const removeImageAt = (idx) => setImages((prev) => prev.filter((_, i) => i !== idx));
 
-  const removeImageAt = (idx) => {
-    setImages((prev) => prev.filter((_, i) => i !== idx));
-  };
-
+  // -- 미리보기 관리
   useEffect(() => {
-    // cleanup old URLs
     previews.forEach((p) => URL.revokeObjectURL(p.url));
-    setPreviews(
-      images.map((f) => ({
-        url: URL.createObjectURL(f),
-        name: f.name,
-        size: f.size,
-      }))
-    );
+    const next = images.map((f) => ({ url: URL.createObjectURL(f), name: f.name }));
+    setPreviews(next);
+    return () => next.forEach((p) => URL.revokeObjectURL(p.url));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [images]);
 
   const resetForm = () => {
-    setFormData({
-      name: "",
-      category: "",
-      brand: "",
-      description: "",
-      price: "",
-      totalStock: "",
-      available: true,
-    });
-    setTouched({});
-    setImages([]);
-    setErrorMsg("");
-    setShowSuccess(false);
-    setAskAnother(false);
+    setFormData({ name: "", category: "", brand: "", description: "", price: "", totalStock: "", available: true });
+    setImages([]); setPreviews([]); setErrorMsg(""); setSubmitted(false);
     if (fileRef.current) fileRef.current.value = "";
   };
 
+  // -- 최소 검증(제출 시에만 붉은선)
+  const errors = {
+    name: submitted && !formData.name.trim() ? "상품명을 입력하세요." : "",
+    category: submitted && !formData.category ? "카테고리를 선택하세요." : "",
+    brand: submitted && !formData.brand ? "브랜드를 선택하세요." : "",
+    price: submitted && (!(+onlyDigits(formData.price)) || +onlyDigits(formData.price) <= 0) ? "가격은 0보다 커야 합니다." : "",
+    totalStock: submitted && (!(+onlyDigits(formData.totalStock)) || +onlyDigits(formData.totalStock) <= 0) ? "총 보유 수량은 1개 이상이어야 합니다." : "",
+    images: submitted && images.length === 0 ? "상품 이미지는 최소 1개 이상 필요합니다." : "",
+  };
+
+  const hasError = Object.values(errors).some(Boolean);
+
   const buildFormData = () => {
     const fd = new FormData();
-    const priceNumber = Number(String(formData.price).replace(/[^0-9]/g, "")) || 0;
-    const stockNumber = Number(String(formData.totalStock).replace(/[^0-9]/g, "")) || 0;
-
-    fd.set("name", formData.name);
+    fd.set("name", formData.name.trim());
     fd.set("category", formData.category);
     fd.set("brand", formData.brand);
     fd.set("description", formData.description ?? "");
-    fd.set("price", String(priceNumber));
+    fd.set("price", String(+onlyDigits(formData.price) || 0));
     fd.set("available", String(!!formData.available));
-    fd.set("totalStock", String(stockNumber));
-    images.forEach((file) => fd.append("images", file, file.name));
+    fd.set("totalStock", String(+onlyDigits(formData.totalStock) || 0));
+    fd.set("adminName", "관리자");
+    images.forEach((f) => fd.append("images", f, f.name));
     return fd;
   };
 
+  // -- 등록
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setTouched({
-      name: true,
-      category: true,
-      brand: true,
-      price: true,
-      totalStock: true,
-      images: true,
-    });
-
-    if (Object.keys(invalid).length > 0) {
-      setErrorMsg("입력값을 확인해 주세요.");
-      return;
-    }
-
-    const ok = window.confirm(`"${formData.name}" 상품을 등록하시겠습니까?`);
-    if (!ok) return ;
-
-    setLoading(true);
-    setErrorMsg("");
-
+    setSubmitted(true);
+    if (hasError) return setErrorMsg("입력값을 확인해 주세요.");
+    setErrorMsg(""); setLoading(true);
     try {
-      const body = buildFormData();
-      const {data} = await axios.post(`${API_BASE_URL}/product/register`, body, {
-        withCredentials: true,
-        
-      });
-
-      setAskAnother(true);
-
-      // 성공 후 바로 목록으로 이동하고 싶다면 주석 해제
-      // navigate("/product/list");
+      await axios.post(`${API_BASE_URL}/product/register`, buildFormData(), { withCredentials: true });
+      resetForm();
+      alert("상품 등록이 완료되었습니다.");
+      // navigate("/product/list"); // 필요 시 즉시 이동
     } catch (err) {
       setErrorMsg(`상품 등록 실패: ${err?.response?.data?.message || err.message}`);
     } finally {
@@ -169,19 +91,21 @@ export default function ProductInsertForm({ user }) {
     }
   };
 
-  const SoftDivider = () => (
-    <div style={{ height: 1, background: "#eef1f4", margin: "18px 0" }} />
-  );
+  // -- 등록 내역
+  const openLogs = async () => {
+    setShowLogs(true);
+    try {
+      const { data } = await axios.get(`${API_BASE_URL}/product/logs`, { withCredentials: true });
+      setLogs(Array.isArray(data) ? data : (data?.items || data?.content || []));
+    } catch (e) {
+      setLogs([]);
+    }
+  };
 
   return (
     <Container style={{ maxWidth: 760 }} className="py-4">
       <Card className="mb-4 shadow-sm border-0" style={{ borderRadius: 20, overflow: "hidden" }}>
-        <div
-          style={{
-            background: "linear-gradient(135deg, rgba(255, 250, 240, 1), rgba(255, 245, 230, 1))",
-            padding: "22px 24px",
-          }}
-        >
+        <div style={{ background: "linear-gradient(135deg, #fffaf0, #fff5e6)", padding: "22px 24px" }}>
           <div className="text-center text-dark py-2">
             <h3 className="mb-0">상품 등록</h3>
           </div>
@@ -189,7 +113,7 @@ export default function ProductInsertForm({ user }) {
 
         <Card.Body className="p-4">
           {errorMsg && (
-            <Alert variant="danger" className="mb-4" dismissible onClose={() => setErrorMsg("")}>
+            <Alert variant="danger" className="mb-4" onClose={() => setErrorMsg("")} dismissible>
               {errorMsg}
             </Alert>
           )}
@@ -202,136 +126,87 @@ export default function ProductInsertForm({ user }) {
                   type="text"
                   placeholder="예) LG 건조기 219 모델"
                   value={formData.name}
-                  isInvalid={!!isInvalid("name")}
-                  onBlur={() => setTouched((t) => ({ ...t, name: true }))}
-                  onChange={(e) => handleInputChange("name", e.target.value)}
+                  isInvalid={!!errors.name}
+                  onChange={(e) => onChange("name", e.target.value)}
                 />
-                <Form.Control.Feedback type="invalid">
-                  {invalid.name}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.name}</Form.Control.Feedback>
               </Col>
 
               <Col md={6}>
                 <Form.Label className="fw-semibold">📂 카테고리</Form.Label>
                 <Form.Select
                   value={formData.category}
-                  isInvalid={!!isInvalid("category")}
-                  onBlur={() => setTouched((t) => ({ ...t, category: true }))}
-                  onChange={(e) => handleInputChange("category", e.target.value)}
+                  isInvalid={!!errors.category}
+                  onChange={(e) => onChange("category", e.target.value)}
                 >
                   <option value="">카테고리 선택</option>
-                  {CATEGORY_OPTIONS.map((c) => (
-                    <option key={c} value={c}>{prettyLabel(c)}</option>
+                  {FILTER_OPTIONS.category.map((c) => (
+                    <option key={c.value} value={c.value}>{prettyLabel(c.label)}</option>
                   ))}
                 </Form.Select>
-                <Form.Control.Feedback type="invalid">
-                  {invalid.category}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.category}</Form.Control.Feedback>
               </Col>
 
               <Col md={6}>
                 <Form.Label className="fw-semibold">🏷️ 브랜드</Form.Label>
                 <Form.Select
                   value={formData.brand}
-                  isInvalid={!!isInvalid("brand")}
-                  onBlur={() => setTouched((t) => ({ ...t, brand: true }))}
-                  onChange={(e) => handleInputChange("brand", e.target.value)}
+                  isInvalid={!!errors.brand}
+                  onChange={(e) => onChange("brand", e.target.value)}
                 >
                   <option value="">브랜드 선택</option>
-                  {BRAND_OPTIONS.map((b) => (
-                    <option key={b} value={b}>{prettyLabel(b)}</option>
+                  {FILTER_OPTIONS.brand.map((b) => (
+                    <option key={b.value} value={b.value}>{prettyLabel(b.label)}</option>
                   ))}
                 </Form.Select>
-                <Form.Control.Feedback type="invalid">
-                  {invalid.brand}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.brand}</Form.Control.Feedback>
               </Col>
 
               <Col md={12}>
-                <Form.Label className="fw-semibold d-flex align-items-center gap-2">
-                  📄 상세설명
-                  <OverlayTrigger
-                    placement="right"
-                    overlay={<Tooltip>주요 기능, 크기/용량, 호환 기종 등을 적어주세요.</Tooltip>}
-                  >
-                    <i className="bi bi-info-circle" />
-                  </OverlayTrigger>
-                </Form.Label>
+                <Form.Label className="fw-semibold">📄 상세설명</Form.Label>
                 <Form.Control
-                  as="textarea"
-                  rows={3}
-                  placeholder="상품에 대한 상세 설명을 입력하세요"
+                  as="textarea" rows={3} placeholder="상품에 대한 상세 설명을 입력하세요"
                   value={formData.description}
-                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  onChange={(e) => onChange("description", e.target.value)}
                 />
-                <div className="text-end text-muted small mt-1">
-                  {formData.description.length}/1000
-                </div>
+                <div className="text-end text-muted small mt-1">{formData.description.length}/1000</div>
               </Col>
 
               <Col md={6}>
                 <Form.Label className="fw-semibold">💰 가격</Form.Label>
                 <InputGroup hasValidation>
                   <Form.Control
-                    type="text"
-                    inputMode="numeric"
-                    placeholder="예) 329,000"
-                    autoComplete="off"
+                    type="text" inputMode="numeric" placeholder="예) 329000"
                     value={formData.price}
-                    isInvalid={!!isInvalid("price")}
-                    onBlur={handlePriceBlur}
-                    onFocus={(e) => e.target.select()}
-                    onChange={(e) => {
-                      const digits = e.target.value.replace(/[^0-9]/g, "");
-                      handleInputChange(
-                        "price",
-                        digits ? Number(digits).toLocaleString("ko-KR") : ""
-                      );
-                    }}
+                    isInvalid={!!errors.price}
+                    onChange={(e) => onChange("price", onlyDigits(e.target.value))}
                   />
-                  <Form.Control.Feedback type="invalid">
-                    {invalid.price}
-                  </Form.Control.Feedback>
+                  <Form.Control.Feedback type="invalid">{errors.price}</Form.Control.Feedback>
                 </InputGroup>
               </Col>
 
               <Col md={6}>
                 <Form.Label className="fw-semibold">📦 총 보유 수량</Form.Label>
                 <Form.Control
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="예) 120"
+                  type="text" inputMode="numeric" placeholder="예) 120"
                   value={formData.totalStock}
-                  isInvalid={!!isInvalid("totalStock")}
-                  onBlur={handleStockBlur}
-                  onFocus={(e) => e.target.select()}
-                  onChange={(e) =>
-                    handleInputChange("totalStock", e.target.value.replace(/[^0-9,]/g, ""))
-                  }
+                  isInvalid={!!errors.totalStock}
+                  onChange={(e) => onChange("totalStock", onlyDigits(e.target.value))}
                 />
-                <Form.Control.Feedback type="invalid">
-                  {invalid.totalStock}
-                </Form.Control.Feedback>
+                <Form.Control.Feedback type="invalid">{errors.totalStock}</Form.Control.Feedback>
               </Col>
 
               <Col md={12}>
                 <Form.Label className="fw-semibold d-flex align-items-center gap-2">
-                  📷 상품 이미지 {images.length > 0 && (
-                    <Badge bg="secondary" className="ms-1">{images.length}</Badge>
-                  )}
+                  📷 상품 이미지 {images.length > 0 && <Badge bg="secondary" className="ms-1">{images.length}</Badge>}
                 </Form.Label>
                 <Form.Control
-                  type="file"
-                  multiple
-                  accept="image/*"
+                  type="file" multiple accept="image/*"
                   ref={fileRef}
-                  isInvalid={!!isInvalid("images")}
-                  onBlur={() => setTouched((t) => ({ ...t, images: true }))}
+                  isInvalid={!!errors.images}
                   onChange={handleImagesChange}
                 />
-                {isInvalid("images") && (
-                  <div className="invalid-feedback d-block">{invalid.images}</div>
-                )}
+                {errors.images && <div className="invalid-feedback d-block">{errors.images}</div>}
 
                 {previews.length > 0 && (
                   <Row className="g-2 mt-2">
@@ -340,17 +215,13 @@ export default function ProductInsertForm({ user }) {
                         <Card className="h-100 border-0 shadow-sm position-relative" style={{ borderRadius: 12 }}>
                           <Card.Img variant="top" src={p.url} style={{ objectFit: "cover", height: 140 }} />
                           <Button
-                            variant="light"
-                            size="sm"
+                            variant="light" size="sm"
                             className="position-absolute top-0 end-0 m-1 rounded-circle shadow-sm"
                             onClick={() => removeImageAt(idx)}
                             aria-label={`remove ${p.name}`}
                           >
                             ✕
                           </Button>
-                          <Card.Body className="py-2">
-                            <div className="small text-truncate" title={p.name}>{p.name}</div>
-                          </Card.Body>
                         </Card>
                       </Col>
                     ))}
@@ -358,55 +229,50 @@ export default function ProductInsertForm({ user }) {
                 )}
               </Col>
 
-              <SoftDivider />
+              <div style={{ height: 1, background: "#eef1f4", margin: "18px 0" }} />
 
               <Col md={12}>
                 <Stack direction="horizontal" gap={2} className="justify-content-center flex-wrap mt-2">
                   <Button type="submit" variant="outline-primary" disabled={loading} className="px-4">
                     {loading ? "⏳ 등록 중..." : "✅ 상품 등록"}
                   </Button>
-
                   <Button type="button" variant="outline-danger" onClick={resetForm} disabled={loading} className="px-4">
                     🔄 초기화
                   </Button>
-
                   <Button variant="secondary" onClick={() => navigate("/product/list")} disabled={loading} className="px-4">
                     📋 목록으로
                   </Button>
+                  <Button variant="outline-secondary" onClick={openLogs} disabled={loading} className="px-4">
+                    🕓 등록 내역
+                  </Button>
                 </Stack>
-
-                {loading && <ProgressBar animated className="mt-3" now={60} />}
               </Col>
             </Row>
           </Form>
         </Card.Body>
       </Card>
 
-      {/* Ask: register another? */}
-      <Modal show={askAnother} onHide={() => setAskAnother(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title>등록이 완료되었습니다!</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>다른 상품을 등록하시겠어요? 아니면 상품 목록으로 이동할까요?</Modal.Body>
+      {/* 등록 내역  */}
+      <Modal show={showLogs} onHide={() => setShowLogs(false)} centered>
+        <Modal.Header closeButton><Modal.Title>상품 등록 내역</Modal.Title></Modal.Header>
+        <Modal.Body className="py-3">
+          {logs.length > 0 ? (
+            <ul className="list-unstyled mb-0">
+              {logs.map((log, i) => (
+                <li key={i} className="mb-2">
+                  <div className="fw-semibold">{log.productName}</div>
+                  <small className="text-muted">
+                    {new Date(log.createdAt).toLocaleString("ko-KR")} · {log.adminName || "관리자"}
+                  </small>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-muted text-center">등록 내역이 없습니다.</div>
+          )}
+        </Modal.Body>
         <Modal.Footer>
-          <Button
-            variant="outline-secondary"
-            onClick={() => {
-              setAskAnother(false);
-              navigate("/product/list"); // 목록으로 이동
-            }}
-          >
-            목록으로
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              setAskAnother(false);
-              resetForm();
-            }}
-          >
-            계속 등록
-          </Button>
+          <Button variant="secondary" onClick={() => setShowLogs(false)}>닫기</Button>
         </Modal.Footer>
       </Modal>
     </Container>

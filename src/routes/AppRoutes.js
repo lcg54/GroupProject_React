@@ -38,10 +38,12 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
       <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />
 
-      <Route path="/inquiry/list" element={<InquiryList />} />
-      <Route path="/inquiry/write" element={<InquiryWrite />} />
-      <Route path="/review/list" element={<ReviewList />} />
-      <Route path="/review/write" element={<ReviewWrite />} />
+      <Route path="/product/:id/inquiry/list" element={<InquiryList user={user} />} />
+      <Route path="/product/:id/inquiry/write" element={<InquiryWrite user={user} />} />
+      {/* <Route path="/mypage/inquiry/list" element={<MyInquiryList user={user} />} /> */}
+
+      <Route path="/review/list" element={<ReviewList user={user} />} />
+      <Route path="/review/write" element={<ReviewWrite user={user} />} />
 
       {/* 로그인/회원가입을 하나의 페이지로 통합 */}
       <Route path="/member/login" element={<AuthPage setUser={setUser} />} />

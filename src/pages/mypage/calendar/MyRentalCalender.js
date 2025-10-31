@@ -4,7 +4,8 @@ import "react-day-picker/dist/style.css";
 import styled from "styled-components";
 import "./MyRentalCalender.css";
 import { API_BASE_URL } from "../../../config/url";
-import { Form } from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
+import Registration from "./Registration";
 
 const CalendarWrapper = styled.div`
   width: 100%;
@@ -63,7 +64,10 @@ export default function MyCalendar({ user }) {
   const [rentals, setRentals] = useState([]); // 전체 상품 목록
   const [filteredRentals, setFilteredRentals] = useState([]); // 필터된 상품 목록
   const [selectedRental, setSelectedRental] = useState(null); // 선택된 상품
-  
+  const [currentMonth, setCurrentMonth] = useState(new Date()); // ✅ 달력의 현재 표시 월
+  const [modalOpen, setModalOpen] = useState(false); // 모달 열림 여부
+  const [pendingDay, setPendingDay] = useState(null); // 클릭한 날짜 임시 저장
+  const [modalType, setModalType] = useState("");     // "add" | "remove"
 
   const today = new Date();
 
@@ -122,28 +126,104 @@ export default function MyCalendar({ user }) {
   const oneWeekLater = new Date(today);
   oneWeekLater.setDate(today.getDate() + 7);
 
+  // ✅ 1년 전/후 버튼 클릭 시 달력 이동
+  const handleMoveYear = (direction) => {
+    const newMonth = new Date(currentMonth);
+    if (direction === "prev") {
+      newMonth.setFullYear(newMonth.getFullYear() - 1);
+    } else if (direction === "next") {
+      newMonth.setFullYear(newMonth.getFullYear() + 1);
+    }
+    setCurrentMonth(newMonth);
+  };
+
+  // ✅ 빠른 이동 (오늘 / 대여 시작일 / 대여 끝나는 날)
+  const handleQuickMove = (type) => {
+    let targetDate = null;
+
+    if (type === "today") {
+      targetDate = new Date();
+    } else {
+      if (!selectedRental) {
+        alert("선택된 상품이 없습니다.");
+        return;
+      }
+
+      if (type === "start") {
+        targetDate = new Date(selectedRental.rentalStart);
+      } else if (type === "end") {
+        targetDate = new Date(selectedRental.rentalEnd);
+      }
+    }
+
+    // ✅ 선택한 날짜 기준으로 달력 이동
+    if (targetDate) {
+      setCurrentMonth(targetDate);
+    }
+  };
+
   return (
     <div>
-      {/* 상품 필터 */}
-      <Form>
-        <Form.Select
-          onChange={(e) => handleRentalSelect(Number(e.target.value))}
-          value={selectedRental?.productId || ""}
-        >
-          <option value="">상품을 선택하세요</option>
-          {filteredRentals.map((r) => (
-            <option key={r.productId} value={r.productId}>
-              {r.productName}
-            </option>
-          ))}
-        </Form.Select>
+      {/* 상품 선택 + 버튼 한 줄로 */}
+      <Form className="d-flex align-items-center gap-2 mb-3">
+        <div className="d-flex align-items-center gap-2">
+          <Form.Select
+            onChange={(e) => handleRentalSelect(Number(e.target.value))}
+            value={selectedRental?.productId || ""}
+            style={{ width: "200px" }}
+          >
+            <option value="">상품을 선택하세요</option>
+            {filteredRentals.map((r) => (
+              <option key={r.productId} value={r.productId}>
+                {r.productName}
+              </option>
+            ))}
+          </Form.Select>
+
+          {/* ✅ 빠른 이동 셀렉트 */}
+          <Form.Select
+            defaultValue=""
+            onChange={(e) => handleQuickMove(e.target.value)}
+            style={{ width: "160px" }}
+          >
+            <option value="">빠른 이동</option>
+            <option value="today">오늘로 가기</option>
+            <option value="start">대여 시작일로 가기</option>
+            <option value="end">대여 끝나는 날로 가기</option>
+          </Form.Select>
+        </div>
+
+        {/* ✅ 1년 전/후 버튼 */}
+        <div className="d-flex justify-content-end gap-2 w-100">
+          <Button
+            variant="outline-secondary"
+            onClick={() => handleMoveYear("prev")}
+          >
+            ⏪ 1년
+          </Button>
+          <Button
+            variant="outline-secondary"
+            onClick={() => handleMoveYear("next")}
+          >
+            1년 ⏩
+          </Button>
+        </div>
       </Form>
 
       {/* 달력 */}
       <StyledDayPicker
         mode="multiple"
         selected={selected} // ✅ 클릭한 날짜 표시용
-        onSelect={setSelected} // 클릭한 날짜 변경
+        onDayClick={(day, { selected: isAlreadySelected }) => {
+    // day가 Date 객체인지 확인
+    const clickDay = day instanceof Date ? day : new Date(day);
+
+    setPendingDay(clickDay);
+    setModalType(isAlreadySelected ? "remove" : "add");
+    setModalOpen(true);
+        }}
+        month={currentMonth}
+        onMonthChange={setCurrentMonth}
         disabled={(date) => {
           if (!selectedRental) return true;
 
@@ -186,6 +266,27 @@ export default function MyCalendar({ user }) {
           today: "today-day", // 오늘 날짜 표시
         }}
       />
+      {modalOpen && pendingDay && (
+        <Registration
+          day={pendingDay}
+          type={modalType}  // "add" | "remove"
+          onClose={(ok) => {
+            if (ok) {
+              if (modalType === "remove") {
+                setSelected(selected.filter(
+                  (d) => new Date(d).toDateString() !== pendingDay.toDateString()
+                ));
+              } else if (modalType === "add") {
+                setSelected([...selected, pendingDay]);
+              }
+            }
+
+            setModalOpen(false);
+            setPendingDay(null);
+            setModalType("");
+          }}
+        />
+      )}
     </div>
   );
 }

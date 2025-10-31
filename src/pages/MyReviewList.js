@@ -13,7 +13,7 @@ export default function MyReviewList({ user }) {
   const [sortOrder, setSortOrder] = useState("recommend");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const pageSize = 5;
+  const pageSize = 3;
 
   const [totalElements, setTotalElements] = useState(0);
 

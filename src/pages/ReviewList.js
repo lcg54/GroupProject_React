@@ -87,9 +87,9 @@ export default function ReviewList({ user }) {
               <p style={{ margin: "0.5rem 0" }}>
                 <span style={{ fontSize: "1.5rem", display: "inline-block" }}>
                   {renderStars(averageRating)}
-                </span>{" "}
+                </span>
                 <span className="text-muted" style={{ fontSize: "1.3rem" }}>
-                  ({averageRating.toFixed(1)})
+                  &nbsp;({averageRating.toFixed(1)})
                 </span>
               </p>
             </div>

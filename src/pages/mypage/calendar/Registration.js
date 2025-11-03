@@ -5,7 +5,6 @@ export default function Modal({ day, type, onClose }) {
         type === "remove"
             ? `${day.toDateString()} 선택을 취소하시겠습니까?`
             : `${day.toDateString()}를 선택하시겠습니까?`;
-
     return (
         <div style={{
             position: "fixed", top: 0, left: 0, width: "100%", height: "100%",

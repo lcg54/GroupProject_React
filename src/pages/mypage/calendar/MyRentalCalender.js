@@ -215,12 +215,12 @@ export default function MyCalendar({ user }) {
         mode="multiple"
         selected={selected} // ✅ 클릭한 날짜 표시용
         onDayClick={(day, { selected: isAlreadySelected }) => {
-    // day가 Date 객체인지 확인
-    const clickDay = day instanceof Date ? day : new Date(day);
+          // day가 Date 객체인지 확인
+          const clickDay = day instanceof Date ? day : new Date(day);
 
-    setPendingDay(clickDay);
-    setModalType(isAlreadySelected ? "remove" : "add");
-    setModalOpen(true);
+          setPendingDay(clickDay);
+          setModalType(isAlreadySelected ? "remove" : "add");
+          setModalOpen(true);
         }}
         month={currentMonth}
         onMonthChange={setCurrentMonth}
@@ -231,14 +231,32 @@ export default function MyCalendar({ user }) {
           const isWeekend = day === 0 || day === 6; // 주말
           const isToday = date.toDateString() === today.toDateString();
           const isBeforeToday = date < today;
-          const isWithinOneWeek =
-            date > today && date <= oneWeekLater;
+          const isWithinOneWeek = date > today && date <= oneWeekLater;
 
-          // ✅ 선택된 상품의 기간 밖은 클릭 불가
           const rentalStart = new Date(selectedRental.rentalStart);
           const rentalEnd = new Date(selectedRental.rentalEnd);
           const isBeforeStart = date < rentalStart;
           const isAfterEnd = date > rentalEnd;
+
+          // 🔹 클릭한 연도 관련 로직
+          const isSameYearAsClicked =
+            pendingDay && date.getFullYear() === pendingDay.getFullYear();
+          const isSameDayAsClicked =
+            pendingDay && date.toDateString() === pendingDay.toDateString();
+
+            
+
+          // ✅ 1. 클릭한 연도면, 클릭한 당일 외에는 전부 비활성화
+          const isOtherDayInClickedYear =
+            isSameYearAsClicked && !isSameDayAsClicked;
+
+          // 🔹 대여 시작일 기준 6개월 미만이면 해당 연도 전체 클릭 불가
+          const sixMonthsAfterStart = new Date(rentalStart);
+          sixMonthsAfterStart.setMonth(sixMonthsAfterStart.getMonth() + 6);
+
+          const isStartWithinSixMonthsOfYearEnd =
+            rentalStart.getFullYear() === date.getFullYear() &&
+            sixMonthsAfterStart.getFullYear() > rentalStart.getFullYear();
 
           return (
             isWeekend ||
@@ -246,9 +264,12 @@ export default function MyCalendar({ user }) {
             isBeforeToday ||
             isWithinOneWeek ||
             isBeforeStart ||
-            isAfterEnd
+            isAfterEnd ||
+            isOtherDayInClickedYear || // 👈 클릭한 연도의 다른 날짜 비활성화
+            isStartWithinSixMonthsOfYearEnd // 👈 6개월 미만이면 해당 연도 전부 비활성화
           );
         }}
+
 
         modifiers={{
           // ✅ 선택된 상품의 대여 기간 형광 하이라이트

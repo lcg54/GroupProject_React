@@ -1,9 +1,10 @@
-import { Container, Image, Carousel } from 'react-bootstrap';
-import { useNavigate } from "react-router-dom";
-import CategoryGrid from "./product/CategoryGrid";
 import { useEffect, useState } from 'react';
-import { API_BASE_URL } from '../config/url';
+import { useNavigate } from "react-router-dom";
+import { Container, Image, Carousel } from 'react-bootstrap';
+import { API_BASE_URL } from '../../config/url';
 import axios from 'axios';
+import calcMonthlyPrice from '../../util/calcMonthlyPrice';
+import CategoryGrid from "../02.product/CategoryGrid";
 
 const HeroSection = () => {
   const [popularProducts, setPopularProducts] = useState([]);
@@ -16,7 +17,7 @@ const HeroSection = () => {
         setPopularProducts(
           res.data.map(p => ({
             ...p,
-            monthlyPrice: p.price / (6 * 10) - 2100,
+            monthlyPrice: calcMonthlyPrice(6, p.price),
           }))
         );
       } catch (err) {
@@ -46,7 +47,7 @@ const HeroSection = () => {
 
       </div>
 
-      {/* 캐러셀 영역 - Container 안의 너비 유지 */}
+      {/* 캐러셀 영역 */}
       <div style={{ textAlign: 'center' }}>
         <Carousel
           // fade

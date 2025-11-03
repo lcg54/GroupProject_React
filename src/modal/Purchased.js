@@ -1,6 +1,6 @@
 import { Modal, Button, Image, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '../../config/url';
+import { API_BASE_URL } from '../config/url';
 
 export default function Purchased({ products, onClose }) {
   const navigate = useNavigate();
@@ -54,7 +54,7 @@ export default function Purchased({ products, onClose }) {
       </Modal.Body>
 
       <Modal.Footer>
-        <Button variant="danger" onClick={() => navigate('/receipt')}>
+        <Button variant="danger" onClick={() => navigate('/mypage/receipt')}>
           구매내역
         </Button>
         <Button variant="primary" onClick={() => navigate('/product/list')}>

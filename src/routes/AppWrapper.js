@@ -1,5 +1,5 @@
 import { useLocation } from 'react-router-dom';
-import './AppWrapper.css';
+import '../css/AppWrapper.css';
 
 const AppWrapper = ({ children }) => {
     const location = useLocation();

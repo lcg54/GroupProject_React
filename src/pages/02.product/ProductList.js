@@ -5,7 +5,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./ProductListFilter";
 import CategoryGrid from "./CategoryGrid";
-import calcMonthlyPrice from "../../config/calcMonthlyPrice";
+import calcMonthlyPrice from "../../util/calcMonthlyPrice";
 import axios from "axios";
 
 export default function ProductList({ user }) {
@@ -166,7 +166,7 @@ export default function ProductList({ user }) {
   };
 
   return (
-    <Container className="mt-4" style={{ maxWidth: "800px" }}>
+    <Container className="mt-4" style={{ maxWidth: "850px" }}>
       {/* 상단 카테고리 영역 */}
       <CategoryGrid
         category={category}
@@ -175,7 +175,7 @@ export default function ProductList({ user }) {
       />
 
       {/* 필터 영역 */}
-      <div className="mt-3 mb-3 sticky-top">
+      <div className="mt-4 mb-3 sticky-top">
         <Row className="g-2 mb-2 align-items-center">
           <Col xs="auto"><BrandDropdown brand={brand} setBrand={setBrand} /></Col>
           <Col xs="auto"><AvailabilityDropdown available={available} setAvailable={setAvailable} /></Col>
@@ -239,12 +239,14 @@ export default function ProductList({ user }) {
                 <Col key={p.id} md={4} className="mb-3">
                   <div style={{ position: 'relative' }}>
                     <Card
-                      className="h-100"
+                      className="rounded d-flex flex-column"
                       style={{
+                        height: isAdmin ? "380px" : "340px",
                         cursor: "pointer",
                         opacity: isAvailable ? 1 : 0.55,
                         filter: isAvailable ? 'none' : 'grayscale(40%)',
                         backgroundColor: isAvailable ? undefined : '#f7f7f7',
+                        overflow: "hidden",
                       }}
                       onClick={() => navigate(`/product/${p.id}`)}
                     >
@@ -259,8 +261,9 @@ export default function ProductList({ user }) {
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
                         <Card.Text>
                           <div style={{ fontSize: '1.05rem' }} className="mt-2 text-primary">
-                            최대 월 {p.monthlyPrice.toLocaleString()} ₩
-                          </div></Card.Text>
+                            최대 월 {p.monthlyPrice.toLocaleString()}원 
+                          </div>
+                        </Card.Text>
                         
                         {isAdmin && (
                           <div className="d-flex gap-2 mt-2">

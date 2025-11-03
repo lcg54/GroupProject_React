@@ -1,104 +1,56 @@
 import { useEffect, useState } from "react";
 import { Alert, Button, Card, Container, Form } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
-import { API_BASE_URL } from "../config/url";
+import { API_BASE_URL } from "../../config/url";
 import axios from "axios";
 import { FaBrain, FaCamera, FaComment, FaLightbulb, FaRegCommentDots, FaStar } from "react-icons/fa";
 import { MdNote, MdNoteAlt, MdOutlineStickyNote2, MdRateReview } from "react-icons/md";
 
 export default function ReviewWrite({ user }) {
 
-  const location = useLocation();
-  const productIdFromState = location.state?.productId;
+  const [purchases, setPurchases] = useState([]);
 
-  const navigate = useNavigate();
-
-  const [purchases, setPurchases] = useState([]); // 구매한 제품 목록
-  const [selectedProduct, setSelectedProduct] = useState(null);
-  const [rating, setRating] = useState("");
-  const [content, setContent] = useState("");
-  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [hover, setHover] = useState(0); // 마우스 올렸을 때 임시 표시
-  const [allRentals, setAllRentals] = useState([]);
-  const { productId } = location.state || {};
+
+  const [rating, setRating] = useState(0);
+  const [content, setContent] = useState("");
+  const [title, setTitle] = useState("");
+  const [file, setFile] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState("");
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
-      alert("로그인 후 작성 가능합니다.");
+      alert("로그인이 필요한 페이지입니다.");
       navigate("/member/login");
+      return;
     }
-  }, [user, navigate]);
 
-
-  useEffect(() => {
-    const fetchPurchases = async () => {
+    const fetchUnreviewed = async () => {
       try {
-        if (!user || !user.id) return;
-
-        const res = await axios.get(`${API_BASE_URL}/rental/member/${user.id}`, {
-          withCredentials: true,
-        });
-
-        const allItems = [];
-
-        for (const rental of res.data) {
-          for (const item of rental.items) {
-            try {
-              const productRes = await axios.get(`${API_BASE_URL}/product/${item.productId}`);
-              const product = productRes.data;
-
-              allItems.push({
-                id: item.itemId,
-                productId: item.productId,
-                name: item.productName,
-                brand: item.brand || product.brand,
-                rentalPeriodYears: item.rentalPeriodYears,
-                image: product.mainImage,
-                reviewed: item.reviewed || false,
-              });
-            } catch (e) {
-              console.error(`❌ 상품 ${item.productId} 정보 불러오기 실패:`, e);
-            }
-          }
-        }
-
-
-        const unreviewed = allItems.filter(item => !item.reviewed);
-
-        if (productIdFromState) {
-          const selected = allItems.find(item => item.productId === Number(productIdFromState));
-          if (!selected) {
-            alert("해당 상품을 구매한 적이 없습니다.");
-            navigate("/mypage");
-            return;
-          }
-          if (selected.reviewed) {
-            alert("이미 리뷰가 완료된 상품입니다. 리뷰하지 않은 다른 상품을 선택해주세요.");
-            setPurchases(unreviewed);
-            return;
-          }
-          setPurchases([selected]);
-          setSelectedProduct(selected);
-        } else {
-          setPurchases(unreviewed);
-        }
+        const response = await axios.get(`${API_BASE_URL}/rental/member/${user.id}/unreviewed`);
+        const items = response.data.flatMap(rental =>
+          rental.items.map(item => ({
+            rentalId: rental.id,
+            ...item,
+            brand: rental.brand
+          })))
+        setPurchases(items);
       } catch (err) {
-        console.error("❌ 구매 목록 불러오기 오류:", err);
-        setError("구매 목록을 불러오는 중 오류가 발생했습니다.");
+        console.error("대여 내역 조회 실패:", err);
       }
     };
 
-    fetchPurchases();
-  }, [user, productIdFromState, navigate]);
+    fetchUnreviewed();
+  }, [user, navigate]);
 
   const validateForm = () => {
-
-    const product = selectedProduct;
-
-    if (!product) return "제품을 선택하세요.";
+    if (!selectedProduct) return "제품을 선택하세요.";
     if (!rating) return "평점을 선택하세요.";
+    if (!title.trim()) return "제목을 입력하세요.";
     if (!content.trim()) return "리뷰 내용을 입력하세요.";
     return null;
   };
@@ -116,87 +68,29 @@ export default function ReviewWrite({ user }) {
     setError("");
 
     try {
-      const formData = new FormData();
-      formData.append("productId", selectedProduct.productId);
-      formData.append("rating", rating);
-      formData.append("content", content);
-      if (file) formData.append("image", file);
-
-      const config = {
-        headers: { "Content-Type": "multipart/form-data" },
-        withCredentials: true,
+      const data = {
+        rentalItemId: selectedProduct,
+        memberId: user.id,
+        rating,
+        title,
+        content,
+        images: file ? [file.name] : []
       };
 
-      await axios.post(`${API_BASE_URL}/review/register`, formData, config);
+      await axios.post(`${API_BASE_URL}/review/create`, data, {
+        withCredentials: true,
+      });
 
       alert("리뷰가 등록되었습니다!");
-      navigate("/reviews");
+      navigate("/mypage");
     } catch (error) {
       setError("리뷰 등록 중 오류가 발생했습니다: " + error.message);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
 
-
-
-  /*
-    useEffect(() => {
-      const fetchRentals = async () => {
-        try {
-          if (!user || !user.id) return;
-  
-          const res = await axios.get(`${API_BASE_URL}/rental/member/${user.id}`, {
-            withCredentials: true,
-          });
-  
-          const flattened = res.data.flatMap((rental) =>
-            rental.items.map((item) => ({
-              id: item.id,
-              productId: item.productId,
-              name: item.productName,
-              brand: item.brand || "미등록",
-              rentalPeriodYears: item.rentalPeriodYears,
-              image: item.imageUrl || "https://via.placeholder.com/150",
-              reviewed: item.reviewed || false,
-            }))
-          );
-  
-          setAllRentals(flattened);
-  
-          const unreviewed = flattened.filter((item) => !item.reviewed);
-  
-          if (productIdFromState) {
-            const selected = flattened.find(item => item.productId === Number(productIdFromState));
-  
-            if (!selected) {
-              alert("해당 상품을 구매한 적이 없습니다.");
-              navigate("/"); // 메인페이지 이동
-              return;
-            }
-  
-            if (selected.reviewed) {
-              alert("이미 리뷰한 상품입니다.");
-              navigate("/mypage"); // 메인페이지 이동
-              return;
-            }
-  
-            setPurchases([selected]);
-            setSelectedProduct(selected.id);
-          } else {
-            setPurchases(unreviewed);
-          }
-  
-        } catch (err) {
-          console.error("❌ 대여 내역 불러오기 오류:", err);
-          setError("대여 내역을 불러오는 중 오류가 발생했습니다.");
-        }
-      };
-  
-      fetchRentals();
-    }, [user, productIdFromState, navigate]);
-  */
   return (
     <Container
       className="d-flex justify-content-center align-items-center"
@@ -237,12 +131,12 @@ export default function ReviewWrite({ user }) {
               >
                 {purchases.map((p) => (
                   <div
-                    key={p.id}
-                    onClick={() => setSelectedProduct(p)}
+                    key={p.itemId}
+                    onClick={() => setSelectedProduct(p.itemId)}
                     style={{
                       cursor: "pointer",
                       border:
-                        selectedProduct?.productId === p.productId
+                        selectedProduct === p.itemId
                           ? "2px solid #007bff"
                           : "1px solid #ddd",
                       borderRadius: "8px",
@@ -251,12 +145,12 @@ export default function ReviewWrite({ user }) {
                       boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
                       transition: "0.2s",
                       backgroundColor:
-                        selectedProduct?.productId === p.productId ? "#eaf3ff" : "#fff",
+                        selectedProduct === p.itemId ? "#eaf3ff" : "#fff",
                     }}
                   >
                     <img
-                      src={`${API_BASE_URL}/images/${p.image}`}
-                      alt={p.name}
+                      src={`${API_BASE_URL}/images/${p.mainImage}`}
+                      alt={p.productName}
                       style={{
                         width: "100%",
                         height: "100px",
@@ -275,7 +169,7 @@ export default function ReviewWrite({ user }) {
                         <strong>회사:</strong> {p.brand}
                       </div>
                       <div>
-                        <strong>제품:</strong> {p.name}
+                        <strong>제품:</strong> {p.productName}
                       </div>
                       <div>
                         <strong>대여기간:</strong> {p.rentalPeriodYears}
@@ -307,7 +201,26 @@ export default function ReviewWrite({ user }) {
                 ))}
               </div>
             </Form.Group>
-
+            <Form.Group className="mb-4">
+              <Form.Label>
+                <MdNoteAlt style={{ marginRight: "5px" }} />
+                한줄평 (필수)
+              </Form.Label>
+              <Form.Control
+                type="text"
+                maxLength={50}
+                placeholder="평가를 남겨주세요."
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                style={{
+                  borderRadius: "8px",
+                  border: "1px solid #ddd",
+                  padding: "10px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+                }}
+              />
+            </Form.Group>
             {/* 후기 내용 */}
             <Form.Group className="mb-4">
               <Form.Label>

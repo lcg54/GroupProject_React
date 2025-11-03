@@ -1,0 +1,23 @@
+.button.mypage {
+    background-color: #ffffff;
+    color: #000000;
+    border: 2px solid #ffffff;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    border-radius: 6px;
+}
+
+.button.mypage:hover {
+    background-color: #3CB371;
+    color: #000000;
+    border: 2px solid #3CB371;
+}
+
+.button.mypage.active {
+    background-color: #3CB371;
+    color: #ffffff;
+    border: 2px solid #3CB371;
+    font-weight: bold;
+    box-shadow: 0 0 6px rgba(60, 179, 113, 0.5);
+}

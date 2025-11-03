@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { API_BASE_URL } from "../config/url";
+import { API_BASE_URL } from "../../config/url";
 import { useNavigate, useParams } from "react-router-dom";
 import { Form, Container, Row, Col, Button, Alert, Card, Spinner } from "react-bootstrap";
 import axios from "axios";
@@ -124,7 +124,7 @@ export default function InquiryWrite({ user }) {
 
               <div className="mt-3 d-flex align-items-center" style={{ justifyContent: "flex-end", gap: "10px" }}>
                 <Form.Check type="checkbox" label="비공개 문의" checked={isSecret} onChange={(e) => setIsSecret(e.target.checked)} />
-                <Button variant="primary" type="submit" disabled={loading}>{loading ? "⏳ 등록 중..." : "제출"}</Button>
+                <Button variant="secondary" type="submit" disabled={loading}>{loading ? "⏳ 등록 중..." : "제출"}</Button>
               </div>
             </Form>
           </div>

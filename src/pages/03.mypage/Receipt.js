@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { Alert, Card, Col, Container, Row, Spinner, Form, InputGroup, Button } from "react-bootstrap";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import { statusLabel } from "../../config/orderStatus";
-import { formatDate, formatPrice } from "../../config/form";
-import calcRemainingDays from "../../config/calcRemainingDays";
+import { statusLabel } from "../../util/orderStatus";
+import { formatDate, formatPrice } from "../../util/form";
+import calcRemainingDays from "../../util/calcRemainingDays";
 import axios from "axios";
 
-export default function Receipt({ user }) {
+export default function Receipt() {
+  const { user } = useOutletContext();
+  
   const [rentals, setRentals] = useState([]);
   const [filteredRentals, setFilteredRentals] = useState([]);
   const [sortOption, setSortOption] = useState("recent");

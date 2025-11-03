@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Spinner, Dropdown, Badge, Tabs, Tab, Pagination, Form } from "react-bootstrap";
 import { API_BASE_URL } from "../../config/url";
-import { OrderStatus, statusLabel } from "../../config/orderStatus";
+import { OrderStatus, statusLabel } from "../../util/orderStatus";
 import AdminRentalCard from "./AdminRentalCard";
 import axios from "axios";
 
@@ -121,7 +121,7 @@ export default function AdminRentalListPage({ user }) {
 
   return (
     <Container className="mt-3" style={{ maxWidth: "1000px" }}>
-      <h2 className="mb-4 text-center">대여 현황 관리</h2>
+      <h2 className="mb-4">대여 현황</h2>
 
       <Tabs activeKey={activeTab} onSelect={setActiveTab} className="mb-4">
         {OrderStatus.map((status) => (

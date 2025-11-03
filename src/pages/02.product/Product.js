@@ -1,12 +1,12 @@
-import { useEffect, useState } from "react";
-import { Button, Col, Container, Row, Carousel, Nav, Spinner, Form } from "react-bootstrap";
-import { useNavigate, useParams } from "react-router-dom";
+import { useEffect, useState } from "react"; 
+import { Button, Col, Container, Row, Nav, Spinner, Form } from "react-bootstrap";
+import { useLocation, useNavigate, useParams, Outlet } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import InquiryList from "../InquiryList";
-import ReviewList from "../ReviewList";
-import Purchased from "../modal/Purchased";
-import calcMonthlyPrice from "../../config/calcMonthlyPrice";
 import axios from "axios";
+import calcMonthlyPrice from "../../util/calcMonthlyPrice";
+import Purchased from "../../modal/Purchased";
+import ProductCarousel from "./ProductCarousel";
+import "../../css/commonness.css"
 
 export default function Product({ user }) {
   const { id } = useParams(); // 상품 ID
@@ -14,12 +14,12 @@ export default function Product({ user }) {
   const [rentalStart, setRentalStart] = useState("");
   const [selectedPeriod, setSelectedPeriod] = useState(6);
   const [quantity, setQuantity] = useState(1);
-  const [activeTab, setActiveTab] = useState("detail");
 
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     fetchProduct();
@@ -37,6 +37,7 @@ export default function Product({ user }) {
     }
   };
 
+  // 바로 대여
   const handleRental = async () => {
     if (!user) {
       alert("로그인이 필요합니다.");
@@ -82,6 +83,7 @@ export default function Product({ user }) {
     }
   };
 
+  // 장바구니에 추가
   const handleCart = async () => {
     if (!user) {
       alert("로그인이 필요합니다.");
@@ -108,12 +110,12 @@ export default function Product({ user }) {
             productId: Number(id),
             quantity: quantity,
             periodYears: selectedPeriod,
-            rentalStart: rentalStart || null, // 장바구니에 담을 땐 대여시작일 선택 안해도 가능하게
+            rentalStart: rentalStart || null,
           },
         ],
       });
       alert("장바구니에 추가되었습니다!");
-      navigate("/cart");
+      navigate("/mypage/cart");
 
     } catch (err) {
       console.error("장바구니 추가 실패:", err);
@@ -149,22 +151,17 @@ export default function Product({ user }) {
   tomorrow.setDate(tomorrow.getDate() + 1);
   const tomorrowStr = getDateString(tomorrow);
 
+  // 현재 경로에 따라 활성 탭 결정
+  const currentPath = location.pathname;
+  let activeKey = "detail";
+  if (currentPath.includes("review")) activeKey = "review";
+  else if (currentPath.includes("inquiry")) activeKey = "inquiry";
+
   return (
     <Container className="mt-4" style={{ maxWidth: "700px" }}>
       <Row className="mb-5">
         <Col md={6}>
-          <Carousel>
-            {[product.mainImage, ...(product.images || [])].map((src, i) => (
-              <Carousel.Item key={i}>
-                <img
-                  className="d-block w-100 rounded"
-                  src={`${API_BASE_URL}/images/${typeof src === 'string' ? src : src.url || src}`}
-                  alt={`상품 이미지 ${i + 1}`}
-                  style={{ height: "400px", objectFit: "contain" }}
-                />
-              </Carousel.Item>
-            ))}
-          </Carousel>
+          <ProductCarousel product={product} />
         </Col>
 
         <Col md={6}>
@@ -176,7 +173,7 @@ export default function Product({ user }) {
             <Form.Control
               type="date"
               value={rentalStart}
-              min={tomorrowStr} // 내일부터 선택 가능
+              min={tomorrowStr}
               onChange={(e) => { setRentalStart(e.target.value)}}
             />
           </div>
@@ -242,31 +239,31 @@ export default function Product({ user }) {
         </Col>
       </Row>
 
-      <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
+      <Nav variant="tabs" activeKey={activeKey} className="mb-3">
         <Nav.Item>
-          <Nav.Link eventKey="detail">상세정보</Nav.Link>
+          <Nav.Link onClick={() => navigate(`/product/${id}`)} eventKey="detail" style={{ color: activeKey === "detail" ? "#0d6efd" : "black" }}>
+            상세정보
+          </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link eventKey="review">상품후기</Nav.Link>
+          <Nav.Link onClick={() => navigate(`/product/${id}/review/list`)} eventKey="review" style={{ color: activeKey === "review" ? "#0d6efd" : "black" }}>
+            상품후기
+          </Nav.Link>
         </Nav.Item>
         <Nav.Item>
-          <Nav.Link eventKey="inquiry">상품문의</Nav.Link>
+          <Nav.Link onClick={() => navigate(`/product/${id}/inquiry/list`)} eventKey="inquiry" style={{ color: activeKey === "inquiry" ? "#0d6efd" : "black" }}>
+            상품문의
+          </Nav.Link>
         </Nav.Item>
       </Nav>
 
-      {activeTab === "detail" && (
+      {activeKey === "detail" ? (
         <div className="p-3 border rounded">
           <p className="mt-3">{product.description}</p>
         </div>
-      )}
-      {activeTab === "review" && (
+      ) : (
         <div className="p-3 border rounded">
-          <ReviewList user={user} />
-        </div>
-      )}
-      {activeTab === "inquiry" && (
-        <div className="p-3 border rounded">
-          <InquiryList user={user} />
+          <Outlet context={{ user }} />
         </div>
       )}
 

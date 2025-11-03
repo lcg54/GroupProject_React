@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Container, Form, Button, Alert, Card, Row, Col, InputGroup, Badge, Modal, Stack } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import { FILTER_OPTIONS } from "../product/ProductListFilter";
-import { prettyLabel, onlyDigits } from "../../config/replace"
+import { FILTER_OPTIONS } from "../02.product/ProductListFilter";
+import { prettyLabel, onlyDigits } from "../../util/replace"
 
 export default function ProductInsertForm() {
   const navigate = useNavigate();

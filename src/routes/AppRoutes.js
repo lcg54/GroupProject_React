@@ -1,61 +1,67 @@
-import { Route, Routes } from "react-router-dom";
-import HomePage from './../pages/HomePage';
-import MyPage from "../pages/mypage/MyPage";
+import { Navigate, Route, Routes } from "react-router-dom";
 
-import ProductList from '../pages/product/ProductList';
-import Product from '../pages/product/Product';
-import CartList from "../pages/cart/CartList";
-import Receipt from "../pages/mypage/Receipt";
+import HomePage from '../pages/00.homepage/HomePage';
 
-import AdminRentalListPage from "../pages/admin/AdminRentalListPage";
-import SalesHistory from '../pages/admin/SalesHistory';
-import ProductInsertForm from "../pages/admin/ProductInsertForm";
-import ProductUpdateForm from "../pages/admin/ProductUpdateForm";
-
-import InquiryList from './../pages/InquiryList';
-import InquiryWrite from './../pages/InquiryWrite';
-
-import ReviewList from '../pages/ReviewList';
-import ReviewWrite from '../pages/ReviewWrite';
-import MyReviewList from "../pages/MyReviewList";
-
-import AuthPage from './../pages/user/AuthPage';
-import LogoutPage from './../pages/user/LogoutPage';
-import EditPage from './../pages/user/EditPage';
+import AuthPage from '../pages/01.user/AuthPage';
+import LogoutPage from '../pages/01.user/LogoutPage';
+import EditPage from '../pages/01.user/EditPage';
 // import DrawalPage from './../pages/DrawalPage';
+
+import ProductList from '../pages/02.product/ProductList';
+import Product from '../pages/02.product/Product';
+import ReviewList from '../pages/02.product/ReviewList';
+import ReviewWrite from '../pages/02.product/ReviewWrite';
+import InquiryList from '../pages/02.product/InquiryList';
+import InquiryWrite from '../pages/02.product/InquiryWrite';
+
+import MyPage from "../pages/03.mypage/MyPage";
+import Receipt from "../pages/03.mypage/Receipt";
+import MyCartList from "../pages/03.mypage/MyCartList";
+import MyReviewList from "../pages/03.mypage/MyReviewList";
+import MyInquiryList from "../pages/03.mypage/MyInquiryList";
+
+import ProductInsertForm from "../pages/04.adminpage/ProductInsertForm";
+import ProductUpdateForm from "../pages/04.adminpage/ProductUpdateForm";
+import AdminCartList from "../pages/04.adminpage/AdminCartList";
+import AdminRentalListPage from "../pages/04.adminpage/AdminRentalList";
+import SalesHistory from '../pages/04.adminpage/SalesHistory';
 
 export default function AppRoutes({ user, setUser, handleLogout }) {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
-      <Route path="/mypage" element={<MyPage user={user} setUser={setUser} />} />
 
-      <Route path="/product/list" element={<ProductList user={user} />} />
-      <Route path="/product/:id" element={<Product user={user} />} />
-      <Route path="/cart" element={<CartList user={user} />} />
-      <Route path="/receipt" element={<Receipt user={user} />} />
-
-      <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
-      <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />
-      <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
-      <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />
-
-      <Route path="/product/:id/inquiry/list" element={<InquiryList user={user} />} />
-      <Route path="/product/:id/inquiry/write" element={<InquiryWrite user={user} />} />
-      {/* <Route path="/mypage/inquiry/list" element={<MyInquiryList user={user} />} /> */}
-
-      <Route path="/review/list" element={<ReviewList user={user} />} />
-      <Route path="/review/write" element={<ReviewWrite user={user} />} />
-      <Route path="/mypage/review/list" element={<MyReviewList user={user} />} />
-
-      {/* 로그인/회원가입을 하나의 페이지로 통합 */}
+      {/* 회원정보 CRUD */}
       <Route path="/member/login" element={<AuthPage setUser={setUser} />} />
       <Route path="/member/signup" element={<AuthPage setUser={setUser} />} />
-
       <Route path="/member/logout" element={<LogoutPage onLogout={handleLogout} />} />
-      {/* 정보 수정/회원 탈퇴를 하나의 페이지로 통합 */}
       <Route path="/member/edit" element={<EditPage user={user} setUser={setUser} />} />
       {/* <Route path="/member/drawal" element={<DrawalPage user={user} onLogout={handleLogout} />} /> */}
+
+      {/* 상품페이지 */}
+      <Route path="/product/list" element={<ProductList user={user} />} />
+      <Route path="/product/:id" element={<Product user={user} />}>  
+        <Route path="review/list" element={<ReviewList />} />
+        <Route path="inquiry/list" element={<InquiryList />} />
+      </Route>
+      <Route path="/review/write" element={<ReviewWrite user={user} />} />
+      <Route path="/product/:id/inquiry/write" element={<InquiryWrite user={user}/>} />
+
+      {/* 마이페이지 */}
+      <Route path="/mypage" element={<MyPage user={user} setUser={setUser} />}>
+        {/* 기본 탭 */}<Route index element={<Navigate to="receipt" replace />} />
+        <Route path="receipt" element={<Receipt />} />
+        <Route path="cart" element={<MyCartList />} />
+        <Route path="review/list" element={<MyReviewList />} />
+        <Route path="inquiry/list" element={<MyInquiryList />} />
+      </Route>
+
+      {/* 관리자페이지 */}
+      <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
+      <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />
+      <Route path="/admin/cart" element={<AdminCartList user={user} />} />
+      <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
+      <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />
     </Routes>
   );
 }

@@ -1,14 +1,14 @@
-import { Container, Card, Spinner, ProgressBar, Dropdown, DropdownButton, Button } from "react-bootstrap";
 import { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { API_BASE_URL } from "../config/url";
-import { maskName } from "../config/form"
+import { useNavigate, useOutletContext, useParams } from "react-router-dom";
+import { Container, Card, Spinner, ProgressBar, Dropdown, DropdownButton, Button } from "react-bootstrap";
+import { API_BASE_URL } from "../../config/url.js";
+import { maskName } from "../../util/form.js"
+import { renderStars } from "../../util/form.js";
+import RenderPagination from "../RenderPagination.js";
 import axios from "axios";
-import "./commonness/commonness.css"
-import { renderStars } from "../config/form";
-import RenderPagination from "./RenderPagination.js";
 
-export default function ReviewList({ user }) {
+export default function ReviewList() {
+  const { user } = useOutletContext();
   const { id } = useParams(); // 상품 ID
   const [reviews, setReviews] = useState([]);
   const [sortOrder, setSortOrder] = useState("recommend");
@@ -113,7 +113,6 @@ export default function ReviewList({ user }) {
                         <span style={{ width: "50px", textAlign: "right" }}>{label}</span>
                         <ProgressBar
                           now={percent}
-                          variant="secondary"
                           style={{ flex: 1, height: "15px" }}
                         />
                         <span style={{ width: "50px", textAlign: "left" }}>{count}개</span>
@@ -137,7 +136,7 @@ export default function ReviewList({ user }) {
             <Dropdown.Item onClick={() => { setSortOrder("high"); setCurrentPage(1) }}>평점높은순</Dropdown.Item>
             <Dropdown.Item onClick={() => { setSortOrder("low"); setCurrentPage(1) }}>평점낮은순</Dropdown.Item>
           </DropdownButton>
-          <Button className="btn-custom" size="sm" onClick={() => navigate(`/review/write`)}>후기 작성</Button>
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/review/write`, { state: { productId: id } })}>리뷰 작성</Button>
         </div>
       </div>
 

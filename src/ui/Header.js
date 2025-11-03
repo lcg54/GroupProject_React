@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Navbar, Nav, Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import { List } from 'react-bootstrap-icons';
-import './Header.css';
+import '../css/Header.css';
 
 export default function Header({ user, onLogout }) {
   const navigate = useNavigate();
@@ -127,32 +127,46 @@ export default function Header({ user, onLogout }) {
         <Button variant="light" onClick={() => { navigate('/product/list'); setMenuOpen(false); }}>
           상품목록
         </Button>
+
         {user && user.role === "USER" && (
           <>
             <Button variant="light" onClick={() => { navigate('/mypage'); setMenuOpen(false); }}>
               마이페이지
             </Button>
-            <Button variant="light" onClick={() => { navigate('/receipt'); setMenuOpen(false); }}>
-              주문내역
-            </Button>
-            <Button variant="light" onClick={() => { navigate('/cart'); setMenuOpen(false); }}>
-              장바구니
-            </Button>
+            <div style={{ marginLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+              <Button variant="light" style={{ textAlign: 'left' }}
+                onClick={() => { navigate('/mypage/receipt'); setMenuOpen(false); }}>
+                └ 주문 내역
+              </Button>
+              <Button variant="light" style={{ textAlign: 'left' }}
+                onClick={() => { navigate('/mypage/cart'); setMenuOpen(false); }}>
+                └ 장바구니
+              </Button>
+              <Button variant="light" style={{ textAlign: 'left' }}
+                onClick={() => { navigate('/mypage/review/list'); setMenuOpen(false); }}>
+                └ 리뷰 내역
+              </Button>
+              <Button variant="light" style={{ textAlign: 'left' }}
+                onClick={() => { navigate('/mypage/inquiry/list'); setMenuOpen(false); }}>
+                └ 문의 내역
+              </Button>
+            </div>
           </>
         )}
+
         {user && user.role === "ADMIN" && (
           <>
             <Button variant="light" onClick={() => { navigate('/admin/product/register'); setMenuOpen(false); }}>
-              상품등록
+              상품 등록
             </Button>
             <Button variant="light" onClick={() => { navigate('/admin/rental'); setMenuOpen(false); }}>
-              대여현황관리
+              대여현황 관리
             </Button>
             <Button variant="light" onClick={() => { navigate('/admin/saleshistory'); setMenuOpen(false); }}>
-              판매실적조회
+              판매실적 조회
             </Button>
-            <Button variant="light" onClick={() => { navigate('/cart'); setMenuOpen(false); }}>
-              장바구니조회
+            <Button variant="light" onClick={() => { navigate('/admin/cart'); setMenuOpen(false); }}>
+              장바구니 조회
             </Button>
           </>
         )}

@@ -1,14 +1,15 @@
-import { Container, Card, Spinner, Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { useState, useEffect } from "react";
-import { API_BASE_URL } from "../config/url";
-import axios from "axios";
-import "./commonness/commonness.css";
-import { renderStars } from "../config/form";
-import { useNavigate } from "react-router-dom";
-import RenderPagination from "./RenderPagination.js";
+import { useNavigate, useOutletContext } from "react-router-dom";
+import { Container, Card, Spinner, Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { Bag, PencilSquare, Trash } from "react-bootstrap-icons";
+import { API_BASE_URL } from "../../config/url";
+import { renderStars } from "../../util/form.js";
+import RenderPagination from "../RenderPagination.js";
+import axios from "axios";
 
-export default function MyReviewList({ user }) {
+export default function MyReviewList() {
+  const { user } = useOutletContext();
+
   const [reviews, setReviews] = useState([]);
   const [sortOrder, setSortOrder] = useState("recommend");
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,7 +52,7 @@ export default function MyReviewList({ user }) {
   };
 
   const handleUpdate = (reviewId) => {
-    
+    navigate(`/review/write`, { state: { reviewId: reviewId } });
   }
 
   const handleDelete = async (reviewId) => {
@@ -83,6 +84,7 @@ export default function MyReviewList({ user }) {
             <Dropdown.Item onClick={() => { setSortOrder("high"); setCurrentPage(1) }}>평점높은순</Dropdown.Item>
             <Dropdown.Item onClick={() => { setSortOrder("low"); setCurrentPage(1) }}>평점낮은순</Dropdown.Item>
           </DropdownButton>
+          {/* <Button className="btn-custom" size="sm" onClick={() => navigate(`/review/write`, { state: { productId: id } })}>리뷰 작성</Button> */}
         </div>
       </div>
 

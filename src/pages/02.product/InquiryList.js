@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { Container, Row, Accordion, Card, Pagination, Dropdown, Form, Button } from 'react-bootstrap';
-import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
-import { API_BASE_URL } from '../config/url';
-import { maskName } from '../config/form';
-import "./commonness/commonness.css"
+import { API_BASE_URL } from '../../config/url';
+import { maskName } from '../../util/form';
 
-export default function InquiryList({ user }) {
+export default function InquiryList() {
+  const { user } = useOutletContext();
   const { id } = useParams(); // 상품 ID
   const [inquiries, setInquiries] = useState([]);
   const [adminComments, setAdminComments] = useState({});
@@ -87,7 +87,7 @@ export default function InquiryList({ user }) {
             </Dropdown.Menu>
           </Dropdown>
 
-          <Button className="btn-custom" size="sm" onClick={() => navigate(`/product/${id}/inquiry/write`)}>
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/product/${id}/inquiry/write`)}>
             문의 작성
           </Button>
         </div>

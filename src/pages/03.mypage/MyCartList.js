@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import { useEffect, useState } from "react"; 
 import { Container, Row, Col, Button, Form, Card, Spinner } from 'react-bootstrap';
 import { API_BASE_URL } from '../../config/url';
-import Purchased from "../modal/Purchased";
+import Purchased from "../../modal/Purchased";
 import axios from "axios";
-import "./cart.css"
+import { useOutletContext } from "react-router-dom";
 
-export default function CartList({ user }) {
+export default function MyCartList() {
+  const { user } = useOutletContext();
+  
   const [products, setProducts] = useState([]);
   const [cartId, setCartId] = useState(null);
 
@@ -23,39 +24,21 @@ export default function CartList({ user }) {
   const fetchCart = async () => {
     setLoading(true);
     try {
-      let response;
-      if (user.role === "ADMIN") {
-        // 관리자용 API 호출
-        response = await axios.get(`${API_BASE_URL}/cart/admin/summary`);
-        const summaryData = response.data;
-        const mappedProducts = summaryData.map(item => ({
-          id: item.productId,
-          name: item.productName,
-          brand: item.brand,
-          imageUrl: item.imageUrl,
-          quantity: item.totalQuantity,
-          estimatedPrice: item.price,
-        }));
-        setProducts(mappedProducts);
-        setCartId(null);
-      } else {
-        // 일반회원용 API 호출
-        response = await axios.post(`${API_BASE_URL}/cart/get`, { memberId: user.id });
-        const cartData = response.data;
-        setCartId(cartData.id);
-        const mappedProducts = cartData.items.map(item => ({
-          id: item.productId,
-          name: item.productName,
-          brand: item.brand,
-          imageUrl: item.mainImage,
-          quantity: item.quantity,
-          rentalPeriod: item.periodYears,
-          rentalStart: item.rentalStart || "",
-          estimatedPrice: item.estimatedPrice,
-          selected: false,
-        }));
-        setProducts(mappedProducts);
-      }
+      const response = await axios.post(`${API_BASE_URL}/cart/get`, { memberId: user.id });
+      const cartData = response.data;
+      setCartId(cartData.id);
+      const mappedProducts = cartData.items.map(item => ({
+        id: item.productId,
+        name: item.productName,
+        brand: item.brand,
+        imageUrl: item.mainImage,
+        quantity: item.quantity,
+        rentalPeriod: item.periodYears,
+        rentalStart: item.rentalStart || "",
+        estimatedPrice: item.estimatedPrice,
+        selected: false,
+      }));
+      setProducts(mappedProducts);
     } catch (err) {
       console.error(err);
       setProducts([]);
@@ -134,61 +117,8 @@ export default function CartList({ user }) {
     );
   }
 
-  // 관리자 전용 화면
-  if (user.role === "ADMIN") {
-    // const totalQuantity = products.reduce((sum, p) => sum + (p.quantity || 0), 0);
-    // const totalAmount = products.reduce((sum, p) => sum + ((p.estimatedPrice || 0) * (p.quantity || 0)), 0);
-
-    return (
-      <Container style={{ maxWidth: '900px', backgroundColor: '#f1ead7', padding: '2rem', borderRadius: '10px' }}>
-        <h2 className="mb-4 text-center">전체 회원 장바구니 요약 일람</h2>
-        {products.length === 0 ? (
-          <p className="text-center text-muted my-5">현재 장바구니에 담긴 상품이 없습니다.</p>
-        ) : (
-          <>
-            {products.map(product => (
-              <Card key={product.id} className="mb-4 shadow-sm p-3">
-                <Row className="align-items-center">
-                  <Col xs={3}>
-                    <img
-                      src={`${API_BASE_URL}/images/${product.imageUrl}`}
-                      alt={product.name}
-                      style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '4px' }}
-                    />
-                  </Col>
-                  <Col xs={9}>
-                    <h5 className="mb-1">{product.name}</h5>
-                    <div className="text-muted mb-2">{product.brand}</div>
-                    <div>
-                      월 납부액(평균): {(product.estimatedPrice || 0).toLocaleString()} ₩<br />
-                      상품 수량: {product.quantity} 개
-                    </div>
-                  </Col>
-                </Row>
-              </Card>
-            ))}
-
-            {/* <Card className="shadow-sm p-4 mt-4 bg-light">
-              <h4 className="mb-3 text-center">📊 전체 요약</h4>
-              <div className="d-flex justify-content-between fs-5 fw-semibold">
-                <span>총 상품 수량</span>
-                <span>{totalQuantity.toLocaleString()} 개</span>
-              </div>
-              <div className="d-flex justify-content-between fs-5 fw-semibold mt-2">
-                <span>총 금액</span>
-                <span>{totalAmount.toLocaleString()} ₩ / 월</span>
-              </div>
-            </Card> */}
-          </>
-        )}
-      </Container>
-    );
-  }
-
-  // 일반회원 화면
   return (
-    <Container style={{ maxWidth: '800px', backgroundColor: '#ffffffff', padding: '2rem 2rem', borderRadius: '10px' }}>
-
+    <Container style={{ maxWidth: '800px' }}>
       <Card className="mb-4 shadow-sm">
         <Card.Body>
           <div className="d-flex justify-content-between align-items-center mb-3">
@@ -206,7 +136,7 @@ export default function CartList({ user }) {
               disabled={selectedProducts.length === 0}
               onClick={handleDelete}
             >
-              선택 삭제
+              장바구니에서 제거
             </Button>
           </div>
           <hr />

@@ -51,11 +51,11 @@ export default function CategoryGrid({ category = [], setCategory, onClickCatego
         .map((c) => {
           const selected = category.includes(c.value);
 
-          // 백엔드에서 받은 이미지 우선 사용, 없으면 placeholder
           const imageSrc =
             getImageForCategory(c.value);
           return (
             <Card
+              className="rounded"
               key={c.value}
               onClick={() => toggleCategory(c.value)}
               title={c.label}

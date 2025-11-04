@@ -74,9 +74,9 @@ export default function MyPage({ user, setUser }) {
           <h3 className="m-0 text-white">{user.name}님</h3>
         </div>
 
-        <span className="badge bg-warning text-dark" style={{ fontSize: "1rem" }}>
-          🛒등급
-        </span>
+        {/* <span className="badge bg-warning text-dark" style={{ fontSize: "1rem" }}>
+          {user.grade} 등급
+        </span> */}
       </div>
 
       {/* 버튼 영역 */}

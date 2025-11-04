@@ -5,6 +5,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { maskName } from "../../util/form";
 import RenderPagination from "../RenderPagination";
+import { Bag } from "react-bootstrap-icons";
 
 export default function MyInquiryList() {
   const { user } = useOutletContext();
@@ -94,11 +95,11 @@ export default function MyInquiryList() {
                     <div className="d-flex justify-content-between text-muted mb-2">
                       <span>{new Date(inquiry.createdAt).toLocaleString()}</span>
                       <Button
-                        variant="secondary"
+                        variant="outline-primary"
                         size="sm"
                         onClick={() => navigate(`/product/${inquiry.productId}`)}
                       >
-                        상품 페이지로 이동
+                        <Bag size={14} className="me-1" /> 상품페이지로 이동
                       </Button>
                     </div>
 

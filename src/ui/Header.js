@@ -181,7 +181,7 @@ export default function Header({ user, onLogout }) {
             <Button variant="light" onClick={() => { navigate('/member/edit'); setMenuOpen(false); }}>
               내정보 수정
             </Button>
-            <Button variant="secondary" onClick={() => { handleLogoutClick(); setMenuOpen(false); }}>
+            <Button variant="outline-secondary" onClick={() => { handleLogoutClick(); setMenuOpen(false); }}>
               로그아웃
             </Button>
           </>

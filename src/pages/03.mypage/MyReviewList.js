@@ -11,7 +11,7 @@ export default function MyReviewList() {
   const { user } = useOutletContext();
 
   const [reviews, setReviews] = useState([]);
-  const [sortOrder, setSortOrder] = useState("recommend");
+  const [sortOrder, setSortOrder] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 3;
@@ -65,6 +65,7 @@ export default function MyReviewList() {
       alert("리뷰가 삭제되었습니다.");
       setReviews((prev) => prev.filter((r) => r.id !== reviewId));
       setTotalElements((prev) => prev - 1);
+      fetchReviews();
 
     } catch (err) {
       console.error("리뷰 삭제 실패:", err);
@@ -84,7 +85,7 @@ export default function MyReviewList() {
             <Dropdown.Item onClick={() => { setSortOrder("high"); setCurrentPage(1) }}>평점높은순</Dropdown.Item>
             <Dropdown.Item onClick={() => { setSortOrder("low"); setCurrentPage(1) }}>평점낮은순</Dropdown.Item>
           </DropdownButton>
-          {/* <Button className="btn-custom" size="sm" onClick={() => navigate(`/review/write`, { state: { productId: id } })}>리뷰 작성</Button> */}
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/review/write`)}>새 리뷰 작성</Button>
         </div>
       </div>
 

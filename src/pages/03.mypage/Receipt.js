@@ -213,7 +213,7 @@ export default function Receipt() {
                               <Button
                                 variant="outline-success"
                                 size="sm"
-                                onClick={() => navigate(`/product/${item.productId}`)}
+                                onClick={() => navigate(`/review/write`, { state: { productId: item.productId } })}
                               >
                                 ✍️ 리뷰 작성
                               </Button>

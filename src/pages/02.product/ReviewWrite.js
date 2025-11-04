@@ -20,7 +20,11 @@ export default function ReviewWrite({ user }) {
   const [file, setFile] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState("");
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [reviewId, setReviewId] = useState(null);
+
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (!user) {
@@ -29,23 +33,111 @@ export default function ReviewWrite({ user }) {
       return;
     }
 
-    const fetchUnreviewed = async () => {
+    const editingReviewId = Number(location.state?.reviewId); // 마이페이지(리뷰내역)에서 리뷰 수정 버튼으로 넘어온 리뷰ID
+    const productId = Number(location.state?.productId); // 마이페이지(주문내역) 또는 상품페이지에서 리뷰 작성 버튼으로 넘어온 상품ID
+
+    const fetchData = async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/rental/member/${user.id}/unreviewed`);
-        const items = response.data.flatMap(rental =>
-          rental.items.map(item => ({
-            rentalId: rental.id,
-            ...item,
-            brand: rental.brand
-          })))
+        let items = [];
+
+        // 1. 마이페이지(리뷰내역)에서 리뷰 수정 버튼으로 넘어온 경우
+        if (editingReviewId) {
+          // 1-1. 기존 리뷰 내용 불러오기
+          const res = await axios.get(`${API_BASE_URL}/review/${editingReviewId}`);
+          const r = res.data;
+          setIsEditing(true);
+          setReviewId(editingReviewId);
+          setRating(r.rating);
+          setTitle(r.title);
+          setContent(r.content);
+          setSelectedProduct(r.rentalItemId);
+          items = [{
+            itemId: r.rentalItemId,
+            productName: r.productName,
+            brand: r.brand,
+            mainImage: r.mainImage,
+            rentalPeriodYears: r.rentalPeriodYears,
+          }];
+        }
+
+        // 2. 마이페이지(주문내역) 또는 상품페이지에서 리뷰 작성 버튼으로 넘어온 경우
+        else if (productId) {
+          // 2-1️. 대여 상품 목록 불러오기
+          const res = await axios.get(`${API_BASE_URL}/rental/member/${user.id}`);
+          const allItems = res.data.flatMap(rental =>
+            rental.items.map(item => ({
+              rentalId: rental.id,
+              itemId: item.itemId,
+              productId: item.productId,
+              productName: item.productName,
+              mainImage: item.mainImage,
+              rentalPeriodYears: item.rentalPeriodYears,
+              status: item.status,
+            }))
+          );
+
+          // 2-2. 대여 상품 목록에 해당 상품이 있는지 확인
+          const matchedItem = allItems.find(i => i.productId === productId);
+
+          if (!matchedItem) {
+            alert("해당 상품을 대여한 기록이 없습니다.");
+            navigate(`/product/${productId}`);
+            return;
+          }
+
+          // 2-3. 대여 내역이 있다면, 이미 리뷰가 있는지 확인
+          try {
+            const res = await axios.get(`${API_BASE_URL}/review/member/${user.id}/product/${productId}`);
+            if (res.data) {
+              if (window.confirm("이미 리뷰가 존재합니다. 수정하시겠습니까?")) { // 리뷰가 있다면 수정으로 이동 가능
+                navigate("/review/write", { state: { reviewId: res.data.id } });
+              } else {
+                navigate("/mypage/review/list");
+              }
+              return;
+            }
+          } catch (err) {
+            // 리뷰가 없으면 404로 떨어질 수 있으니 무시
+          }
+
+          // 2-4. 리뷰가 없으면 해당 상품만 표시
+          items = [matchedItem];
+        }
+
+        // 3. 마이페이지(리뷰내역)에서 리뷰 작성 버튼으로 넘어온 경우
+        else {
+          // 3-1. 리뷰 내역이 없는 대여 상품 목록 불러오기
+          const res = await axios.get(`${API_BASE_URL}/rental/member/${user.id}/unreviewed`);
+          items = res.data.flatMap(rental =>
+            rental.items.map(item => ({
+              rentalId: rental.id,
+              itemId: item.itemId,
+              productId: item.productId,
+              productName: item.productName,
+              mainImage: item.mainImage,
+              rentalPeriodYears: item.rentalPeriodYears,
+              status: item.status,
+            }))
+          );
+
+          if (items.length === 0) {
+            alert("리뷰할 내역이 없습니다.");
+            navigate("/mypage/review/list");
+            return;
+          }
+        }
+
         setPurchases(items);
+
       } catch (err) {
         console.error("대여 내역 조회 실패:", err);
+        alert("대여 내역을 불러오는 중 오류가 발생했습니다.");
       }
     };
 
-    fetchUnreviewed();
-  }, [user, navigate]);
+    fetchData();
+  }, [user, navigate, location.state]);
+
 
   const validateForm = () => {
     if (!selectedProduct) return "제품을 선택하세요.";
@@ -77,12 +169,18 @@ export default function ReviewWrite({ user }) {
         images: file ? [file.name] : []
       };
 
-      await axios.post(`${API_BASE_URL}/review/create`, data, {
-        withCredentials: true,
-      });
-
-      alert("리뷰가 등록되었습니다!");
-      navigate("/mypage");
+      if (isEditing) {
+        await axios.put(`${API_BASE_URL}/review/update/${reviewId}`, data, {
+          withCredentials: true,
+        });
+        alert("리뷰가 수정되었습니다!");
+      } else {
+        await axios.post(`${API_BASE_URL}/review/create`, data, {
+          withCredentials: true,
+        });
+        alert("리뷰가 등록되었습니다!");
+      }
+      navigate(`/mypage/review/list`);
     } catch (error) {
       setError("리뷰 등록 중 오류가 발생했습니다: " + error.message);
     } finally {
@@ -270,7 +368,7 @@ export default function ReviewWrite({ user }) {
                 disabled={loading}
                 style={{ padding: "10px 30px", borderRadius: "8px" }}
               >
-                {loading ? "⏳ 등록 중..." : "제출"}
+                {loading ? (isEditing ? "⏳ 수정 중..." : "⏳ 등록 중...") : isEditing ? "수정" : "제출"}
               </Button>
             </div>
           </Form>

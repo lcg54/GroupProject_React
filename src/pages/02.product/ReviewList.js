@@ -11,7 +11,7 @@ export default function ReviewList() {
   const { user } = useOutletContext();
   const { id } = useParams(); // 상품 ID
   const [reviews, setReviews] = useState([]);
-  const [sortOrder, setSortOrder] = useState("recommend");
+  const [sortOrder, setSortOrder] = useState("latest");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 5;

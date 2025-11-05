@@ -68,6 +68,8 @@ export default function MyCalendar({ user }) {
   const [modalOpen, setModalOpen] = useState(false); // 모달 열림 여부
   const [pendingDay, setPendingDay] = useState(null); // 클릭한 날짜 임시 저장
   const [modalType, setModalType] = useState("");     // "add" | "remove"
+  const [selectedByRental, setSelectedByRental] = useState({}); // { [rentalId]: [dates] }
+
 
   const today = new Date();
 
@@ -92,6 +94,7 @@ export default function MyCalendar({ user }) {
           productName: item.productName,
           rentalStart: item.rentalStart,
           rentalEnd: item.rentalEnd,
+
         })) || []
       );
 
@@ -101,6 +104,30 @@ export default function MyCalendar({ user }) {
       console.error(err);
     }
   };
+
+
+  const handleDayClick = (day) => {
+    const rentalId = selectedRental.id;
+    const dates = selectedByRental[rentalId] || [];
+    const isSelected = dates.some(d => d.toDateString() === day.toDateString());
+
+    setPendingDay(day);
+    setModalType(isSelected ? "remove" : "add");
+    setModalOpen(true);
+  };
+
+  const fetchServiceDates = async (rentalId) => {
+    const res = await fetch(`${API_BASE_URL}/rental/member/${rentalId}/service-dates`);
+    const data = await res.json();
+    setSelectedByRental(prev => ({
+      ...prev,
+      [rentalId]: data.map(item => new Date(item.serviceDate))
+    }));
+  };
+
+
+
+
 
   // ✅ 상품 선택 시
   const handleRentalSelect = (productId) => {
@@ -161,6 +188,51 @@ export default function MyCalendar({ user }) {
       setCurrentMonth(targetDate);
     }
   };
+  const disabled = (date) => {
+    if (!selectedRental) return true;
+
+    const day = date.getDay();
+    const isWeekend = day === 0 || day === 6; // 주말
+    const isToday = date.toDateString() === today.toDateString();
+    const isBeforeToday = date < today;
+    const isWithinOneWeek = date > today && date <= oneWeekLater;
+
+    const rentalStart = new Date(selectedRental.rentalStart);
+    const rentalEnd = new Date(selectedRental.rentalEnd);
+    const isBeforeStart = date < rentalStart;
+    const isAfterEnd = date > rentalEnd;
+
+    // 클릭한 날짜가 selected 배열에 포함되어 있는지 확인
+    const isSelected = selected.some(d => new Date(d).toDateString() === date.toDateString());
+
+    // 클릭한 연도 관련 로직
+    const isSameYearAsClicked = selected.length > 0 && date.getFullYear() === new Date(selected[0]).getFullYear();
+
+    const isSameDayAsClicked = selected.some(d => new Date(d).toDateString() === date.toDateString());
+
+    const isOtherDayInClickedYear = isSameYearAsClicked && !isSameDayAsClicked;
+
+    // 대여 시작일 기준 6개월 미만이면 해당 연도 전체 클릭 불가
+    const sixMonthsAfterStart = new Date(rentalStart);
+    sixMonthsAfterStart.setMonth(sixMonthsAfterStart.getMonth() + 6);
+
+    const isStartWithinSixMonthsOfYearEnd =
+      rentalStart.getFullYear() === date.getFullYear() &&
+      sixMonthsAfterStart.getFullYear() > rentalStart.getFullYear();
+
+    return (
+      isWeekend ||
+      isToday ||
+      isBeforeToday ||
+      isWithinOneWeek ||
+      isBeforeStart ||
+      isAfterEnd ||
+      isOtherDayInClickedYear || // 클릭한 연도의 다른 날짜 비활성화
+      isStartWithinSixMonthsOfYearEnd  // 6개월 미만이면 해당 연도 전부 비활성화
+
+    );
+  };
+
 
   return (
     <div>
@@ -224,51 +296,7 @@ export default function MyCalendar({ user }) {
         }}
         month={currentMonth}
         onMonthChange={setCurrentMonth}
-        disabled={(date) => {
-          if (!selectedRental) return true;
-
-          const day = date.getDay();
-          const isWeekend = day === 0 || day === 6; // 주말
-          const isToday = date.toDateString() === today.toDateString();
-          const isBeforeToday = date < today;
-          const isWithinOneWeek = date > today && date <= oneWeekLater;
-
-          const rentalStart = new Date(selectedRental.rentalStart);
-          const rentalEnd = new Date(selectedRental.rentalEnd);
-          const isBeforeStart = date < rentalStart;
-          const isAfterEnd = date > rentalEnd;
-
-          // 🔹 클릭한 연도 관련 로직
-          const isSameYearAsClicked =
-            pendingDay && date.getFullYear() === pendingDay.getFullYear();
-          const isSameDayAsClicked =
-            pendingDay && date.toDateString() === pendingDay.toDateString();
-
-            
-
-          // ✅ 1. 클릭한 연도면, 클릭한 당일 외에는 전부 비활성화
-          const isOtherDayInClickedYear =
-            isSameYearAsClicked && !isSameDayAsClicked;
-
-          // 🔹 대여 시작일 기준 6개월 미만이면 해당 연도 전체 클릭 불가
-          const sixMonthsAfterStart = new Date(rentalStart);
-          sixMonthsAfterStart.setMonth(sixMonthsAfterStart.getMonth() + 6);
-
-          const isStartWithinSixMonthsOfYearEnd =
-            rentalStart.getFullYear() === date.getFullYear() &&
-            sixMonthsAfterStart.getFullYear() > rentalStart.getFullYear();
-
-          return (
-            isWeekend ||
-            isToday ||
-            isBeforeToday ||
-            isWithinOneWeek ||
-            isBeforeStart ||
-            isAfterEnd ||
-            isOtherDayInClickedYear || // 👈 클릭한 연도의 다른 날짜 비활성화
-            isStartWithinSixMonthsOfYearEnd // 👈 6개월 미만이면 해당 연도 전부 비활성화
-          );
-        }}
+        disabled={disabled}
 
 
         modifiers={{
@@ -290,24 +318,18 @@ export default function MyCalendar({ user }) {
       {modalOpen && pendingDay && (
         <Registration
           day={pendingDay}
-          type={modalType}  // "add" | "remove"
-          onClose={(ok) => {
-            if (ok) {
-              if (modalType === "remove") {
-                setSelected(selected.filter(
-                  (d) => new Date(d).toDateString() !== pendingDay.toDateString()
-                ));
-              } else if (modalType === "add") {
-                setSelected([...selected, pendingDay]);
-              }
-            }
-
+          type={modalType}
+          selectedRental={selectedRental} // ✅ 여기 추가
+          onClose={(success) => {
             setModalOpen(false);
             setPendingDay(null);
             setModalType("");
+            if (success) fetchServiceDates(selectedRental.id); // 추가/삭제 후 다시 불러오기
           }}
         />
       )}
+
+
     </div>
   );
 }

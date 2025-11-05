@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"; 
 import { Container, Row, Col, Button, Form, Card, Spinner } from 'react-bootstrap';
 import { API_BASE_URL } from '../../config/url';
-import Purchased from "../../modal/Purchased";
+import Purchased from "../05.payment/Purchased";
 import axios from "axios";
 import { useOutletContext } from "react-router-dom";
 

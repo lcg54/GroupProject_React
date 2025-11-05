@@ -1,8 +1,8 @@
 import { Modal, Button, Image, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { API_BASE_URL } from '../config/url';
+import { API_BASE_URL } from '../../config/url';
 
-export default function Purchased({ products, onClose }) {
+export default function Purchased({ products, onClose }) { // PaymentSuccess랑 합칠거
   const navigate = useNavigate();
   if (!products || products.length === 0) return null;
 

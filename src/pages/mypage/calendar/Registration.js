@@ -8,34 +8,54 @@ export default function Modal({ day, type, onClose, selectedRental }) {
             ? `${day.toDateString()} 선택을 취소하시겠습니까?`
             : `${day.toDateString()}를 선택하시겠습니까?`;
 
+
+    const payload = {
+        rentalItemId: selectedRental.rentalId, // ID 맞춰서 전송
+        serviceDate: day.toISOString().split("T")[0],
+    };
     const handleConfirm = async () => {
         try {
-            if (type === "add") {
-                await fetch(`${API_BASE_URL}/service/add`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        rentalItemId: selectedRental.id, // 렌탈 아이템 ID
-                        serviceDate: day.toISOString().split("T")[0], // 서비스 날짜
-                    }),
-                });
-            } else {
-                await fetch(`${API_BASE_URL}/service/remove`, {
-                    method: "DELETE",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        rentalItemId: selectedRental.id, // 렌탈 아이템 ID
-                        serviceDate: day.toISOString().split("T")[0], // 서비스 날짜
-                    }),
-                });
+            // selectedRental과 day가 존재하는지 확인
+            if (!selectedRental || !selectedRental.rentalId) {
+                alert("렌탈 아이템을 선택해주세요.");
+                return;
             }
-            onClose(true);
+            if (!day) {
+                alert("날짜를 선택해주세요.");
+                return;
+            }
+
+            const rentalId = selectedRental.rentalId;
+            const serviceDate = day.toISOString().split("T")[0]; // YYYY-MM-DD
+
+            console.log("📡 요청 보냄:", type, { rentalId, serviceDate });
+
+            const res = await fetch(`${API_BASE_URL}/rental/service/${type === "add" ? "add" : "remove"}`, {
+                method: type === "add" ? "POST" : "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    rentalItemId: rentalId,
+                    serviceDate: serviceDate,
+                }),
+            });
+
+            console.log("📥 응답 코드:", res.status);
+
+            // JSON 읽기 전에 상태 확인
+            if (!res.ok) {
+                const errText = await res.text();
+                throw new Error(`서버 오류: ${res.status} 응답 내용: ${errText}`);
+            }
+
+            const data = await res.json();
+            console.log("✅ 서버 응답:", data);
+            alert("예약이 성공적으로 처리되었습니다!");
         } catch (err) {
             console.error(err);
-            alert("처리 중 오류가 발생했습니다.");
-            onClose(false);
+            alert(err.message);
         }
     };
+
 
     return (
         <div

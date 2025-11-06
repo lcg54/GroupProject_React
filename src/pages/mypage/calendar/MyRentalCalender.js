@@ -6,6 +6,7 @@ import "./MyRentalCalender.css";
 import { API_BASE_URL } from "../../../config/url";
 import { Button, Form } from "react-bootstrap";
 import Registration from "./Registration";
+import axios from "axios";
 
 const CalendarWrapper = styled.div`
   width: 100%;
@@ -60,85 +61,81 @@ const StyledDayPicker = styled(DayPicker)`
 `;
 
 export default function MyCalendar({ user }) {
-  const [selected, setSelected] = useState([]); // 클릭한 날짜들
   const [rentals, setRentals] = useState([]); // 전체 상품 목록
-  const [filteredRentals, setFilteredRentals] = useState([]); // 필터된 상품 목록
   const [selectedRental, setSelectedRental] = useState(null); // 선택된 상품
-  const [currentMonth, setCurrentMonth] = useState(new Date()); // ✅ 달력의 현재 표시 월
+  const [currentMonth, setCurrentMonth] = useState(new Date()); // 달력의 현재 표시 월
   const [modalOpen, setModalOpen] = useState(false); // 모달 열림 여부
   const [pendingDay, setPendingDay] = useState(null); // 클릭한 날짜 임시 저장
-  const [modalType, setModalType] = useState("");     // "add" | "remove"
+  const [modalType, setModalType] = useState(""); // "add" | "remove"
   const [selectedByRental, setSelectedByRental] = useState({}); // { [rentalId]: [dates] }
-
 
   const today = new Date();
 
+  // 전체 상품 목록 불러오기
   useEffect(() => {
     if (!user?.id) return;
     fetchRentals();
   }, [user]);
 
-  // ✅ 전체 상품 목록 불러오기
   const fetchRentals = async () => {
     try {
-      const res = await fetch(`${API_BASE_URL}/rental/member/${user.id}`);
-      if (!res.ok) throw new Error("대여 내역을 불러오는 중 오류 발생");
+      const res = await axios.get(`${API_BASE_URL}/rental/member/${user.id}`);
+      const data = res.data;
 
-      const data = await res.json();
-
-      // 각 rental.items를 납작하게 펴서 상품 단위로 정리
       const simplified = data.flatMap(rental =>
         rental.items?.map(item => ({
-          rentalId: rental.id, // 대여 내역 ID
-          productId: item.productId, // 상품 ID
+          rentalId: rental.id,
+          rentaItemlId: item.itemId,
+          productId: item.productId,
           productName: item.productName,
           rentalStart: item.rentalStart,
           rentalEnd: item.rentalEnd,
-
         })) || []
       );
 
       setRentals(simplified);
-      setFilteredRentals(simplified);
     } catch (err) {
-      console.error(err);
+      console.error("대여 내역 불러오기 실패:", err);
+    }
+  };
+
+  const fetchServiceDates = async (rentalItemId) => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/rental/service/${rentalItemId}/service-dates`);
+      console.log(res.data);
+      const data = res.data;
+
+      const list = Array.isArray(data)
+        ? data
+        : data?.serviceDate
+          ? [data]
+          : [];
+
+      // 각 날짜를 { id, rentalItemId, serviceDate } 형태로 변환
+      const formatted = list.map(item => ({
+        id: item.id, // ServiceDate_id
+        rentalItemId: item.rentalItem?.id, // RentalItem id
+        serviceDate: new Date(item.serviceDate)
+      }));
+
+      setSelectedByRental(prev => ({
+        ...prev,
+        [rentalItemId]: formatted
+      }));
+    } catch (err) {
+      console.error("서비스 날짜 불러오기 실패:", err);
     }
   };
 
 
-  const handleDayClick = (day) => {
-    const rentalId = selectedRental.id;
-    const dates = selectedByRental[rentalId] || [];
-    const isSelected = dates.some(d => d.toDateString() === day.toDateString());
-
-    setPendingDay(day);
-    setModalType(isSelected ? "remove" : "add");
-    setModalOpen(true);
-  };
-
-  const fetchServiceDates = async (rentalId) => {
-    const res = await fetch(`${API_BASE_URL}/rental/member/${rentalId}/service-dates`);
-    const data = await res.json();
-    setSelectedByRental(prev => ({
-      ...prev,
-      [rentalId]: data.map(item => new Date(item.serviceDate))
-    }));
-  };
-
-
-
-
-
-  // ✅ 상품 선택 시
   const handleRentalSelect = (productId) => {
     const foundItem = rentals.find(item => item.productId === productId);
     if (!foundItem) return;
 
     setSelectedRental(foundItem);
-    setSelected([]); // 상품 바꿀 때 클릭된 날짜 초기화
+    fetchServiceDates(foundItem.id);
   };
 
-  // ✅ 대여 시작~끝 날짜 사이의 모든 날짜 배열 반환
   const getDateRange = (start, end) => {
     const dates = [];
     let current = new Date(start);
@@ -149,90 +146,45 @@ export default function MyCalendar({ user }) {
     return dates;
   };
 
-  // ✅ 오늘 이후 1주일 제한
   const oneWeekLater = new Date(today);
   oneWeekLater.setDate(today.getDate() + 7);
 
-  // ✅ 1년 전/후 버튼 클릭 시 달력 이동
   const handleMoveYear = (direction) => {
     const newMonth = new Date(currentMonth);
-    if (direction === "prev") {
-      newMonth.setFullYear(newMonth.getFullYear() - 1);
-    } else if (direction === "next") {
-      newMonth.setFullYear(newMonth.getFullYear() + 1);
-    }
+    newMonth.setFullYear(direction === "prev" ? newMonth.getFullYear() - 1 : newMonth.getFullYear() + 1);
     setCurrentMonth(newMonth);
   };
 
-  // ✅ 빠른 이동 (오늘 / 대여 시작일 / 대여 끝나는 날)
   const handleQuickMove = (type) => {
     let targetDate = null;
 
     if (type === "today") {
       targetDate = new Date();
+    } else if (selectedRental) {
+      targetDate = type === "start" ? new Date(selectedRental.rentalStart) : new Date(selectedRental.rentalEnd);
     } else {
-      if (!selectedRental) {
-        alert("선택된 상품이 없습니다.");
-        return;
-      }
-
-      if (type === "start") {
-        targetDate = new Date(selectedRental.rentalStart);
-      } else if (type === "end") {
-        targetDate = new Date(selectedRental.rentalEnd);
-      }
+      alert("선택된 상품이 없습니다.");
+      return;
     }
 
-    // ✅ 선택한 날짜 기준으로 달력 이동
-    if (targetDate) {
-      setCurrentMonth(targetDate);
-    }
+    setCurrentMonth(targetDate);
   };
+
   const disabled = (date) => {
     if (!selectedRental) return true;
 
     const day = date.getDay();
-    const isWeekend = day === 0 || day === 6; // 주말
-    const isToday = date.toDateString() === today.toDateString();
-    const isBeforeToday = date < today;
-    const isWithinOneWeek = date > today && date <= oneWeekLater;
-
     const rentalStart = new Date(selectedRental.rentalStart);
     const rentalEnd = new Date(selectedRental.rentalEnd);
+
+    const isBeforeToday = date < today;
+    const isWeekend = day === 0 || day === 6;
     const isBeforeStart = date < rentalStart;
     const isAfterEnd = date > rentalEnd;
+    const isWithinOneWeek = date > today && date <= oneWeekLater;
 
-    // 클릭한 날짜가 selected 배열에 포함되어 있는지 확인
-    const isSelected = selected.some(d => new Date(d).toDateString() === date.toDateString());
-
-    // 클릭한 연도 관련 로직
-    const isSameYearAsClicked = selected.length > 0 && date.getFullYear() === new Date(selected[0]).getFullYear();
-
-    const isSameDayAsClicked = selected.some(d => new Date(d).toDateString() === date.toDateString());
-
-    const isOtherDayInClickedYear = isSameYearAsClicked && !isSameDayAsClicked;
-
-    // 대여 시작일 기준 6개월 미만이면 해당 연도 전체 클릭 불가
-    const sixMonthsAfterStart = new Date(rentalStart);
-    sixMonthsAfterStart.setMonth(sixMonthsAfterStart.getMonth() + 6);
-
-    const isStartWithinSixMonthsOfYearEnd =
-      rentalStart.getFullYear() === date.getFullYear() &&
-      sixMonthsAfterStart.getFullYear() > rentalStart.getFullYear();
-
-    return (
-      isWeekend ||
-      isToday ||
-      isBeforeToday ||
-      isWithinOneWeek ||
-      isBeforeStart ||
-      isAfterEnd ||
-      isOtherDayInClickedYear || // 클릭한 연도의 다른 날짜 비활성화
-      isStartWithinSixMonthsOfYearEnd  // 6개월 미만이면 해당 연도 전부 비활성화
-
-    );
+    return isWeekend || isBeforeToday || isBeforeStart || isAfterEnd || isWithinOneWeek;
   };
-
 
   return (
     <div>
@@ -245,14 +197,13 @@ export default function MyCalendar({ user }) {
             style={{ width: "200px" }}
           >
             <option value="">상품을 선택하세요</option>
-            {filteredRentals.map((r) => (
+            {rentals.map((r) => (
               <option key={r.productId} value={r.productId}>
                 {r.productName}
               </option>
             ))}
           </Form.Select>
 
-          {/* ✅ 빠른 이동 셀렉트 */}
           <Form.Select
             defaultValue=""
             onChange={(e) => handleQuickMove(e.target.value)}
@@ -265,18 +216,11 @@ export default function MyCalendar({ user }) {
           </Form.Select>
         </div>
 
-        {/* ✅ 1년 전/후 버튼 */}
         <div className="d-flex justify-content-end gap-2 w-100">
-          <Button
-            variant="outline-secondary"
-            onClick={() => handleMoveYear("prev")}
-          >
+          <Button variant="outline-secondary" onClick={() => handleMoveYear("prev")}>
             ⏪ 1년
           </Button>
-          <Button
-            variant="outline-secondary"
-            onClick={() => handleMoveYear("next")}
-          >
+          <Button variant="outline-secondary" onClick={() => handleMoveYear("next")}>
             1년 ⏩
           </Button>
         </div>
@@ -285,51 +229,39 @@ export default function MyCalendar({ user }) {
       {/* 달력 */}
       <StyledDayPicker
         mode="multiple"
-        selected={selected} // ✅ 클릭한 날짜 표시용
+        selected={selectedByRental[selectedRental?.id] || []}
         onDayClick={(day, { selected: isAlreadySelected }) => {
-          // day가 Date 객체인지 확인
-          const clickDay = day instanceof Date ? day : new Date(day);
-
-          setPendingDay(clickDay);
+          setPendingDay(day);
           setModalType(isAlreadySelected ? "remove" : "add");
           setModalOpen(true);
         }}
         month={currentMonth}
         onMonthChange={setCurrentMonth}
         disabled={disabled}
-
-
         modifiers={{
-          // ✅ 선택된 상품의 대여 기간 형광 하이라이트
-          highlight: selectedRental
-            ? getDateRange(
-              new Date(selectedRental.rentalStart),
-              new Date(selectedRental.rentalEnd)
-            )
-            : [],
+          highlight: selectedRental ? getDateRange(new Date(selectedRental.rentalStart), new Date(selectedRental.rentalEnd)) : [],
           today: [today],
         }}
         modifiersClassNames={{
-          highlight: "highlight-day", // 대여기간 전체 형광
-          selected: "selected-day", // 사용자가 클릭한 날짜 강조
-          today: "today-day", // 오늘 날짜 표시
+          highlight: "highlight-day",
+          selected: "selected-day",
+          today: "today-day",
         }}
       />
+
       {modalOpen && pendingDay && (
         <Registration
           day={pendingDay}
           type={modalType}
-          selectedRental={selectedRental} // ✅ 여기 추가
+          selectedRental={selectedRental}
           onClose={(success) => {
             setModalOpen(false);
             setPendingDay(null);
             setModalType("");
-            if (success) fetchServiceDates(selectedRental.id); // 추가/삭제 후 다시 불러오기
+            if (success) fetchServiceDates(selectedRental.id);
           }}
         />
       )}
-
-
     </div>
   );
 }

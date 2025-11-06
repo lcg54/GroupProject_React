@@ -137,6 +137,7 @@ export default function AuthPage({ setUser }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginForm),
+        credentials: "include"   // ← 반드시 추가 (쿠키 전송/저장)
       });
 
       if (!res.ok) {

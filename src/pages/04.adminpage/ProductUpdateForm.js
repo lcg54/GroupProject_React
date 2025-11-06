@@ -280,6 +280,7 @@ export default function ProductUpdateForm({ user }) {
             <div className="d-flex justify-content-center gap-2 mt-3">
               <Button type="submit" variant="outline-primary" disabled={saving || deleting}>수정</Button>
               <Button variant="outline-danger" disabled={saving || deleting} onClick={handleDelete}>삭제</Button>
+              <Button variant="secondary" onClick={() => navigate("/product/list")}>목록</Button>
               <Button variant="outline-info" onClick={handleOpenLogs}>수정/삭제 내역</Button>
             </div>
           </Form>

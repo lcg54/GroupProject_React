@@ -133,12 +133,12 @@ export default function ProductUpdateForm({ user }) {
       alert("필수 항목을 입력하세요.");
       return;
     }
-    if (!window.confirm("수정할까요?")) return;
+    if (!window.confirm(`${form.name} (${id}) 을(를) 수정하시겠습니까?`)) return;
 
     setSaving(true);
     try {
       await axios.put(`${API_BASE_URL}/product/${id}`, buildFormData(), { withCredentials: true });
-      alert("수정 완료");
+      alert(`${form.name} (${id}) 을(를) 수정 완료 했습니다.`);
       navigate("/product/list");
     } finally {
       setSaving(false);
@@ -147,12 +147,12 @@ export default function ProductUpdateForm({ user }) {
 
   // 상품 삭제 요청
   const handleDelete = async () => {
-    if (!window.confirm("정말 삭제할까요?")) return;
+    if (!window.confirm(`정말 ${form.name} (${id}) 을(를) 삭제하시겠습니까?`)) return;
     setDeleting(true);
     try {
       const {data} = await axios.delete(`${API_BASE_URL}/product/${id}`, { withCredentials: true });
       // 성공 
-    alert(data?.message || "삭제 완료");
+    alert(`${form.name} (${id})이 삭제되었습니다.`);
     navigate("/product/list");
   } catch (error) {
     console.error("상품 삭제 실패", error);

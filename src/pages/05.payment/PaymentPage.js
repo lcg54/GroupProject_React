@@ -22,7 +22,7 @@ export default function PaymentPage({ user }) {
       items: [
         { productId: 1, quantity: 2, periodYears: 6 },
       ],
-      totalAmount: 20000,
+      totalAmount: 1,
     });
 
     const { orderId, amount, customerName } = readyRes.data;

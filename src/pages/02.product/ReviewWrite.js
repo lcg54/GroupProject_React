@@ -17,8 +17,10 @@ export default function ReviewWrite({ user }) {
   const [rating, setRating] = useState(0);
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
-  const [file, setFile] = useState(null);
-  const [selectedProduct, setSelectedProduct] = useState("");
+  const [file, setFile] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [existingImages, setExistingImages] = useState([]);
+  const [previewImage, setPreviewImage] = useState([]);
 
   const [isEditing, setIsEditing] = useState(false);
   const [reviewId, setReviewId] = useState(null);
@@ -34,7 +36,7 @@ export default function ReviewWrite({ user }) {
     }
 
     const editingReviewId = Number(location.state?.reviewId); // 마이페이지(리뷰내역)에서 리뷰 수정 버튼으로 넘어온 리뷰ID
-    const productId = Number(location.state?.productId); // 마이페이지(주문내역) 또는 상품페이지에서 리뷰 작성 버튼으로 넘어온 상품ID
+    const productId = Number(location.state?.productId); // 마이페이지(주문내역) 또는 상품페이지에서 리뷰 작성 버튼으로 넘어온 상품ID 
 
     const fetchData = async () => {
       try {
@@ -51,8 +53,12 @@ export default function ReviewWrite({ user }) {
           setTitle(r.title);
           setContent(r.content);
           setSelectedProduct(r.rentalItemId);
+          setExistingImages(r.imageUrls || []);
+
           items = [{
+            reantalId: editingReviewId,
             itemId: r.rentalItemId,
+            productId: r.productId,
             productName: r.productName,
             brand: r.brand,
             mainImage: r.mainImage,
@@ -138,6 +144,17 @@ export default function ReviewWrite({ user }) {
     fetchData();
   }, [user, navigate, location.state]);
 
+  useEffect(() => {
+    let filePreviews = [];
+    if (Array.isArray(file) && file.length > 0) {
+      filePreviews = file.map(f => URL.createObjectURL(f));
+      setPreviewImage(filePreviews);
+    } else {
+      const existingPreviews = existingImages?.map(url => `${API_BASE_URL}/images/${url}`) || [];
+      setPreviewImage(existingPreviews);
+    }
+    return () => filePreviews.forEach(url => URL.revokeObjectURL(url));
+  }, [file, existingImages]);
 
   const validateForm = () => {
     if (!selectedProduct) return "제품을 선택하세요.";
@@ -166,7 +183,7 @@ export default function ReviewWrite({ user }) {
         rating,
         title,
         content,
-        images: file ? [file.name] : []
+        images: file.length > 0 ? file.map(f => f.name) : existingImages
       };
 
       if (isEditing) {
@@ -187,7 +204,6 @@ export default function ReviewWrite({ user }) {
       setLoading(false);
     }
   }
-
 
   return (
     <Container
@@ -350,7 +366,8 @@ export default function ReviewWrite({ user }) {
               </Form.Label>
               <Form.Control
                 type="file"
-                onChange={(e) => setFile(e.target.files[0])}
+                multiple
+                onChange={(e) => setFile(Array.from(e.target.files))}
                 style={{
                   borderRadius: "8px",
                   border: "1px solid #ddd",
@@ -359,6 +376,14 @@ export default function ReviewWrite({ user }) {
                 }}
               />
             </Form.Group>
+
+            {previewImage.length > 0 && (
+              <div className="d-flex gap-2 mt-2">
+                {previewImage.map((url, idx) => (
+                  <img key={idx} src={url} alt={`리뷰 이미지 ${idx + 1}`} style={{ width: "100px", borderRadius: "8px" }} />
+                ))}
+              </div>
+            )}
 
             {/* 제출 버튼 */}
             <div className="text-end">

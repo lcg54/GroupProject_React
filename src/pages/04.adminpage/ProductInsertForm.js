@@ -6,15 +6,19 @@ import { API_BASE_URL } from "../../config/url";
 import { FILTER_OPTIONS } from "../02.product/ProductListFilter";
 import { prettyLabel } from "../../util/replace"
 
+// 상품 등록 페이지
 export default function ProductInsertForm({ user }) {
   const navigate = useNavigate();
+  
+  // 권한 경고를 한 번만 띄우기 위한
   const warned = useRef(false);
   
   useEffect(() => {
-  const isBlocked = !(user && user.role && String(user.role).toUpperCase() === "ADMIN");
-  if (user === undefined) return;
+  const isBlocked = !(user && user.role === "ADMIN");
+  if (user === undefined) return; // 로딩 중이면 아무것도 하지 않음
   if (isBlocked && !warned.current) {
   if (user === null) {
+    // 비로그인 상태인 경우
   const timeoutId = setTimeout(() => {
     warned.current = true;
     alert("접근 권한이 없습니다.");
@@ -22,12 +26,14 @@ export default function ProductInsertForm({ user }) {
   }, 100);
     return () => clearTimeout(timeoutId);
   }
+    // 로그인은 했지만 ADMIN이 아닌 경우
     warned.current = true;
     alert("접근 권한이 없습니다.");
     navigate("/", { replace: true });
   }
   }, [user,navigate]);
 
+  // 상품 기본 정보 상태
   const [formData, setFormData] = useState({
     name: "",
     category: "",
@@ -37,38 +43,43 @@ export default function ProductInsertForm({ user }) {
     totalStock: "",
   });
 
+  // 이미지 업로드, 미리보기, 등록 로그, 모달 표시, 로딩 상태 관리용 state
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [logs, setLogs] = useState([]);
   const [showLogs, setShowLogs] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const onChange = (k, v) => setFormData({ ...formData, [k]: v });
+  // 공통 onChange: 특정 키만 교체
+  const onChange = (key, value) => setFormData({ ...formData, [key]: value });
 
   
   // 이미지 추가
-  const handleImages = (e) => {
-    const files = Array.from(e.target.files || []);
+  const handleImages = (event) => {
+    const files = Array.from(event.target.files || []);
     setImages(files);
-    setPreviews(files.map((f) => URL.createObjectURL(f)));
+    setPreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
   // 상품 등록
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!formData.name || !formData.category || !formData.brand || !formData.price || !formData.totalStock || images.length === 0) {
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const {name, category, brand, price, totalStock } = formData;
+    if (!name || !category || !brand || !price || !totalStock || images.length === 0) {
       alert("모든 항목을 입력해주세요.");
       return;
     }
 
-    const fd = new FormData();
-    Object.entries(formData).forEach(([k, v]) => fd.append(k, v));
-    images.forEach((f) => fd.append("images", f));
+    // 입력한 상품 정보(formData)와 선택한 이미지 파일들을 서버에 보낼 수 있게 하나로 묶는 작업
+    const formDataToSend = new FormData();
+    Object.entries(formData).forEach(([key, value]) => formDataToSend.append(key, value));
+    images.forEach((file) => formDataToSend.append("images", file));
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/product/register`, fd, { withCredentials: true });
+      await axios.post(`${API_BASE_URL}/product/register`, formDataToSend, { withCredentials: true });
       alert("상품 등록 완료!");
+      // 폼 초기화
       setFormData({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
       setImages([]);
       setPreviews([]);
@@ -91,6 +102,7 @@ export default function ProductInsertForm({ user }) {
     }
   };
 
+  // user 정보가 없거나 등록 요청 중이면 화면 렌더링 안 함
   if(loading || !user) return null ;
 
   return (
@@ -100,11 +112,14 @@ export default function ProductInsertForm({ user }) {
         <Card.Header className="text-center fw-bold bg-light">상품 등록</Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit}>
+
+            {/* 상품명 */}
             <Form.Group className="mb-3">
               <Form.Label>상품명</Form.Label>
               <Form.Control type="text" placeholder="예) LG 전자레인지 199 모델" value={formData.name} onChange={(e) => onChange("name", e.target.value)} />
             </Form.Group>
 
+            {/* 카테고리 / 브랜드 */}
             <Row>
               <Col md={6}>
                 <Form.Label>카테고리</Form.Label>
@@ -126,11 +141,13 @@ export default function ProductInsertForm({ user }) {
               </Col>
             </Row>
 
+            {/* 상세 설명 */}
             <Form.Group className="mt-3">
               <Form.Label>상세설명</Form.Label>
               <Form.Control as="textarea" rows={2} placeholder="예) LG의 최신 전자레인지 모델입니다. 효율성과 디자인을 모두 잡았습니다." value={formData.description} onChange={(e) => onChange("description", e.target.value)} />
             </Form.Group>
 
+            {/* 가격 / 수량 */}
             <Row className="mt-3">
               <Col md={6}>
                 <Form.Label>가격</Form.Label>
@@ -142,6 +159,7 @@ export default function ProductInsertForm({ user }) {
               </Col>
             </Row>
 
+            {/* 상품 이미지 업로드 + 미리보기 */}
             <Form.Group className="mt-3">
               <Form.Label>상품 이미지</Form.Label>
               <Form.Control type="file" multiple accept="image/*" onChange={handleImages} />
@@ -156,6 +174,7 @@ export default function ProductInsertForm({ user }) {
               )}
             </Form.Group>
 
+            {/* 버튼 */}
             <div className="d-flex justify-content-center gap-2 mt-3">
               <Button type="submit" variant="outline-primary" disabled={loading}>{loading ? "등록 중..." : "등록"}</Button>
               <Button variant="secondary" onClick={() => navigate("/product/list")}>목록</Button>
@@ -165,6 +184,7 @@ export default function ProductInsertForm({ user }) {
         </Card.Body>
       </Card>
 
+      {/* 등록 내역 모달 */}
       <Modal show={showLogs} onHide={() => setShowLogs(false)} centered>
         <Modal.Header closeButton><Modal.Title>등록 내역</Modal.Title></Modal.Header>
         <Modal.Body>

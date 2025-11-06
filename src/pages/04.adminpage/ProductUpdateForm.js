@@ -6,26 +6,32 @@ import { API_BASE_URL } from "../../config/url";
 import { FILTER_OPTIONS } from "../02.product/ProductListFilter";
 import { prettyLabel } from "../../util/replace"
 
+// 상품 수정 페이지
 export default function ProductUpdateForm({ user }) {
   const navigate = useNavigate();
   const { id } = useParams();
   const warned = useRef(false);
 
+  // 화면 상태
   const [form, setForm] = useState({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
-  const [existing, setExisting] = useState([]);
-  const [files, setFiles] = useState([]);
-  const [previews, setPreviews] = useState([]);
+  
+  const [existingImages, setExistingImages] = useState([]);
+  const [newFiles, setNewFiles] = useState([]);
+  const [previewUrls, setPreviewUrls] = useState([]);
   const [logs, setLogs] = useState([]);
   const [showLogs, setShowLogs] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const fileRef = useRef(null);
+  const fileInputRef = useRef(null);
 
+  // 숫자 형태의 id인지 간단 검증
   const validId = /^\d+$/.test(id || "");
 
   useEffect(() => {
-    const isBlocked = !(user && user.role && String(user.role).toUpperCase() === "ADMIN");
+    const isAdmin = user && user.role === "ADMIN";
+    const isBlocked = !isAdmin;
+
     if(user === undefined) return;
     if (isBlocked && !warned.current){
     if (user === null) {
@@ -63,58 +69,66 @@ export default function ProductUpdateForm({ user }) {
           totalStock: String(data.totalStock ?? "")
         });
 
+        // 기존 이미지 URL 세팅
         let urls = [];
         if (Array.isArray(data.images) && data.images.length) {
           urls = data.images.map((fn) => (String(fn).startsWith("http") ? fn : `${API_BASE_URL}/images/${fn}`));
         } else if (data.mainImage) {
           urls = [data.mainImage.startsWith("http") ? data.mainImage : `${API_BASE_URL}/images/${data.mainImage}`];
         }
-        setExisting(urls);
+        setExistingImages(urls);
       } finally {
         setLoading(false);
       }
     })();
   }, [user, id]);
 
-  const onChange = (k, v) => setForm((p) => ({ ...p, [k]: v }));
+  const handleChangeField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
 
-  const onPickFiles = (e) => {
-    const fs = Array.from(e.target.files || []);
-    setFiles(fs);
-    setPreviews(fs.map((f) => URL.createObjectURL(f)));
+  // 파일 선택(새 이미지 업로드)
+  const handlePickFiles = (event) => {
+    const files = Array.from(event.target.files || []);
+    setNewFiles(files);
+    setPreviewUrls(files.map((file) => URL.createObjectURL(file)));
   };
 
-  const removeExisting = (url) => setExisting((arr) => arr.filter((u) => u !== url));
-  const removeNewAt = (i) => {
-    setFiles((arr) => arr.filter((_, idx) => idx !== i));
-    setPreviews((arr) => {
-      const cp = [...arr];
-      URL.revokeObjectURL(cp[i]);
-      cp.splice(i, 1);
-      return cp;
+  // 기존 이미지 하나 제거
+  const handleRemoveExistingImage = (url) => setExistingImages((arr) => arr.filter((u) => u !== url));
+  const handleRemoveNewImageAt = (index) => {
+    setNewFiles((prev) => prev.filter((_, idx) => idx !== index));
+    setPreviewUrls((prev) => {
+      const copy = [...prev];
+      URL.revokeObjectURL(copy[index]); // 메모리 누수 방지
+      copy.splice(index, 1);
+      return copy;
     });
   };
 
-  const buildFD = () => {
-    const fd = new FormData();
-    fd.append("name", form.name);
-    fd.append("category", form.category);
-    fd.append("brand", form.brand);
-    if (form.description) fd.append("description", form.description);
-    fd.append("price", form.price || "0");
-    fd.append("totalStock", form.totalStock || "0");
+  // 서버에 보낼 FormData 생성
+  const buildFormData = () => {
+    const formdata = new FormData();
+    formdata.append("name", form.name);
+    formdata.append("category", form.category);
+    formdata.append("brand", form.brand);
+    if (form.description) formdata.append("description", form.description);
+    formdata.append("price", form.price || "0");
+    formdata.append("totalStock", form.totalStock || "0");
 
-    const keep = existing.map((url) => {
-      const i = url.lastIndexOf("/images/");
-      return i >= 0 ? url.substring(i + 8) : url;
+    // 기존 이미지는 파일명이 아니라 URL 형태라서, /images/ 뒤의 실제 파일명만 추출
+    const existingFileNames = existingImages.map((url) => {
+      const idx = url.lastIndexOf("/images/");
+      return idx >= 0 ? url.substring(idx + 8) : url;
     });
-    fd.append("existingImages", JSON.stringify(keep));
-    files.forEach((f) => fd.append("images", f));
-    return fd;
+    formdata.append("existingImages", JSON.stringify(existingFileNames));
+    
+    // 새로 업로드한 파일 추가
+    newFiles.forEach((file) => formdata.append("images", file));
+    return formdata;
   };
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
+  // 상품 수정 요청
+  const handleSubmit = async (event) => {
+    event.preventDefault();
     if (!form.name || !form.category || !form.brand || form.price === "" || form.totalStock === "") {
       alert("필수 항목을 입력하세요.");
       return;
@@ -123,7 +137,7 @@ export default function ProductUpdateForm({ user }) {
 
     setSaving(true);
     try {
-      await axios.put(`${API_BASE_URL}/product/${id}`, buildFD(), { withCredentials: true });
+      await axios.put(`${API_BASE_URL}/product/${id}`, buildFormData(), { withCredentials: true });
       alert("수정 완료");
       navigate("/product/list");
     } finally {
@@ -131,7 +145,8 @@ export default function ProductUpdateForm({ user }) {
     }
   };
 
-  const onDelete = async () => {
+  // 상품 삭제 요청
+  const handleDelete = async () => {
     if (!window.confirm("정말 삭제할까요?")) return;
     setDeleting(true);
     try {
@@ -143,13 +158,14 @@ export default function ProductUpdateForm({ user }) {
     }
   };
 
-  const openLogs = async () => {
+  // 수정/삭제 내역 모달 열기
+  const handleOpenLogs = async () => {
     const { data } = await axios.get(`${API_BASE_URL}/product/logs/changes`, { withCredentials: true });
     setLogs(Array.isArray(data) ? data : []);
     setShowLogs(true);
   };
 
-  
+  // 로딩 중이거나 user 정보가 아직 없으면 렌더링하지 않음
   if (loading || !user) return null;
 
   return (
@@ -157,16 +173,19 @@ export default function ProductUpdateForm({ user }) {
       <Card className="shadow-sm border-0">
         <Card.Header className="text-center fw-bold bg-light">상품 수정</Card.Header>
         <Card.Body>
-          <Form onSubmit={onSubmit}>
+          <Form onSubmit={handleSubmit}>
+            
+            {/* 상품명 */}
             <Form.Group className="mb-3">
               <Form.Label>상품명</Form.Label>
-              <Form.Control value={form.name} onChange={(e) => onChange("name", e.target.value)} />
+              <Form.Control value={form.name} onChange={(event) => handleChangeField("name", event.target.value)} />
             </Form.Group>
 
+            {/* 카테고리/ 브랜드 */}
             <Row className="g-3">
               <Col md={6}>
                 <Form.Label>카테고리</Form.Label>
-                <Form.Select value={form.category} onChange={(e) => onChange("category", e.target.value)}>
+                <Form.Select value={form.category} onChange={(event) => handleChangeField("category", event.target.value)}>
                   <option value="">선택</option>
                   {FILTER_OPTIONS.category
                     .filter((c) => c.label !== "전체")
@@ -175,7 +194,7 @@ export default function ProductUpdateForm({ user }) {
               </Col>
               <Col md={6}>
                 <Form.Label>브랜드</Form.Label>
-                <Form.Select value={form.brand} onChange={(e) => onChange("brand", e.target.value)}>
+                <Form.Select value={form.brand} onChange={(event) => handleChangeField("brand", event.target.value)}>
                   <option value="">선택</option>
                   {FILTER_OPTIONS.brand
                     .filter((b) => b.label !== "전체")
@@ -184,35 +203,39 @@ export default function ProductUpdateForm({ user }) {
               </Col>
             </Row>
 
+            {/* 상세 설명 */}
             <Form.Group className="mt-3">
               <Form.Label>상세설명</Form.Label>
-              <Form.Control as="textarea" rows={2} value={form.description} onChange={(e) => onChange("description", e.target.value)} />
+              <Form.Control as="textarea" rows={2} value={form.description} onChange={(event) => handleChangeField("description", event.target.value)} />
             </Form.Group>
 
+            {/* 가격 / 총 보유 수량 */}
             <Row className="mt-3 g-3">
               <Col md={6}>
                 <Form.Label>가격</Form.Label>
-                <Form.Control type="text" placeholder="예) 329000" value={form.price} onChange={(e) => onChange("price", e.target.value)} />
+                <Form.Control type="text" placeholder="예) 329000" value={form.price} onChange={(event) => handleChangeField("price", event.target.value)} />
               </Col>
               <Col md={6}>
                 <Form.Label>총 보유 수량</Form.Label>
-                <Form.Control type="text" placeholder="예) 120" value={form.totalStock} onChange={(e) => onChange("totalStock", e.target.value)} />
+                <Form.Control type="text" placeholder="예) 120" value={form.totalStock} onChange={(event) => handleChangeField("totalStock", event.target.value)} />
               </Col>
             </Row>
 
+             {/* 이미지 영역 (기존 + 새 이미지) */}       
             <Form.Group className="mt-3">
               <Form.Label>상품 이미지</Form.Label>
 
-              {existing.length > 0 && (
+               {/* 기존 이미지 목록 */}     
+              {existingImages.length > 0 && (
                 <Row className="g-2 mb-2">
-                  {existing.map((url, i) => (
+                  {existingImages.map((url, i) => (
                     <Col key={i} xs={6} md={3}>
                       <Card className="border-0 shadow-sm position-relative">
                         <Card.Img src={url} style={{ height: 120, objectFit: "cover" }} />
                         <Button
                           variant="light" size="sm"
                           className="position-absolute top-0 end-0 m-1 rounded-circle"
-                          onClick={() => removeExisting(url)}
+                          onClick={() => handleRemoveExistingImage(url)}
                         >✕</Button>
                       </Card>
                     </Col>
@@ -220,18 +243,21 @@ export default function ProductUpdateForm({ user }) {
                 </Row>
               )}
 
-              <Form.Control type="file" multiple accept="image/*" ref={fileRef} onChange={onPickFiles} />
+              {/* 새로 업로드할 이미지 선택 */}
+              <Form.Control type="file" multiple accept="image/*" ref={fileInputRef} onChange={handlePickFiles} />
 
-              {previews.length > 0 && (
+
+              {/* 새로 업로드할 이미지 미리보기 */}
+              {previewUrls.length > 0 && (
                 <Row className="g-2 mt-2">
-                  {previews.map((p, i) => (
+                  {previewUrls.map((p, i) => (
                     <Col key={i} xs={6} md={3}>
                       <Card className="border-0 shadow-sm position-relative">
                         <Card.Img src={p} style={{ height: 120, objectFit: "cover" }} />
                         <Button
                           variant="light" size="sm"
                           className="position-absolute top-0 end-0 m-1 rounded-circle"
-                          onClick={() => removeNewAt(i)}
+                          onClick={() => handleRemoveNewImageAt(i)}
                         >✕</Button>
                       </Card>
                     </Col>
@@ -240,15 +266,17 @@ export default function ProductUpdateForm({ user }) {
               )}
             </Form.Group>
 
+              {/* 버튼들 */}
             <div className="d-flex justify-content-center gap-2 mt-3">
               <Button type="submit" variant="outline-primary" disabled={saving || deleting}>수정</Button>
-              <Button variant="outline-danger" disabled={saving || deleting} onClick={onDelete}>삭제</Button>
-              <Button variant="outline-info" onClick={openLogs}>수정/삭제 내역</Button>
+              <Button variant="outline-danger" disabled={saving || deleting} onClick={handleDelete}>삭제</Button>
+              <Button variant="outline-info" onClick={handleOpenLogs}>수정/삭제 내역</Button>
             </div>
           </Form>
         </Card.Body>
       </Card>
 
+      {/* 수정/삭제 내역 모달 */}
       <Modal show={showLogs} onHide={() => setShowLogs(false)} centered>
         <Modal.Header closeButton><Modal.Title>수정/삭제 내역</Modal.Title></Modal.Header>
         <Modal.Body className="py-3">

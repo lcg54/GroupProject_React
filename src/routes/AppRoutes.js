@@ -58,6 +58,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
 
       {/* 관리자페이지 */}
       <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
+      <Route path="/admin/product/update" element={<ProductUpdateForm user={user} />} />
       <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />
       <Route path="/admin/cart" element={<AdminCartList user={user} />} />
       <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />

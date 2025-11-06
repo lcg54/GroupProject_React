@@ -150,13 +150,23 @@ export default function ProductUpdateForm({ user }) {
     if (!window.confirm("정말 삭제할까요?")) return;
     setDeleting(true);
     try {
-      await axios.delete(`${API_BASE_URL}/product/${id}`, { withCredentials: true });
-      alert("삭제 완료");
-      navigate("/product/list");
-    } finally {
-      setDeleting(false);
+      const {data} = await axios.delete(`${API_BASE_URL}/product/${id}`, { withCredentials: true });
+      // 성공 
+    alert(data?.message || "삭제 완료");
+    navigate("/product/list");
+  } catch (error) {
+    console.error("상품 삭제 실패", error);
+    
+    if(error.response?.status === 400){
+    alert("주문이 들어온 상품은 삭제 할 수 없습니다.");
     }
-  };
+    else{
+      alert("상품 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    }
+  } finally {
+    setDeleting(false);
+  }
+};
 
   // 수정/삭제 내역 모달 열기
   const handleOpenLogs = async () => {

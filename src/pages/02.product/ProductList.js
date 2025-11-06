@@ -152,7 +152,7 @@ export default function ProductList({ user }) {
       
       fetchProductList(true); 
     } catch (err) {
-      alert("상품 삭제 중 오류가 발생했습니다. 권한을 확인해주세요.");
+      alert("주문이 들어온 상품은 삭제 할 수 없습니다");
     } finally{
       setLoading(false);
     }

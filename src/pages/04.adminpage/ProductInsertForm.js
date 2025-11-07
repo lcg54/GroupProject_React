@@ -70,7 +70,9 @@ export default function ProductInsertForm({ user }) {
       return;
     }
 
-    // 입력한 상품 정보(formData)와 선택한 이미지 파일들을 서버에 보낼 수 있게 하나로 묶는 작업
+    if (!window.confirm(`${brand} ${name} (${totalStock}) 을(를) 등록하시겠습니까?`)) return;
+
+    // 입력한 상품 정보와 이미지 묶기
     const formDataToSend = new FormData();
     Object.entries(formData).forEach(([key, value]) => formDataToSend.append(key, value));
     images.forEach((file) => formDataToSend.append("images", file));
@@ -78,7 +80,7 @@ export default function ProductInsertForm({ user }) {
     setLoading(true);
     try {
       await axios.post(`${API_BASE_URL}/product/register`, formDataToSend, { withCredentials: true });
-      alert("상품 등록 완료!");
+      alert(`${brand} ${name} (${totalStock}) 을(를) 등록했습니다.`);
       // 폼 초기화
       setFormData({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
       setImages([]);

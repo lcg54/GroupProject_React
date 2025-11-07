@@ -144,18 +144,42 @@ export default function ReviewWrite({ user }) {
     fetchData();
   }, [user, navigate, location.state]);
 
-  useEffect(() => {
-    let filePreviews = [];
-    if (Array.isArray(file) && file.length > 0) {
-      filePreviews = file.map(f => URL.createObjectURL(f));
-      setPreviewImage(filePreviews);
-    } else {
-      const existingPreviews = existingImages?.map(url => `${API_BASE_URL}/images/${url}`) || [];
-      setPreviewImage(existingPreviews);
-    }
-    return () => filePreviews.forEach(url => URL.revokeObjectURL(url));
-  }, [file, existingImages]);
+  const handleFileChange = (e) => {
+    const newFiles = Array.from(e.target.files);
+    const currentCount = file.length + existingImages.length;
+    const allowedCount = 5 - currentCount;
 
+    if (allowedCount <= 0) {
+      alert("최대 5장까지 업로드 가능합니다.");
+      e.target.value = "";
+      return;
+    }
+
+    const allowedFiles = newFiles.slice(0, allowedCount);
+
+    setFile((prevFiles) => [...prevFiles, ...allowedFiles]);
+    e.target.value = "";
+  };
+
+  const handleRemoveImage = (imgToRemove, index) => {
+    setPreviewImage(prev => prev.filter((_, idx) => idx !== index));
+
+    if (imgToRemove.isExisting) {
+      setExistingImages(prev => prev.filter((_, idx) => idx !== index));
+    } else {
+      setFile(prev => prev.filter(f => f.name !== imgToRemove.name));
+    }
+  };
+
+  useEffect(() => {
+    const filePreviews = file.map(f => ({ url: URL.createObjectURL(f), name: f.name, isExisting: false }));
+    const existingPreviews = existingImages.map(url => ({ url: `${API_BASE_URL}/images/${url}`, name: url, isExisting: true }));
+    const allPreviews = [...existingPreviews, ...filePreviews];
+
+    setPreviewImage(allPreviews);
+
+    return () => filePreviews.forEach(f => URL.revokeObjectURL(f.url));
+  }, [file, existingImages]);
   const validateForm = () => {
     if (!selectedProduct) return "제품을 선택하세요.";
     if (!rating) return "평점을 선택하세요.";
@@ -183,7 +207,7 @@ export default function ReviewWrite({ user }) {
         rating,
         title,
         content,
-        images: file.length > 0 ? file.map(f => f.name) : existingImages
+        images: [...existingImages, ...file.map(f => f.name)]
       };
 
       if (isEditing) {
@@ -361,13 +385,18 @@ export default function ReviewWrite({ user }) {
             {/* 리뷰 사진 업로드 */}
             <Form.Group className="mb-4">
               <Form.Label>
-                <FaCamera size={20} style={{ marginRight: "5px" }} />
-                리뷰 사진
+                <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <FaCamera size={20} style={{ marginRight: "5px" }} />
+                  리뷰 사진
+                  <small style={{ color: "#555" }}>
+                    {previewImage.length} / 5
+                  </small>
+                </div>
               </Form.Label>
               <Form.Control
                 type="file"
                 multiple
-                onChange={(e) => setFile(Array.from(e.target.files))}
+                onChange={handleFileChange}
                 style={{
                   borderRadius: "8px",
                   border: "1px solid #ddd",
@@ -378,9 +407,37 @@ export default function ReviewWrite({ user }) {
             </Form.Group>
 
             {previewImage.length > 0 && (
-              <div className="d-flex gap-2 mt-2">
-                {previewImage.map((url, idx) => (
-                  <img key={idx} src={url} alt={`리뷰 이미지 ${idx + 1}`} style={{ width: "100px", borderRadius: "8px" }} />
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "10px" }}>
+                {previewImage.map((img, idx) => (
+                  <div key={idx} style={{ position: "relative", width: "100px", height: "100px" }}>
+                    <img
+                      src={img.url}
+                      alt={`리뷰 이미지 ${idx + 1}`}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
+                    />
+                    <div
+                      onClick={() => handleRemoveImage(img, idx)}
+                      style={{
+                        position: "absolute",
+                        top: "4px",
+                        right: "4px",
+                        backgroundColor: "rgba(0,0,0,0.6)",
+                        color: "white",
+                        borderRadius: "50%",
+                        width: "20px",
+                        height: "20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        fontWeight: "bold",
+                        fontSize: "14px",
+                        zIndex: 9999,
+                      }}
+                    >
+                      ✕
+                    </div>
+                  </div>
                 ))}
               </div>
             )}

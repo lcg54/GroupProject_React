@@ -2,8 +2,10 @@ import axios from "axios";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { API_BASE_URL } from "../../config/url";
 import { CLIENT_KEY } from "./Key"
+import { useNavigate } from "react-router-dom";
 
 export default function PaymentPage({ user }) {
+  const navigate = useNavigate();
 
   const handlePayment = async () => {
     const storedUser = JSON.parse(sessionStorage.getItem("user"));
@@ -34,7 +36,7 @@ export default function PaymentPage({ user }) {
       orderId,
       orderName: "상품 결제",
       customerName,
-      successUrl: `${window.location.origin}/payment/success?orderId=${orderId}&amount=${amount}&username=${username}&items=${encodeURIComponent(JSON.stringify(items))}`,
+      successUrl: `${window.location.origin}/payment/confirm?orderId=${orderId}&amount=${amount}&username=${username}&items=${encodeURIComponent(JSON.stringify(items))}`,
       failUrl: `${window.location.origin}/payment/fail`,
     });
   };
@@ -42,7 +44,11 @@ export default function PaymentPage({ user }) {
   return (
     <div>
       <h1>결제 페이지</h1>
-      <button onClick={handlePayment}>결제하기</button>
+      <button onClick={handlePayment}>테스트: 단건결제 (2, 1개, 6년, 1원)</button>
+      <br />
+      <button onClick={() => navigate("/payment/register")}>
+        테스트: 카드 등록
+      </button>
     </div>
   );
 }

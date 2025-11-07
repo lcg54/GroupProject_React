@@ -30,8 +30,8 @@ import PaymentPage from "../pages/05.payment/PaymentPage";
 import PaymentConfirm from "../pages/05.payment/PaymentConfirm";
 
 import PaymentRegisterPage from "../pages/05.payment/PaymentRegisterPage";
-import PaymentSuccessPage from "../pages/05.payment/PaymentSuccessPage";
-import PaymentFailPage from "../pages/05.payment/PaymentFailPage";
+import PaymentRegisterSuccess from "../pages/05.payment/PaymentRegisterSuccess";
+import PaymentRegisterFail from "../pages/05.payment/PaymentRegisterFail";
 
 export default function AppRoutes({ user, setUser, handleLogout }) {
   return (
@@ -70,14 +70,14 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
       <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />
 
-      {/* 결제 페이지 (단건) */}
+      {/* 결제페이지 */}
+      {/* 단건 결제 */}
       <Route path="/payment" element={<PaymentPage />} />
       <Route path="/payment/confirm" element={<PaymentConfirm />} />
-
-      {/* 결제 페이지 (정기 결제수단 등록) */}
+      {/* 정기 결제 수단 등록*/}
       <Route path="/payment/register" element={<PaymentRegisterPage />} />
-      <Route path="/payment/success" element={<PaymentSuccessPage />} />
-      <Route path="/payment/fail" element={<PaymentFailPage />} />
+      <Route path="/payment/success" element={<PaymentRegisterSuccess />} />
+      <Route path="/payment/fail" element={<PaymentRegisterFail />} />
 
     </Routes>
   );

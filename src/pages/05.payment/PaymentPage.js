@@ -44,7 +44,7 @@ export default function PaymentPage({ user }) {
   return (
     <div>
       <h1>결제 페이지</h1>
-      <button onClick={handlePayment}>테스트: 단건결제 (2, 1개, 6년, 1원)</button>
+      <button onClick={handlePayment}>테스트: 단건결제 (productId: 2, quantity: 1, periodYears: 6, price: 1원)</button>
       <br />
       <button onClick={() => navigate("/payment/register")}>
         테스트: 카드 등록

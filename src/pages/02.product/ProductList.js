@@ -241,7 +241,7 @@ export default function ProductList({ user }) {
                     <Card
                       className="rounded d-flex flex-column"
                       style={{
-                        height: isAdmin ? "380px" : "340px",
+                        height: isAdmin ? "390px" : "340px",
                         cursor: "pointer",
                         opacity: isAvailable ? 1 : 0.55,
                         filter: isAvailable ? 'none' : 'grayscale(40%)',
@@ -377,7 +377,7 @@ export default function ProductList({ user }) {
             </div>
             
             {isAdmin && (
-              <div className="d-flex flex-column gap-1 ms-3">
+              <div className="d-flex flex-column gap-2 ms-3" style={{ marginRight: 12 }}>
                 <Button 
                   size="sm" 
                   variant="outline-primary" 

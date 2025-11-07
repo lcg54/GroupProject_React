@@ -167,7 +167,10 @@ export default function ReviewWrite({ user }) {
     if (imgToRemove.isExisting) {
       setExistingImages(prev => prev.filter((_, idx) => idx !== index));
     } else {
-      setFile(prev => prev.filter(f => f.name !== imgToRemove.name));
+      setFile(prev => {
+        const fileIndex = index - existingImages.length;
+        return prev.filter((_, idx) => idx !== fileIndex);
+      });
     }
   };
 

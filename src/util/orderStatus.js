@@ -6,7 +6,6 @@ export const OrderStatus = [
   "RETURNED",
   "CANCELED",
   "REPAIR",
-  "LATE",
 ];
 
 export function statusLabel(status) {
@@ -18,7 +17,6 @@ export function statusLabel(status) {
     RETURNED: "📬 반납 완료",
     CANCELED: "❌ 예약 취소",
     REPAIR: "🔧 수리 중",
-    LATE: "⚠️ 연체",
   };
   return map[status] || status;
 }

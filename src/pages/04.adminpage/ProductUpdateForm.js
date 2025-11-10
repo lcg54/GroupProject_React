@@ -154,6 +154,7 @@ export default function ProductUpdateForm({ user }) {
       // 성공 
     alert(`${form.name} (${id})이 삭제되었습니다.`);
     navigate("/product/list");
+
   } catch (error) {
     console.error("상품 삭제 실패", error);
     
@@ -255,7 +256,6 @@ export default function ProductUpdateForm({ user }) {
 
               {/* 새로 업로드할 이미지 선택 */}
               <Form.Control type="file" multiple accept="image/*" ref={fileInputRef} onChange={handlePickFiles} />
-
 
               {/* 새로 업로드할 이미지 미리보기 */}
               {previewUrls.length > 0 && (

@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useParams, Outlet } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import axios from "axios";
 import calcMonthlyPrice from "../../util/calcMonthlyPrice";
-import Purchased from "../../modal/Purchased";
+import Purchased from "../05.payment/Purchased";
 import ProductCarousel from "./ProductCarousel";
 import "../../css/commonness.css"
 

@@ -26,6 +26,10 @@ import AdminCartList from "../pages/04.adminpage/AdminCartList";
 import AdminRentalListPage from "../pages/04.adminpage/AdminRentalList";
 import SalesHistory from '../pages/04.adminpage/SalesHistory';
 
+import PaymentPage from "../pages/05.payment/PaymentPage";
+import PaymentSuccess from "../pages/05.payment/PaymentSuccess";
+import PaymentFail from "../pages/05.payment/PaymentFail";
+
 export default function AppRoutes({ user, setUser, handleLogout }) {
   return (
     <Routes>
@@ -63,6 +67,12 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/admin/cart" element={<AdminCartList user={user} />} />
       <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
       <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />
+
+      {/* 결제 페이지 */}
+      <Route path="/payment" element={<PaymentPage />} />
+      <Route path="/payment/success" element={<PaymentSuccess />} />
+      <Route path="/payment/fail" element={<PaymentFail />} />
+
     </Routes>
   );
 }

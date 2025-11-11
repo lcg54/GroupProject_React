@@ -128,11 +128,6 @@ export default function Header({ user, onLogout }) {
           상품목록
         </Button>
 
-        {/* 나중에지울거 */}
-        <Button variant="light" onClick={() => { navigate('/payment'); setMenuOpen(false); }}>
-          (테스트) 결제
-        </Button>
-
         {user && user.role === "USER" && (
           <>
             <Button variant="light" onClick={() => { navigate('/mypage'); setMenuOpen(false); }}>

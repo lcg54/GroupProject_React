@@ -3,10 +3,23 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col, Card, Spinner } from 'react-bootstrap';
 import { API_BASE_URL } from '../../config/url';
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminCartList({ user }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = JSON.parse(sessionStorage.getItem("user"));
+    const userRole = user?.role || storedUser?.role;
+
+    if (userRole !== "ADMIN") {
+      alert("관리자만 접근 가능한 페이지입니다.");
+      navigate(`/member/login`);
+    }
+  }, [user, navigate]);
 
   useEffect(() => {
     if (!user) return;
@@ -53,10 +66,10 @@ export default function AdminCartList({ user }) {
   }
 
   return (
-    <Container style={{ maxWidth: '900px', backgroundColor: '#f1ead7', padding: '2rem', borderRadius: '10px' }}>
-      <h2 className="mb-4 text-center">전체 회원 장바구니 요약 일람</h2>
+    <Container style={{ maxWidth: '900px', padding: '2rem', borderRadius: '10px' }}>
+      <h3 className="mb-4 text-center">전체 회원 장바구니 요약 일람</h3>
       {products.length === 0 ? (
-        <p className="text-center text-muted my-5">현재 장바구니에 담긴 상품이 없습니다.</p>
+        <p className="text-center text-muted my-5">장바구니에 담긴 상품이 없습니다.</p>
       ) : (
         <>
           {products.map(product => (

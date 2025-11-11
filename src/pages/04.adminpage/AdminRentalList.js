@@ -4,6 +4,7 @@ import { API_BASE_URL } from "../../config/url";
 import { OrderStatus, statusLabel } from "../../util/orderStatus";
 import AdminRentalCard from "./AdminRentalCard";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminRentalListPage({ user }) {
   const [rentals, setRentals] = useState([]);
@@ -15,8 +16,19 @@ export default function AdminRentalListPage({ user }) {
   const [totalItemsMap, setTotalItemsMap] = useState({});
   const itemsPerPage = 10;
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (!user || user.role !== "ADMIN") return;
+    const storedUser = JSON.parse(sessionStorage.getItem("user"));
+    const userRole = user?.role || storedUser?.role;
+
+    if (userRole !== "ADMIN") {
+      alert("관리자만 접근 가능한 페이지입니다.");
+      navigate(`/member/login`);
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
     fetchTotalItems();
     fetchRentals(activeTab, currentPage[activeTab] || 1);
   }, [user, activeTab, currentPage]);

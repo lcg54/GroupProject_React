@@ -481,17 +481,17 @@ export default function ProductList({ user }) {
             {wished && (
                 <div
                   style={{
-      position: 'absolute',
-      top: isAvailable ? 8 : 36, // 재고소진 배지(좌상단)와 안 겹치게
-      left: 8,                   // ← 왼쪽 상단
-      background: 'rgba(0, 225, 131, 0.75)',
-      color: '#fff',
-      padding: '4px 8px',
-      borderRadius: 12,
-      fontSize: 12,
-      zIndex: 3,
-      fontWeight: 600,
-      whiteSpace: 'nowrap',
+                      position: 'absolute',
+                      top: isAvailable ? 8 : 36, 
+                      left: 8,                   
+                      background: 'rgba(0, 225, 131, 0.75)',
+                      color: '#fff',
+                      padding: '4px 8px',
+                      borderRadius: 12,
+                      fontSize: 12,
+                      zIndex: 3,
+                      fontWeight: 600,
+                      whiteSpace: 'nowrap',
                   }}
                 >
                   찜한상품

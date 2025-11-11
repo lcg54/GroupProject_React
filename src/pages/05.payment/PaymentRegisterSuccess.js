@@ -11,7 +11,7 @@ export default function PaymentRegisterSuccess({ user }) {
     const authKey = params.get("authKey");
     const customerKey = params.get("customerKey");
 
-    if (!authKey || !customerKey || !user) return;
+    if (!authKey || !customerKey || !user) {console.log(authKey, customerKey); return;}
 
     // 1️. billingKey 발급 요청
     axios

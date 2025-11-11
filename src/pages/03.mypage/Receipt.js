@@ -5,6 +5,7 @@ import { API_BASE_URL } from "../../config/url";
 import { statusLabel } from "../../util/orderStatus";
 import { formatDate, formatPrice } from "../../util/form";
 import calcRemainingDays from "../../util/calcRemainingDays";
+import SubscriptionModal from "../05.payment/SubscriptionModal";
 import axios from "axios";
 
 export default function Receipt() {
@@ -14,8 +15,13 @@ export default function Receipt() {
   const [filteredRentals, setFilteredRentals] = useState([]);
   const [sortOption, setSortOption] = useState("recent");
   const [searchTerm, setSearchTerm] = useState("");
+
+  const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -52,7 +58,7 @@ export default function Receipt() {
     }
   };
 
-  const handleRequestReturn = async (rentalItemId) => {
+  const handleReturnRequest = async (rentalItemId) => {
     if (!window.confirm("해당 상품의 반납을 요청하시겠습니까?")) return;
     try {
       await axios.post(`${API_BASE_URL}/rental/requestReturn/${rentalItemId}`);
@@ -61,6 +67,18 @@ export default function Receipt() {
     } catch (err) {
       console.error(err);
       alert("반납 요청에 실패했습니다.");
+    }
+  };
+
+  const handleCancelReturnRequest = async (rentalItemId) => {
+    if (!window.confirm("반납 요청을 취소하시겠습니까?")) return;
+    try {
+      await axios.post(`${API_BASE_URL}/rental/cancelReturn/${rentalItemId}`);
+      alert("반납 요청이 취소되었습니다.");
+      fetchRentals();
+    } catch (err) {
+      console.error(err);
+      alert("반납 요청 취소에 실패했습니다.");
     }
   };
 
@@ -167,7 +185,6 @@ export default function Receipt() {
                           }}
                         >
                           <div className="d-flex align-items-start">
-
                             <div style={{ width: "120px", height: "120px", flexShrink: 0 }}>
                               <img
                                 src={`${API_BASE_URL}/images/${item.mainImage}`}
@@ -183,7 +200,19 @@ export default function Receipt() {
                             </div>
                               
                             <div className="flex-grow-1 ms-3">
-                              <Card.Title className="h6 mb-3">{item.productName}</Card.Title>
+                              <div className="d-flex align-items-center gap-3 mb-3">
+                                <Card.Title className="h7 mb-0">{item.productName}</Card.Title>
+                                <Button
+                                  variant="outline-secondary"
+                                  size="sm"
+                                  style={{
+                                    pointerEvents: "none",
+                                    opacity: 1,
+                                  }}
+                                >
+                                  {statusLabel(item.status)}
+                                </Button>
+                              </div>
                               <Card.Text className="text-muted mb-1" style={{ fontSize: "0.9rem" }}>
                                 수량: {item.quantity}개
                               </Card.Text>
@@ -198,26 +227,19 @@ export default function Receipt() {
                             </div>
                               
                             <div className="text-end ms-3 d-flex flex-column align-items-end gap-2">
-                              <Button
-                                variant="outline-primary"
-                                size="sm"
-                                style={{
-                                  pointerEvents: "none",
-                                  opacity: 1,
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                {statusLabel(item.status)}
-                              </Button>
-                              
-                              <Button
-                                variant="outline-success"
-                                size="sm"
-                                onClick={() => navigate(`/review/write`, { state: { productId: item.productId } })}
-                              >
-                                ✍️ 리뷰 작성
-                              </Button>
-                              
+                              {(item.status === "RESERVED" || item.status === "RENTED") && (
+                                <Button
+                                  variant="outline-primary"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedItem(item);
+                                    setShowSubscriptionModal(true);
+                                  }}
+                                >
+                                  💳 결제 정보
+                                </Button>
+                              )}
+
                               {item.status === "RESERVED" && (
                                 <Button
                                   variant="outline-danger"
@@ -228,13 +250,35 @@ export default function Receipt() {
                                 </Button>
                               )}
 
+                              {item.status === "RETURN_REQUESTED" && (
+                                <Button
+                                  variant="outline-danger"
+                                  size="sm"
+                                  onClick={() => handleCancelReturnRequest(item.itemId)}
+                                >
+                                  🔙 반납 요청 취소
+                                </Button>
+                              )}
+
                               {item.status === "RENTED" && (
                                 <Button
-                                  variant="outline-secondary"
+                                  variant="outline-danger"
                                   size="sm"
-                                  onClick={() => handleRequestReturn(item.itemId)}
+                                  onClick={() => handleReturnRequest(item.itemId)}
                                 >
                                   📦 반납
+                                </Button>
+                              )}
+
+                              {(item.status === "RENTED" || item.status === "RETURNED") && (
+                                <Button
+                                  variant="outline-success"
+                                  size="sm"
+                                  onClick={() =>
+                                    navigate(`/product/review/write`, { state: { productId: item.productId } })
+                                  }
+                                >
+                                  ✍️ 리뷰 작성
                                 </Button>
                               )}
                             </div>
@@ -256,6 +300,14 @@ export default function Receipt() {
             </Row>
           )}
         </>
+      )}
+      {/* 구독 Modal */}
+      {showSubscriptionModal && selectedItem && (
+        <SubscriptionModal
+          user={user}
+          item={selectedItem}
+          onClose={() => { setShowSubscriptionModal(false); setSelectedItem(null); }}
+        />
       )}
     </Container>
   );

@@ -16,7 +16,7 @@ export default function Purchased({ products, onClose }) {
         {products.map((p, idx) => (
           <div key={idx} className="mb-3">
             <Row className="mb-2">
-              <Col><strong>제품 이름:</strong> {p.name}</Col>
+              <Col><strong>제품명:</strong> {p.name}</Col>
             </Row>
             <Row className="mb-2">
               <Col>
@@ -55,7 +55,7 @@ export default function Purchased({ products, onClose }) {
 
       <Modal.Footer>
         <Button variant="danger" onClick={() => navigate('/mypage/receipt')}>
-          구매내역
+          대여내역
         </Button>
         <Button variant="primary" onClick={() => navigate('/product/list')}>
           상품목록

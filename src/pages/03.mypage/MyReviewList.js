@@ -52,7 +52,7 @@ export default function MyReviewList() {
   };
 
   const handleUpdate = (reviewId) => {
-    navigate(`/review/write`, { state: { reviewId: reviewId } });
+    navigate(`/product/review/write`, { state: { reviewId: reviewId } });
   }
 
   const handleDelete = async (reviewId) => {
@@ -85,7 +85,7 @@ export default function MyReviewList() {
             <Dropdown.Item onClick={() => { setSortOrder("high"); setCurrentPage(1) }}>평점높은순</Dropdown.Item>
             <Dropdown.Item onClick={() => { setSortOrder("low"); setCurrentPage(1) }}>평점낮은순</Dropdown.Item>
           </DropdownButton>
-          <Button variant="secondary" size="sm" onClick={() => navigate(`/review/write`)}>새 리뷰 작성</Button>
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/product/review/write`)}>새 리뷰 작성</Button>
         </div>
       </div>
 

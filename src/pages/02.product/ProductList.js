@@ -6,11 +6,14 @@ import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./ProductListFilter";
 import CategoryGrid from "./CategoryGrid";
 import calcMonthlyPrice from "../../util/calcMonthlyPrice";
+
 import axios from "axios";
 
 export default function ProductList({ user }) {
   const [products, setProducts] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
+  const [mywish, setMywish] = useState([]);
+  const [wishproduct, setWishProduct] = useState({});
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -165,6 +168,49 @@ export default function ProductList({ user }) {
     );
   };
 
+  // 찜한 상품 표시
+  useEffect(() => {
+    let cancelled = false;
+
+    if(!user){
+       setMywish([]);
+       setWishProduct({});
+       return;
+    }
+    (async () => {
+      try {
+          // 내 찜 불러오기
+          const wish = await axios.get(`${API_BASE_URL}/wishlist/my`,{
+            params: { memberId: user.id},
+          });
+          // 타입 불일치(문자열 vs 숫자) 대비해 숫자로 통일
+          const myId = (Array.isArray(wish.data) ? wish.data : []).map(Number);
+          if (cancelled) return;
+
+          setMywish(myId);
+
+          // 빠른 조회
+          const idSet = new Set(myId);
+          const map = {};
+
+          // 일반 목록
+          for (const item of products){
+            map[item.id] = idSet.has(Number(item.id));
+          }
+          // 인기목록도 포함
+          for (const item of popularProducts){
+            map[item.id] = idSet.has(Number(item.id));
+          }
+          setWishProduct(map);
+        }catch (e){
+          console.error("찜한 상품 조회 실패:", e);
+        }
+      })();
+
+      return () => {cancelled = true;};
+
+  },[user,products,popularProducts]);
+
   return (
     <Container className="mt-4" style={{ maxWidth: "850px" }}>
       {/* 상단 카테고리 영역 */}
@@ -235,6 +281,7 @@ export default function ProductList({ user }) {
             {popularProducts.slice(0, 3).map(p => {
               const availableStock = getAvailableStock(p);
               const isAvailable = availableStock > 0;
+              const wished = !!wishproduct[p.id];
               return (
                 <Col key={p.id} md={4} className="mb-3">
                   <div style={{ position: 'relative' }}>
@@ -259,10 +306,10 @@ export default function ProductList({ user }) {
                       <Card.Body>
                         <Card.Title className="mb-1">{p.name}</Card.Title>
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
-                        <Card.Text>
-                          <div style={{ fontSize: '1.05rem' }} className="mt-2 text-primary">
+                        <Card.Text
+                           style={{ fontSize: '1.05rem' }} className="mt-2 text-primary">
                             최대 월 {p.monthlyPrice.toLocaleString()}원 
-                          </div>
+                          
                         </Card.Text>
                         
                         {isAdmin && (
@@ -322,6 +369,23 @@ export default function ProductList({ user }) {
                         재고소진
                       </div>
                     )}
+                    {wished && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          top: 36,
+                          right: 8,
+                          background: 'rgba(0, 225, 131, 0.75)',
+                          color: '#fff',
+                          padding: '4px 8px',
+                          borderRadius: 12,
+                          fontSize: 12,
+                          zIndex: 3,
+                        }}
+                        >
+                          찜한상품
+                        </div>
+                    )}
                   </div>
                 </Col>
               );
@@ -334,6 +398,7 @@ export default function ProductList({ user }) {
       {products.map((product, idx) => {
         const availableStock = getAvailableStock(product);
         const isAvailable = availableStock > 0;
+        const wished = !!wishproduct[product.id];
         return (
           <div
             key={product.id}
@@ -369,10 +434,10 @@ export default function ProductList({ user }) {
                 </p>
               </div>
               <div className="text-end" style={{ marginRight: '20px' }}>
-                <div style={{ fontSize: '1.2rem' }} className="text-primary">
+                <p style={{ fontSize: '1.2rem' }} className="text-primary">
                   최대 월 {product.monthlyPrice.toLocaleString()}원
-                </div>
-                <div style={{ fontSize: '0.9rem' }} className="mt-1">× 6년 (72개월)</div>
+                </p>
+                <p style={{ fontSize: '0.9rem' }} className="mt-1">× 6년 (72개월)</p>
               </div>
             </div>
             
@@ -413,7 +478,26 @@ export default function ProductList({ user }) {
                 재고소진
               </div>
             )}
-          </div>
+            {wished && (
+                <div
+                  style={{
+      position: 'absolute',
+      top: isAvailable ? 8 : 36, // 재고소진 배지(좌상단)와 안 겹치게
+      left: 8,                   // ← 왼쪽 상단
+      background: 'rgba(0, 225, 131, 0.75)',
+      color: '#fff',
+      padding: '4px 8px',
+      borderRadius: 12,
+      fontSize: 12,
+      zIndex: 3,
+      fontWeight: 600,
+      whiteSpace: 'nowrap',
+                  }}
+                >
+                  찜한상품
+                </div>
+            )}
+            </div>
         );
       })}
 

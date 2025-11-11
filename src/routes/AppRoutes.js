@@ -19,6 +19,7 @@ import Receipt from "../pages/03.mypage/Receipt";
 import MyCartList from "../pages/03.mypage/MyCartList";
 import MyReviewList from "../pages/03.mypage/MyReviewList";
 import MyInquiryList from "../pages/03.mypage/MyInquiryList";
+import MyWishList from "../pages/03.mypage/MyWishList";
 
 import ProductInsertForm from "../pages/04.adminpage/ProductInsertForm";
 import ProductUpdateForm from "../pages/04.adminpage/ProductUpdateForm";
@@ -58,6 +59,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
         <Route path="cart" element={<MyCartList />} />
         <Route path="review/list" element={<MyReviewList />} />
         <Route path="inquiry/list" element={<MyInquiryList />} />
+        <Route path="mywish/list" element={<MyWishList />} />
       </Route>
 
       {/* 관리자페이지 */}

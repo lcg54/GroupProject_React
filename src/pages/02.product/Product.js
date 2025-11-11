@@ -6,6 +6,8 @@ import axios from "axios";
 import calcMonthlyPrice from "../../util/calcMonthlyPrice";
 import Purchased from "../05.payment/Purchased";
 import ProductCarousel from "./ProductCarousel";
+import MyWishList from "../03.mypage/MyWishList";
+
 import "../../css/commonness.css"
 
 export default function Product({ user }) {
@@ -228,13 +230,15 @@ export default function Product({ user }) {
             </p>
           </div>
 
-          <div className="d-flex gap-3">
-            <Button variant="outline-primary" size="lg" onClick={handleCart} disabled={product.availableStock === 0 || user?.role === "ADMIN"}>
+          <div className="d-flex gap-2">
+            <Button variant="outline-primary" size="sm" onClick={handleCart} disabled={product.availableStock === 0 || user?.role === "ADMIN"}>
               🛒 장바구니
             </Button>
-            <Button variant="outline-danger" size="lg" onClick={handleRental} disabled={product.availableStock === 0  || user?.role === "ADMIN"}>
+            <Button variant="outline-danger" size="sm" onClick={handleRental} disabled={product.availableStock === 0  || user?.role === "ADMIN"}>
               📦 신청하기
             </Button>
+            {/* 찜 상태 전환 버튼*/}
+            <MyWishList productId={Number(id)} user={user} disabled={product.availableStock === 0 || user?.role === "ADMIN"}  />
           </div>
         </Col>
       </Row>

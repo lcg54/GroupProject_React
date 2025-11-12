@@ -133,7 +133,7 @@ export default function SubscriptionModal({ user, item, onClose }) {
       <Modal.Footer>
         {!subscriptionId ? (
           <>
-            <Button variant="secondary" onClick={() => navigate(`/payment/register`)}>💳 결제 수단 등록</Button>
+            <Button variant="secondary" onClick={() => navigate(`/mypage/info`)}>💳 결제 수단 등록</Button>
             <Button variant="outline-primary" onClick={handleCreate}>✅ 정기 결제 등록</Button>
           </>
 

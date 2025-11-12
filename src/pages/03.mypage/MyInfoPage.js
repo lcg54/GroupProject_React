@@ -1,26 +1,37 @@
 import { useEffect, useState } from "react";
-import { Container, Card, Row, Col, Form, Button } from "react-bootstrap";
+import { Container, Card, Row, Col, Form, Button, ListGroup } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
-import { CLIENT_KEY } from "../../config/Key"
+import axios from "axios";
+import { CLIENT_KEY, CUSTOMER_KEY } from "../../config/key";
+import { API_BASE_URL } from '../../config/url';
+import { PencilSquare } from "react-bootstrap-icons";
+import { FaCreditCard } from "react-icons/fa";
 
 export default function MyInfoPage() {
   const { user } = useOutletContext();
-
-  const [customerKey, setCustomerKey] = useState("");
-
+  const [cards, setCards] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
-    setCustomerKey(user.id.toString() + "_" + Date.now());
+    fetchRegisteredCards(CUSTOMER_KEY(user.id));
   }, [user]);
+
+  const fetchRegisteredCards = async (key) => {
+    try {
+      const res = await axios.get(`${API_BASE_URL}/payment/cards/${key}`);
+      setCards(res.data.data);
+    } catch (err) {
+      console.error("카드 조회 실패:", err);
+    }
+  };
 
   const handleRegisterCard = async () => {
     try {
       const tossPayments = await loadTossPayments(CLIENT_KEY);
       await tossPayments.requestBillingAuth("CARD", {
-        customerKey,
+        customerKey: CUSTOMER_KEY(user.id),
         successUrl: "http://localhost:3000/payment/success",
         failUrl: "http://localhost:3000/payment/fail",
       });
@@ -30,7 +41,7 @@ export default function MyInfoPage() {
   };
 
   return (
-    <Container className="mt-4">
+    <Container className="mt-4 rounded-4">
       <Card>
         <Card.Header>
           <h5 className="mt-2">내 정보</h5>
@@ -81,13 +92,32 @@ export default function MyInfoPage() {
                 </Form.Group>
               </Col>
             </Row>
-
-            <div className="mt-3 p-2">
-              <Button variant="secondary" onClick={() => { navigate('/member/edit'); }}>내 정보 수정</Button>
-              <Button variant="outline-primary" onClick={handleRegisterCard}>카드 등록하기</Button>
-            </div>
+            
+            <Row className="p-2">
+              <Col md={6}>
+                <h6>결제수단</h6>
+                {cards.length > 0 ? (
+                  <ListGroup>
+                    {cards.map((card) => (
+                      <ListGroup.Item key={card.billingKey}>
+                        💳 {card.cardCompany} ****{card.lastFourDigits}  
+                      </ListGroup.Item>
+                    ))}
+                  </ListGroup>
+                ) : (
+                  <p className="text-muted mt-2">등록된 결제수단이 없습니다.</p>
+                )}
+              </Col>
+            </Row>
           </Form>
         </Card.Body>
+        
+        <Card.Footer>
+          <div className="p-2 d-flex justify-content-end gap-3">
+            <Button variant="outline-primary" onClick={handleRegisterCard}><FaCreditCard /> 결제 수단 등록</Button>
+            <Button variant="outline-dark" onClick={() => navigate('/member/edit')}><PencilSquare /> 내 정보 수정</Button>
+          </div>
+        </Card.Footer>
       </Card>
     </Container>
   );

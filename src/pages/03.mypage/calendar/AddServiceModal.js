@@ -1,49 +1,61 @@
-import { Button } from "react-bootstrap";
+import { Modal, Button } from "react-bootstrap";
 import axios from "axios";
 import { API_BASE_URL } from "../../../config/url";
 
-export default function AddServiceModal({ day, onClose, selectedRental }) {
-    const message = `${day.toDateString()}를 선택하시겠습니까?`;
-
+export default function AddServiceModal({ day, selectedRental, onClose }) {
     const handleConfirm = async () => {
         try {
-            if (!selectedRental || !selectedRental.rentalId) {
-                alert("렌탈 아이템을 선택해주세요.");
-                return;
-            }
-            if (!day) {
-                alert("날짜를 선택해주세요.");
-                return;
-            }
+            // 로컬 날짜를 YYYY-MM-DD 형식으로 변환 (시간대 문제 방지)
+            const year = day.getFullYear();
+            const month = String(day.getMonth() + 1).padStart(2, '0');
+            const date = String(day.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${date}`;
 
-            const payload = {
-                rentalItemId: selectedRental.rentalId,
-                serviceDate: day.toISOString().split("T")[0],
-            };
+            console.log("📅 등록할 날짜:", formattedDate);
 
-            console.log("📡 요청 보냄:", payload);
+            await axios.post(`${API_BASE_URL}/rental/service/add`, {
+                rentalId: selectedRental.rentalId,
+                rentalItemId: selectedRental.rentalItemId,
+                serviceDate: formattedDate
+            });
 
-            const res = await axios.post(`${API_BASE_URL}/rental/service/add`, payload);
-
-            console.log("✅ 서버 응답:", res.data);
-            alert("예약이 성공적으로 처리되었습니다!");
-            onClose(true);
+            alert("서비스 날짜가 등록되었습니다.");
+            onClose(true); // 성공
         } catch (err) {
-            console.error(err);
-            alert(err.response?.data || err.message);
+            console.error("서비스 날짜 등록 실패:", err);
+            alert(err.response?.data || "등록에 실패했습니다.");
+            onClose(false); // 실패
         }
     };
 
+    const handleCancel = () => {
+        onClose(false); // 취소
+    };
+
     return (
-        <div style={{
-            position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-            background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center"
-        }}>
-            <div style={{ background: "white", padding: "20px", borderRadius: "8px" }}>
-                <p>{message}</p>
-                <Button onClick={handleConfirm}>확인</Button>
-                <Button onClick={() => onClose(false)}>취소</Button>
-            </div>
-        </div>
+        <Modal show={true} onHide={handleCancel} centered>
+            <Modal.Header closeButton>
+                <Modal.Title>서비스 날짜 선택</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <p>
+                    <strong>{day.toLocaleDateString('ko-KR', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                        weekday: 'long'
+                    })}</strong>
+                </p>
+                <p>이 날짜를 서비스 날짜로 선택하시겠습니까?</p>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={handleCancel}>
+                    취소
+                </Button>
+                <Button variant="primary" onClick={handleConfirm}>
+                    확인
+                </Button>
+            </Modal.Footer>
+        </Modal>
     );
 }

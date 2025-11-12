@@ -1,53 +1,75 @@
-import { Button } from "react-bootstrap";
+import React from "react";
+import { Modal, Button } from "react-bootstrap";
 import axios from "axios";
 import { API_BASE_URL } from "../../../config/url";
 
-export default function RemoveServiceModal({ day, onClose, selectedRental }) {
-    const message = `${day.toDateString()} 선택을 취소하시겠습니까?`;
+export default function RemoveServiceModal({ day, selectedRental, onClose }) {
+  const handleConfirm = async () => {
+    try {
+      if (!selectedRental || !selectedRental.rentalItemId) {
+        alert("렌탈 아이템을 선택해주세요.");
+        return;
+      }
+      if (!day) {
+        alert("날짜를 선택해주세요.");
+        return;
+      }
 
-    const handleConfirm = async () => {
-        try {
-            if (!selectedRental || !selectedRental.rentalId) {
-                alert("렌탈 아이템을 선택해주세요.");
-                return;
-            }
-            if (!day) {
-                alert("날짜를 선택해주세요.");
-                return;
-            }
+      const year = day.getFullYear();
+      const month = String(day.getMonth() + 1).padStart(2, "0");
+      const date = String(day.getDate()).padStart(2, "0");
+      const formattedDate = `${year}-${month}-${date}`;
 
-            const payload = {
-                rentalItemId: selectedRental.rentalId,
-                serviceDate: day.toISOString().split("T")[0],
-            };
+      console.log("📡 삭제 요청 보냄:", {
+        rentalItemId: selectedRental.rentalItemId,
+        serviceDate: formattedDate,
+      });
 
-            console.log("📡 삭제 요청 보냄:", payload);
+      const res = await axios.post(`${API_BASE_URL}/rental/service/remove`, {
+        rentalItemId: selectedRental.rentalItemId,
+        serviceDate: formattedDate,
+      });
 
-            const res = await axios.post(`${API_BASE_URL}/rental/service/remove`, {
-                rentalItemId: selectedRental.rentalItemId,
-                serviceDate: day.toISOString().split("T")[0]
-            });
+      console.log("✅ 서버 응답:", res.data);
+      alert("서비스 날짜가 취소되었습니다.");
+      onClose(true); // 성공
+    } catch (err) {
+      console.error("서비스 날짜 취소 실패:", err);
+      alert(err.response?.data || "취소에 실패했습니다.");
+      onClose(false); // 실패
+    }
+  };
 
+  const handleCancel = () => {
+    onClose(false); // 취소
+  };
 
-            console.log("✅ 서버 응답:", res.data);
-            alert("예약 취소가 성공적으로 처리되었습니다!");
-            onClose(true);
-        } catch (err) {
-            console.error(err);
-            alert(err.response?.data || err.message);
-        }
-    };
-
-    return (
-        <div style={{
-            position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
-            background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", alignItems: "center"
-        }}>
-            <div style={{ background: "white", padding: "20px", borderRadius: "8px" }}>
-                <p>{message}</p>
-                <Button onClick={handleConfirm}>확인</Button>
-                <Button onClick={() => onClose(false)}>취소</Button>
-            </div>
-        </div>
-    );
+  return (
+    <Modal show={true} onHide={handleCancel} centered>
+      <Modal.Header closeButton>
+        <Modal.Title>서비스 날짜 취소</Modal.Title>
+      </Modal.Header>
+      <Modal.Body>
+        <p>
+          <strong>
+            {day.toLocaleDateString("ko-KR", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              weekday: "long",
+            })}
+          </strong>
+        </p>
+        <p>선택을 취소하시겠습니까?</p>
+      </Modal.Body>
+      <Modal.Footer>
+        <Button variant="secondary" onClick={handleCancel}>
+          취소
+        </Button>
+        <Button variant="danger" onClick={handleConfirm}>
+          확인
+        </Button>
+      </Modal.Footer>
+    </Modal>
+  );
 }

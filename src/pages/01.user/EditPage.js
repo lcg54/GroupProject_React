@@ -3,19 +3,8 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import "./EditPage.css";
 
-export default function EditPage() {
-  const { user, setUser } = useOutletContext();
-  const navigate = useNavigate();
-
-  const [form, setForm] = useState({
-    username: "",
-    name: "",
-    email: "",
-    password: "",
-    passwordConfirm: "",
-    phone: "",
-    address: "",
-  });
+export default function EditPage({ user, setUser}) {
+  const [form, setForm] = useState({ username: "", name: "", email: "", password: "", passwordConfirm: "", phone: "", address: "" });
 
   const [profileFile, setProfileFile] = useState(null);
   const [profilePreview, setProfilePreview] = useState(null);
@@ -28,6 +17,8 @@ export default function EditPage() {
   const [withdrawPassword, setWithdrawPassword] = useState("");
   const [withdrawLoading, setWithdrawLoading] = useState(false);
   const [withdrawError, setWithdrawError] = useState(null);
+
+  const navigate = useNavigate();
 
   // 사용자 정보 불러오기
   useEffect(() => {

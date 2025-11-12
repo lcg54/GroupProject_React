@@ -14,21 +14,14 @@ export default function InquiryWrite({ user }) {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const [checkingUser, setCheckingUser] = useState(true);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
-      const timeout = setTimeout(() => {
-        if (!user) {
-          alert("로그인이 필요합니다.");
-          navigate("/member/login");
-        }
-      }, 100);
-      return () => clearTimeout(timeout);
-    } else {
-      setCheckingUser(false);
+    const storedUser = JSON.parse(sessionStorage.getItem("user")) || user;
+    if (!storedUser) {
+      alert("로그인 후 이용해주세요.");
+      navigate(`/member/login`);
     }
   }, [user, navigate]);
 
@@ -68,13 +61,7 @@ export default function InquiryWrite({ user }) {
     }
   };
 
-  if (checkingUser) {
-    return (
-      <Container className="d-flex justify-content-center align-items-center" style={{ minHeight: "500px" }}>
-        <Spinner animation="border" />
-      </Container>
-    );
-  }
+  if (!user) return <p>사용자 정보를 불러오는 중입니다...</p>;
 
   return (
     <Container className="d-flex justify-content-center align-items-center" style={{ backgroundColor: "#f1f1f1ff", maxWidth: "1000px", minHeight: "1000px" }}>

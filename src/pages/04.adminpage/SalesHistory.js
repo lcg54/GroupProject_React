@@ -5,18 +5,7 @@ import { API_BASE_URL } from "../../config/url";
 import { FILTER_OPTIONS } from "../02.product/ProductListFilter";
 
 export default function SalesPage({ user }) {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!user || user.role !== 'ADMIN') {
-      alert('관리자만 접근 가능한 페이지입니다.');
-      navigate('/');
-    }
-  }, [user, navigate]);
-
   const [salesData, setSalesData] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
   const [allMonthsData, setAllMonthsData] = useState([]);
 
   const [viewMode, setViewMode] = useState("calendar");
@@ -36,9 +25,23 @@ export default function SalesPage({ user }) {
 
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
 
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = JSON.parse(sessionStorage.getItem("user"));
+    const userRole = user?.role || storedUser?.role;
+    if (userRole !== "ADMIN") {
+      alert("관리자만 접근 가능한 페이지입니다.");
+      navigate(`/member/login`);
+    }
+  }, [user]);
+
   useEffect(() => {
     fetchAllMonthsData();
-  }, [selectedCategory, rentalPeriod]);
+  }, [searchDateRange, selectedCategory, rentalPeriod]);
 
   useEffect(() => {
     const shouldFetch = !showAdvanced || (showAdvanced && !startDate && !endDate && !isAdvancedSearchActive);
@@ -54,7 +57,6 @@ export default function SalesPage({ user }) {
     }
   }, [isAdvancedSearchActive, searchDateRange, selectedDate]);
 
-
   const normalize = (v) => {
     if (v == null) return null;
     try { return String(v).trim().toUpperCase(); } catch { return null; }
@@ -68,11 +70,9 @@ export default function SalesPage({ user }) {
     } catch { return normalize(value); }
   };
 
-
   const detectItemCategory = (item) => {
     if (!item) return null;
     const cand = [];
-
 
     if (item.product && typeof item.product === 'object') {
       const p = item.product;
@@ -91,18 +91,13 @@ export default function SalesPage({ user }) {
       if (p.type) cand.push(p.type);
     }
 
-
     if (item.productCategory != null) cand.push(item.productCategory);
     if (item.productCategoryName != null) cand.push(item.productCategoryName);
     if (item.category != null) cand.push(item.category);
     if (item.categoryName != null) cand.push(item.categoryName);
-
-
     if (item.productName) cand.push(item.productName);
 
-
     const normalized = Array.from(new Set(cand.map(normalize).filter(Boolean)));
-
     if (normalized.length === 0) return null;
     return normalized[0];
   };
@@ -112,13 +107,9 @@ export default function SalesPage({ user }) {
     const itemCategory = detectItemCategory(item);
     const pn = item.productName ? normalize(item.productName) : null;
 
-    console.log('[itemMatchesFilters] itemCategory=', itemCategory, 'productName=', pn, 'filterValue=', normalizedCategoryValue, 'filterLabel=', normalizedCategoryLabel, 'rentalPeriodInt=', rentalPeriodInt);
-
-
     let categoryMatch = true;
     if (normalizedCategoryValue) {
       if (itemCategory) {
-
         if (itemCategory === normalizedCategoryValue || itemCategory === normalizedCategoryLabel) {
           categoryMatch = true;
         } else if (itemCategory.includes(normalizedCategoryValue) || normalizedCategoryValue.includes(itemCategory)) {
@@ -126,7 +117,6 @@ export default function SalesPage({ user }) {
         } else if (normalizedCategoryLabel && (itemCategory.includes(normalizedCategoryLabel) || normalizedCategoryLabel.includes(itemCategory))) {
           categoryMatch = true;
         } else {
-
           if (pn) {
             if (pn.includes(normalizedCategoryValue) || (normalizedCategoryLabel && pn.includes(normalizedCategoryLabel))) {
               categoryMatch = true;
@@ -138,7 +128,6 @@ export default function SalesPage({ user }) {
           }
         }
       } else {
-
         if (pn) {
           if (pn.includes(normalizedCategoryValue) || (normalizedCategoryLabel && pn.includes(normalizedCategoryLabel))) {
             categoryMatch = true;
@@ -171,8 +160,6 @@ export default function SalesPage({ user }) {
     }
 
     const details = await res.json();
-    console.log("[computeDaySummary] date:", dateStr, "selectedCategory:", selectedCategory, "rentalPeriod:", rentalPeriod);
-    console.log("[computeDaySummary] raw details:", details);
 
     const normalizedCategoryValue = selectedCategory ? normalize(selectedCategory) : null;
     const normalizedCategoryLabel = selectedCategory ? getCategoryLabelForValue(selectedCategory) : null;
@@ -184,12 +171,7 @@ export default function SalesPage({ user }) {
 
     details.forEach(rental => {
       const items = rental.items || [];
-      const anyItemHasCategory = items.some(it => detectItemCategory(it) != null);
-
       let visibleItems = items.filter(it => itemMatchesFilters(it, normalizedCategoryValue, rentalPeriodInt, normalizedCategoryLabel));
-
-      // 로그
-      console.log(`[computeDaySummary] rental.id=${rental.id} anyItemHasCategory=${anyItemHasCategory} visibleItems.length=${visibleItems.length}`);
 
       if (visibleItems.length > 0) {
         orderCount += 1;
@@ -205,7 +187,6 @@ export default function SalesPage({ user }) {
     });
 
     const summary = { date: dateStr, orderCount, productCount, totalSales };
-    console.log("[computeDaySummary] computed summary:", summary);
     return summary;
   };
 
@@ -238,15 +219,12 @@ export default function SalesPage({ user }) {
       if (!res.ok) throw new Error("데이터를 불러오는데 실패했습니다.");
 
       const data = await res.json();
-      console.log('[fetchSalesData] calendar summary response:', data);
-
+      let finalData = data;
       if (selectedCategory || rentalPeriod) {
         const dates = Array.from(new Set(data.map(d => d.date)));
-        const recalculated = await Promise.all(dates.map(d => computeDaySummary(d)));
-        setSalesData(recalculated);
-      } else {
-        setSalesData(data);
+        finalData = await Promise.all(dates.map(d => computeDaySummary(d)));
       }
+      setSalesData(finalData);
     } catch (err) {
       console.error(err);
       setError(err.message || String(err));
@@ -257,30 +235,54 @@ export default function SalesPage({ user }) {
 
   const fetchAllMonthsData = async () => {
     try {
-      const currentYear = new Date().getFullYear();
+      setLoading(true);
+      
       let allData = [];
 
-      for (let month = 1; month <= 12; month++) {
-        const params = new URLSearchParams();
-        params.append("year", currentYear);
-        params.append("month", month);
-        if (selectedCategory) params.append("category", selectedCategory);
-        if (rentalPeriod) params.append("rentalPeriod", rentalPeriod);
+      // 상세 검색 활성화되어 있으면, 해당 기간의 모든 연도/월 포함
+      let yearsToFetch = [];
+      if (isAdvancedSearchActive && searchDateRange) {
+        const startYear = searchDateRange.start.getFullYear();
+        const endYear = searchDateRange.end.getFullYear();
+        for (let y = startYear; y <= endYear; y++) {
+          yearsToFetch.push(y);
+        }
+      } else {
+        // 기본값: 현재 연도만
+        yearsToFetch.push(new Date().getFullYear());
+      }
 
-        try {
-          const res = await fetch(`${API_BASE_URL}/api/sales/calendar?${params}`);
-          if (res.ok) {
-            const monthData = await res.json();
-            console.log(`[fetchAllMonthsData] year=${currentYear} month=${month} response length=${(monthData || []).length}`);
-            allData.push(...monthData);
-          } else {
-            console.warn(`월(${month}) 데이터 가져오기 실패:`, res.status);
+      // 선택된 연도 범위 전체의 월 데이터를 모두 불러오기
+      for (const year of yearsToFetch) {
+        for (let month = 1; month <= 12; month++) {
+          const params = new URLSearchParams();
+          params.append("year", year);
+          params.append("month", month);
+          if (selectedCategory) params.append("category", selectedCategory);
+          if (rentalPeriod) params.append("rentalPeriod", rentalPeriod);
+
+          try {
+            const res = await fetch(`${API_BASE_URL}/api/sales/calendar?${params}`);
+            if (res.ok) {
+              const monthData = await res.json();
+              allData.push(...monthData);
+            } else {
+              console.warn(`월(${month}) 데이터 가져오기 실패:`, res.status);
+            }
+          } catch (err) {
+            console.error(`${year}년 ${month}월 데이터 로드 실패:`, err);
           }
-        } catch (err) {
-          console.error(`${month}월 데이터 로드 실패:`, err);
         }
       }
 
+      // 상세 검색 범위가 있으면, 해당 범위로 필터링
+      if (isAdvancedSearchActive && searchDateRange) {
+        const startDateStr = formatDateForAPI(searchDateRange.start);
+        const endDateStr = formatDateForAPI(searchDateRange.end);
+        allData = allData.filter(sale => sale.date >= startDateStr && sale.date <= endDateStr);
+      }
+
+      // 카테고리나 기간 필터 있으면 재계산
       if (selectedCategory || rentalPeriod) {
         const uniqueDates = Array.from(new Set(allData.map(d => d.date)));
         const recalculated = await Promise.all(uniqueDates.map(d => computeDaySummary(d)));
@@ -290,6 +292,8 @@ export default function SalesPage({ user }) {
       }
     } catch (err) {
       console.error('전체 월 데이터 로드 실패:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -386,12 +390,10 @@ export default function SalesPage({ user }) {
         setSalesData(filteredData);
       }
 
-      setTimeout(() => {
-        setIsAdvancedSearchActive(true);
-        setSearchDateRange({ start, end });
-        setSummaryPeriod("");
-        setSelectedDate(new Date(start));
-      }, 0);
+      setIsAdvancedSearchActive(true);
+      setSearchDateRange({ start, end });
+      setSummaryPeriod("");
+      setSelectedDate(new Date(start));
 
     } catch (err) {
       console.error(err);
@@ -496,9 +498,6 @@ export default function SalesPage({ user }) {
 
         if (normalizedCategoryValue && filteredItems.length === 0 && !anyItemHasCategory && items.length > 0) {
           filteredItems = items.filter(it => !rentalPeriodInt || (it.rentalPeriodYears != null && Number(it.rentalPeriodYears) === rentalPeriodInt));
-          console.log(`[fetchDayDetails] rental.id=${rental.id} fallback used (rental-level). filteredItems:`, filteredItems);
-        } else {
-          console.log(`[fetchDayDetails] rental.id=${rental.id} filteredItems:`, filteredItems);
         }
 
         const normalizedItems = filteredItems.map(item => {
@@ -525,7 +524,6 @@ export default function SalesPage({ user }) {
       });
 
       const visible = processed.filter(r => (r.items || []).length > 0);
-      console.log('[fetchDayDetails] visible rentals for modal:', visible);
 
       setSelectedDayOrders(visible);
       setShowDetailModal(true);
@@ -564,8 +562,6 @@ export default function SalesPage({ user }) {
     end.setDate(start.getDate() + 6);
     return { start, end };
   };
-
-
 
   const handleSort = (key) => {
     let direction = 'asc';
@@ -727,27 +723,15 @@ export default function SalesPage({ user }) {
         return;
       }
     }
-
     setSelectedDate(newDate);
   };
 
   const totals = getTotalSales();
   const sortedSalesData = getSortedSalesData();
 
-  if (!user || user.role !== 'ADMIN') {
-    return (
-      <Container className="mt-4">
-        <div className="text-center p-5">
-          <Spinner animation="border" />
-          <p className="mt-2">권한을 확인하는 중...</p>
-        </div>
-      </Container>
-    );
-  }
-
   return (
     <Container className="mt-4">
-      <h2 className="mb-4">📊 판매 내역</h2>
+      <h2 className="mb-4">📊 판매 내역 통계</h2>
 
       <Card className="mb-4 p-3 bg-light">
         <div className="mb-3">
@@ -766,20 +750,29 @@ export default function SalesPage({ user }) {
           </h5>
         </div>
         <Row className="text-center">
-          <Col md={4}>
-            <h5>주문</h5>
-            <h3 className="text-primary">{totals.orderCount}건</h3>
-            <span style={{ fontSize: "0.75rem", color: "gray" }}>(결제 주문 건수 합산)</span>
-          </Col>
-          <Col md={4}>
-            <h5>상품</h5>
-            <h3 className="text-success">{totals.productCount}건</h3>
-            <span style={{ fontSize: "0.75rem", color: "gray" }}>(결제 상품 건수 × 상품 수량 합산)</span>
-          </Col>
-          <Col md={4}>
-            <h5>매출</h5>
-            <h3 className="text-danger">{totals.totalSales.toLocaleString()}원</h3>
-          </Col>
+          {loading ? (
+            <Col>
+              <Spinner animation="border" />
+              <div className="mt-2">데이터를 불러오는 중...</div>
+            </Col>
+          ) : (
+            <>
+              <Col md={4}>
+                <h5>주문</h5>
+                <h3 className="text-primary">{totals.orderCount}건</h3>
+                <span style={{ fontSize: "0.75rem", color: "gray" }}>(결제 주문 건수 합산)</span>
+              </Col>
+              <Col md={4}>
+                <h5>상품</h5>
+                <h3 className="text-success">{totals.productCount}건</h3>
+                <span style={{ fontSize: "0.75rem", color: "gray" }}>(결제 상품 건수 × 상품 수량 합산)</span>
+              </Col>
+              <Col md={4}>
+                <h5>매출</h5>
+                <h3 className="text-danger">{totals.totalSales.toLocaleString()}원</h3>
+              </Col>
+            </>
+          )}
         </Row>
       </Card>
 

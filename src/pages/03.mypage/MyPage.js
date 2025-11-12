@@ -4,19 +4,28 @@ import { Container, Row, Col, Button } from "react-bootstrap";
 import { API_BASE_URL } from '../../config/url';
 import '../../css/MyPage.css';
 
+const buttons = [
+  { icon: "🧾", text: "주문 내역", path: "receipt" },
+  { icon: "🛒", text: "장바구니", path: "cart" },
+  { icon: "❤️", text: "찜한 상품", path: "wishlist" },
+  { icon: "📅", text: "서비스 일람", path: "calendar" },
+  { icon: "⭐", text: "리뷰", path: "review/list" },
+  { icon: "📢", text: "상품문의", path: "inquiry/list" },
+];
+
 export default function MyPage({ user, setUser }) {
-  const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("");
 
-  const buttons = [
-    { icon: "🧾", text: "주문 내역", path: "receipt" },
-    { icon: "🛒", text: "장바구니", path: "cart" },
-    { icon: "📅", text: "서비스 알림", path: "calendar" },
-    { icon: "⭐", text: "리뷰 내역", path: "review/list" },
-    { icon: "📢", text: "문의 내역", path: "inquiry/list" },
-    { icon: "✏️", text: "내 정보 수정", path: "member/edit" },
-  ];
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = JSON.parse(sessionStorage.getItem("user")) || user;
+    if (!storedUser) {
+      alert("로그인 후 이용해주세요.");
+      navigate(`/member/login`);
+    }
+  }, [user]);
 
   // URL에 따라 활성 탭 갱신
   useEffect(() => {
@@ -24,29 +33,13 @@ export default function MyPage({ user, setUser }) {
     setActiveTab(matchedButton?.path || "");
   }, [location.pathname]);
 
-  if (!user) {
-    return (
-      <Container className="mt-4 text-center">
-        <h4>로그인이 필요합니다.</h4>
-        <Button
-          variant="primary"
-          className="mt-3"
-          onClick={() => navigate('/member/login')}
-        >
-          로그인하기
-        </Button>
-      </Container>
-    );
-  }
-
   // 버튼 클릭 시 네비게이션 이동
-  const handleClick = (path) => {
-    navigate(`/mypage/${path}`);
-  };
-
+  const handleClick = (path) => navigate(`/mypage/${path}`);
+  
+  if (!user) return <p>사용자 정보를 불러오는 중입니다...</p>;
+  
   return (
     <Container className="mt-4" style={{ maxWidth: "750px" }}>
-      {/* 상단 인사말 */}
       <div
         className="mb-4 d-flex justify-content-between align-items-center"
         style={{
@@ -69,6 +62,8 @@ export default function MyPage({ user, setUser }) {
           />
           <h3 className="m-0 text-white">{user.name}님</h3>
         </div>
+          
+        <Button variant="light" onClick={() => handleClick("info")}>내 정보</Button>
       </div>
 
       {/* 버튼 영역 */}

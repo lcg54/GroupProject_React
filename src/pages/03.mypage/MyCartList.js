@@ -3,7 +3,7 @@ import { Container, Row, Col, Button, Form, Card, Spinner } from 'react-bootstra
 import { API_BASE_URL } from '../../config/url';
 import Purchased from "../02.product/RentalCreated";
 import axios from "axios";
-import { useOutletContext } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 
 export default function MyCartList() {
   const { user } = useOutletContext();
@@ -16,12 +16,18 @@ export default function MyCartList() {
 
   const [loading, setLoading] = useState(true);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      alert("로그인 후 이용해주세요.");
+      navigate(`/member/login`);
+    }
     fetchCart();
   }, [user]);
 
   const fetchCart = async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/cart/get`, { memberId: user.id });
@@ -99,14 +105,6 @@ export default function MyCartList() {
       alert("상품 삭제 중 오류가 발생했습니다.");
     }
   };
-
-  if (!user) {
-    return (
-      <Container className="mt-4 text-center">
-        <h4>로그인이 필요합니다.</h4>
-      </Container>
-    );
-  }
 
   if (loading) {
     return (

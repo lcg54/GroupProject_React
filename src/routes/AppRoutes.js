@@ -14,12 +14,13 @@ import InquiryList from '../pages/02.product/InquiryList';
 import InquiryWrite from '../pages/02.product/InquiryWrite';
 
 import MyPage from "../pages/03.mypage/MyPage";
+import MyInfoPage from "../pages/03.mypage/MyInfoPage";
 import Receipt from "../pages/03.mypage/Receipt";
 import MyCartList from "../pages/03.mypage/MyCartList";
 import MyCalendar from "../pages/03.mypage/calendar/MyRentalCalender"
 import MyReviewList from "../pages/03.mypage/MyReviewList";
 import MyInquiryList from "../pages/03.mypage/MyInquiryList";
-import MyWishList from "../pages/03.mypage/MyWishList";
+import MyWishListPage from "../pages/03.mypage/MyWishListPage";
 
 import ProductInsertForm from "../pages/04.adminpage/ProductInsertForm";
 import ProductUpdateForm from "../pages/04.adminpage/ProductUpdateForm";
@@ -29,7 +30,6 @@ import SalesHistory from '../pages/04.adminpage/SalesHistory';
 
 import PaymentPage from "../pages/05.payment/PaymentPage";
 import PaymentConfirm from "../pages/05.payment/PaymentConfirm";
-import PaymentRegisterPage from "../pages/05.payment/PaymentRegisterPage";
 import PaymentRegisterSuccess from "../pages/05.payment/PaymentRegisterSuccess";
 import PaymentRegisterFail from "../pages/05.payment/PaymentRegisterFail";
 import SubscriptionMadal from "../pages/05.payment/SubscriptionModal";
@@ -43,6 +43,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/member/login" element={<AuthPage setUser={setUser} />} />
       <Route path="/member/signup" element={<AuthPage setUser={setUser} />} />
       <Route path="/member/logout" element={<LogoutPage onLogout={handleLogout} />} />
+      <Route path="/member/edit" element={<EditPage user={user} setUser={setUser} />} />
 
       {/* /product - 상품페이지 */}
       <Route path="/product/list" element={<ProductList user={user} />} />
@@ -55,22 +56,18 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
 
       {/* /mypage - 마이페이지 */}
       <Route path="/mypage" element={<MyPage user={user} setUser={setUser} />}>
+        <Route path="info" element={<MyInfoPage />} />
         <Route index element={<Navigate to="receipt" replace />} />{/* 기본 탭 지정*/}
         <Route path="receipt" element={<Receipt />} />
         <Route path="cart" element={<MyCartList />} />
+        <Route path="wishlist" element={<MyWishListPage />} />
         <Route path="calendar" element={<MyCalendar />} />
         <Route path="review/list" element={<MyReviewList />} />
         <Route path="inquiry/list" element={<MyInquiryList />} />
-
-        <Route path="mywish/list" element={<MyWishList />} />
-
-        <Route path="member/edit" element={<EditPage />} />
-
       </Route>
 
       {/* /admin - 관리자페이지 */}
       <Route path="/admin/product/register" element={<ProductInsertForm user={user} />} />
-      <Route path="/admin/product/update" element={<ProductUpdateForm user={user} />} />
       <Route path="/admin/product/update/:id" element={<ProductUpdateForm user={user} />} />
       <Route path="/admin/cart" element={<AdminCartList user={user} />} />
       <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
@@ -83,8 +80,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/payment" element={<PaymentPage />} />
       <Route path="/payment/confirm" element={<PaymentConfirm />} />
 
-      {/* 정기 결제 수단 등록*/}
-      <Route path="/payment/register" element={<PaymentRegisterPage />} />
+      {/* 정기 결제 수단 등록 (등록은 마이페이지-내정보에서) */}
       <Route path="/payment/success" element={<PaymentRegisterSuccess />} />
       <Route path="/payment/fail" element={<PaymentRegisterFail />} />
 

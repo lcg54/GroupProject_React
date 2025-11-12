@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Container, Form, Button, Card, Row, Col, Modal } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
@@ -8,51 +8,28 @@ import { prettyLabel } from "../../util/replace"
 
 // 상품 등록 페이지
 export default function ProductInsertForm({ user }) {
-  const navigate = useNavigate();
-  
-  // 권한 경고를 한 번만 띄우기 위한
-  const warned = useRef(false);
-  
-  useEffect(() => {
-  const isBlocked = !(user && user.role === "ADMIN");
-  if (user === undefined) return; // 로딩 중이면 아무것도 하지 않음
-  if (isBlocked && !warned.current) {
-  if (user === null) {
-    // 비로그인 상태인 경우
-  const timeoutId = setTimeout(() => {
-    warned.current = true;
-    alert("접근 권한이 없습니다.");
-    navigate("/", { replace: true });
-  }, 100);
-    return () => clearTimeout(timeoutId);
-  }
-    // 로그인은 했지만 ADMIN이 아닌 경우
-    warned.current = true;
-    alert("접근 권한이 없습니다.");
-    navigate("/", { replace: true });
-  }
-  }, [user,navigate]);
+  const [form, setForm] = useState({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
 
-  // 상품 기본 정보 상태
-  const [formData, setFormData] = useState({
-    name: "",
-    category: "",
-    brand: "",
-    description: "",
-    price: "",
-    totalStock: "",
-  });
-
-  // 이미지 업로드, 미리보기, 등록 로그, 모달 표시, 로딩 상태 관리용 state
   const [images, setImages] = useState([]);
   const [previews, setPreviews] = useState([]);
   const [logs, setLogs] = useState([]);
   const [showLogs, setShowLogs] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
-  // 공통 onChange: 특정 키만 교체
-  const onChange = (key, value) => setFormData({ ...formData, [key]: value });
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    const storedUser = JSON.parse(sessionStorage.getItem("user"));
+    const userRole = user?.role || storedUser?.role;
+    if (userRole !== "ADMIN") {
+      alert("관리자만 접근 가능한 페이지입니다.");
+      navigate(`/member/login`);
+    }
+  }, [user]);
+
+  // 공통 onChange: 특정 키만 교체
+  const onChange = (key, value) => setForm({ ...form, [key]: value });
   
   // 이미지 추가
   const handleImages = (event) => {
@@ -64,7 +41,7 @@ export default function ProductInsertForm({ user }) {
   // 상품 등록
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const {name, category, brand, price, totalStock } = formData;
+    const {name, category, brand, price, totalStock } = form;
     if (!name || !category || !brand || !price || !totalStock || images.length === 0) {
       alert("모든 항목을 입력해주세요.");
       return;
@@ -74,15 +51,15 @@ export default function ProductInsertForm({ user }) {
 
     // 입력한 상품 정보와 이미지 묶기
     const formDataToSend = new FormData();
-    Object.entries(formData).forEach(([key, value]) => formDataToSend.append(key, value));
+    Object.entries(form).forEach(([key, value]) => formDataToSend.append(key, value));
     images.forEach((file) => formDataToSend.append("images", file));
 
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/product/register`, formDataToSend, { withCredentials: true });
+      await axios.post(`${API_BASE_URL}/product/register/${user.id}`, formDataToSend, { withCredentials: true });
       alert(`${brand} ${name} (${totalStock}) 을(를) 등록했습니다.`);
       // 폼 초기화
-      setFormData({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
+      setForm({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
       setImages([]);
       setPreviews([]);
     } catch (err) {
@@ -108,9 +85,8 @@ export default function ProductInsertForm({ user }) {
   if(loading || !user) return null ;
 
   return (
-    
     <Container style={{ maxWidth: 700 }} className="py-4">
-      <Card className="shadow-sm border-0">
+      <Card className="shadow-lg border-0">
         <Card.Header className="text-center fw-bold bg-light">상품 등록</Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit}>
@@ -118,14 +94,14 @@ export default function ProductInsertForm({ user }) {
             {/* 상품명 */}
             <Form.Group className="mb-3">
               <Form.Label>상품명</Form.Label>
-              <Form.Control type="text" placeholder="예) LG 전자레인지 199 모델" value={formData.name} onChange={(e) => onChange("name", e.target.value)} />
+              <Form.Control type="text" placeholder="예) LG 전자레인지 199 모델" value={form.name} onChange={(e) => onChange("name", e.target.value)} />
             </Form.Group>
 
             {/* 카테고리 / 브랜드 */}
             <Row>
               <Col md={6}>
                 <Form.Label>카테고리</Form.Label>
-                <Form.Select value={formData.category} onChange={(e) => onChange("category", e.target.value)}>
+                <Form.Select value={form.category} onChange={(e) => onChange("category", e.target.value)}>
                   <option value="">선택</option>
                   {FILTER_OPTIONS.category.filter(c => c.label !== "전체").map(c => (
                     <option key={c.value} value={c.value}>{prettyLabel(c.label)}</option>
@@ -134,7 +110,7 @@ export default function ProductInsertForm({ user }) {
               </Col>
               <Col md={6}>
                 <Form.Label>브랜드</Form.Label>
-                <Form.Select value={formData.brand} onChange={(e) => onChange("brand", e.target.value)}>
+                <Form.Select value={form.brand} onChange={(e) => onChange("brand", e.target.value)}>
                   <option value="">선택</option>
                   {FILTER_OPTIONS.brand.filter(b => b.label !== "전체").map(b => (
                     <option key={b.value} value={b.value}>{prettyLabel(b.label)}</option>
@@ -146,18 +122,18 @@ export default function ProductInsertForm({ user }) {
             {/* 상세 설명 */}
             <Form.Group className="mt-3">
               <Form.Label>상세설명</Form.Label>
-              <Form.Control as="textarea" rows={2} placeholder="예) LG의 최신 전자레인지 모델입니다. 효율성과 디자인을 모두 잡았습니다." value={formData.description} onChange={(e) => onChange("description", e.target.value)} />
+              <Form.Control as="textarea" rows={2} placeholder="예) LG의 최신 전자레인지 모델입니다. 효율성과 디자인을 모두 잡았습니다." value={form.description} onChange={(e) => onChange("description", e.target.value)} />
             </Form.Group>
 
             {/* 가격 / 수량 */}
             <Row className="mt-3">
               <Col md={6}>
                 <Form.Label>가격</Form.Label>
-                <Form.Control type="text" placeholder="예) 329000" value={formData.price} onChange={(e) => onChange("price", e.target.value)} />
+                <Form.Control type="text" placeholder="예) 329000" value={form.price} onChange={(e) => onChange("price", e.target.value)} />
               </Col>
               <Col md={6}>
                 <Form.Label>총 수량</Form.Label>
-                <Form.Control type="text" placeholder="예) 120" value={formData.totalStock} onChange={(e) => onChange("totalStock", e.target.value)} />
+                <Form.Control type="text" placeholder="예) 120" value={form.totalStock} onChange={(e) => onChange("totalStock", e.target.value)} />
               </Col>
             </Row>
 
@@ -178,9 +154,9 @@ export default function ProductInsertForm({ user }) {
 
             {/* 버튼 */}
             <div className="d-flex justify-content-center gap-2 mt-3">
+              <Button variant="secondary" onClick={() => navigate("/product/list")}>목록으로</Button>
+              <Button variant="outline-dark" onClick={openLogs}>등록 내역</Button>
               <Button type="submit" variant="outline-primary" disabled={loading}>{loading ? "등록 중..." : "등록"}</Button>
-              <Button variant="secondary" onClick={() => navigate("/product/list")}>목록</Button>
-              <Button variant="outline-info" onClick={openLogs}>등록내역</Button>
             </div>
           </Form>
         </Card.Body>
@@ -193,7 +169,10 @@ export default function ProductInsertForm({ user }) {
           {logs.length > 0 ? (
             <ul className="list-unstyled mb-0">
               {logs.map((log, i) => (
-                <li key={i}>{log.productName} <small className="text-muted">({new Date(log.createdAt).toLocaleString("ko-KR")})</small></li>
+                <li key={i} className="mb-2">
+                  {log.productName} <small className="text-muted">({new Date(log.createdAt).toLocaleString("ko-KR")})</small>
+                  <span> - {log.adminName}</span>
+                </li>
               ))}
             </ul>
           ) : <div className="text-muted text-center">등록 내역이 없습니다.</div>}

@@ -4,8 +4,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { useNavigate } from "react-router-dom";
 
-
-export default function MyWishList({ productId, user, disabled= false }) {
+export default function MyWishListButton({ productId, user, disabled= false }) {
   const [isWished, setIsWished] = useState(false);
   const [busy, setBusy] = useState(false); // 중복 클릭 방지
   const navigate = useNavigate();
@@ -30,7 +29,7 @@ export default function MyWishList({ productId, user, disabled= false }) {
 
   // 찜하기/해제 
   const handleToggle = async () => {
-   if (!user) {
+    if (!user) {
       alert("로그인이 필요합니다.");
       navigate("/member/login");
       return;

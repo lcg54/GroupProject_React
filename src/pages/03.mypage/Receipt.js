@@ -25,7 +25,11 @@ export default function Receipt() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user?.id) fetchRentals();
+    if (!user) {
+      alert("로그인 후 이용해주세요.");
+      navigate(`/member/login`);
+    }
+    fetchRentals();
   }, [user]);
 
   useEffect(() => {
@@ -33,6 +37,7 @@ export default function Receipt() {
   }, [rentals, sortOption, searchTerm]);
 
   const fetchRentals = async () => {
+    if (!user) return;
     try {
       setLoading(true);
       setError(null);

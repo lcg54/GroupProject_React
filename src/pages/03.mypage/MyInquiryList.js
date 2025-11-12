@@ -19,8 +19,13 @@ export default function MyInquiryList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      alert("로그인 후 이용해주세요.");
+      navigate(`/member/login`);
+    }
+  }, [user]);
 
+  useEffect(() => {
     const fetchMyInquiries = async () => {
       try {
         setLoading(true);
@@ -42,7 +47,7 @@ export default function MyInquiryList() {
     };
 
     fetchMyInquiries();
-  }, [user, currentPage]);
+  }, [currentPage]);
 
   return (
     <Container className="mt-4" style={{ maxWidth: "800px" }}>

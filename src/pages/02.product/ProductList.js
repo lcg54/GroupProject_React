@@ -4,6 +4,7 @@ import { Search, PencilSquare, Trash } from "react-bootstrap-icons";
 import { useNavigate, useLocation } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./ProductListFilter";
+import { PopularBadge, NotAvailableBadge, WishListBadge } from "./ProductListBadge";
 import CategoryGrid from "./CategoryGrid";
 import calcMonthlyPrice from "../../util/calcMonthlyPrice";
 import axios from "axios";
@@ -11,6 +12,8 @@ import axios from "axios";
 export default function ProductList({ user }) {
   const [products, setProducts] = useState([]);
   const [popularProducts, setPopularProducts] = useState([]);
+  const [mywish, setMywish] = useState([]);
+  const [wishproduct, setWishProduct] = useState({});
 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -22,6 +25,8 @@ export default function ProductList({ user }) {
   const [keyword, setKeyword] = useState("");
   const [showSearch, setShowSearch] = useState(false);
 
+  const [isAdmin, setIsAdmin] = useState(false);
+
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -29,11 +34,10 @@ export default function ProductList({ user }) {
   const observer = useRef();
   const searchRef = useRef(null);
 
-  // 관리자 여부 확인
-  const isAdmin = user?.role === 'ADMIN';
-
-  useEffect(() =>{
-
+  useEffect(() => {
+    const storedUser = JSON.parse(sessionStorage.getItem("user"));
+    const userRole = user?.role || storedUser?.role;
+    setIsAdmin(userRole === "ADMIN");
   }, [user, isAdmin]);
 
   // URL의 쿼리 파라미터에서 category 값 파싱하여 초기 설정
@@ -134,18 +138,19 @@ export default function ProductList({ user }) {
     if (node) observer.current.observe(node);
   }, [loading, hasMore]);
 
+  // 수정
   const handleUpdate = useCallback((e, productId) => {
     e.stopPropagation();
     navigate(`/admin/product/update/${productId}`);
   }, [navigate]);
 
+  // 삭제
   const handleDelete = useCallback(async (e, product) => {
     e.stopPropagation();
-   if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
-
+    if (!window.confirm(`정말 ${product.name}(${product.id}) 을(를) 삭제하시겠습니까?`)) return;
     setLoading(true);
     try {
-      await axios.delete(`${API_BASE_URL}/product/${product.id}`);
+      await axios.delete(`${API_BASE_URL}/product/${product.id}/${user.id}`);
       setProducts(prev => prev.filter(p => p.id !== product.id));
       setPopularProducts(prev => prev.filter(p => p.id !== product.id));
       alert(`"${product.name}" 상품이 삭제되었습니다.`);
@@ -157,6 +162,43 @@ export default function ProductList({ user }) {
       setLoading(false);
     }
   }, [navigate, fetchProductList]);
+
+  // 찜한 상품 표시
+  useEffect(() => {
+    let cancelled = false;
+    if(!user){
+      setMywish([]);
+      setWishProduct({});
+      return;
+    }
+    (async () => {
+      try {
+        // 내 찜 불러오기
+        const wish = await axios.get(`${API_BASE_URL}/wishlist/my`,{
+          params: { memberId: user.id},
+        });
+        // 타입 불일치(문자열 vs 숫자) 대비해 숫자로 통일
+        const myId = (Array.isArray(wish.data) ? wish.data : []).map(Number);
+        if (cancelled) return;
+        setMywish(myId);
+        // 빠른 조회
+        const idSet = new Set(myId);
+        const map = {};
+        // 일반 목록
+        for (const item of products){
+          map[item.id] = idSet.has(Number(item.id));
+        }
+        // 인기목록도 포함
+        for (const item of popularProducts){
+          map[item.id] = idSet.has(Number(item.id));
+        }
+        setWishProduct(map);
+      }catch (e){
+        console.error("찜한 상품 조회 실패:", e);
+      }
+    })();
+    return () => {cancelled = true;};
+  },[user, products,popularProducts]);
 
   // 재고 계산
   const getAvailableStock = (p) => {
@@ -180,6 +222,16 @@ export default function ProductList({ user }) {
           <Col xs="auto"><BrandDropdown brand={brand} setBrand={setBrand} /></Col>
           <Col xs="auto"><AvailabilityDropdown available={available} setAvailable={setAvailable} /></Col>
           <Col xs="auto"><SortDropdown sortBy={sortBy} setSortBy={setSortBy} /></Col>
+          {isAdmin && (
+            <>
+              <Col xs="auto">
+                &nbsp; | &nbsp; <Button variant="secondary" onClick={() => navigate('/admin/product/register')}>상품 등록</Button>
+              </Col>
+              {/* <Col xs="auto">
+                <Button variant="secondary" onClick={() => {}}>삭제 상품 조회</Button>
+              </Col> */}
+            </>
+          )}
           <Col className="text-end position-relative">
             <Search
               size={22}
@@ -235,13 +287,14 @@ export default function ProductList({ user }) {
             {popularProducts.slice(0, 3).map(p => {
               const availableStock = getAvailableStock(p);
               const isAvailable = availableStock > 0;
+              const wished = !!wishproduct[p.id];
               return (
                 <Col key={p.id} md={4} className="mb-3">
                   <div style={{ position: 'relative' }}>
                     <Card
-                      className="rounded d-flex flex-column"
+                      className="rounded d-flex flex-column position-relative"
                       style={{
-                        height: isAdmin ? "390px" : "340px",
+                        height: isAdmin ? "400px" : "350px",
                         cursor: "pointer",
                         opacity: isAvailable ? 1 : 0.55,
                         filter: isAvailable ? 'none' : 'grayscale(40%)',
@@ -259,14 +312,28 @@ export default function ProductList({ user }) {
                       <Card.Body>
                         <Card.Title className="mb-1">{p.name}</Card.Title>
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
-                        <Card.Text>
-                          <div style={{ fontSize: '1.05rem' }} className="mt-2 text-primary">
+                          <div
+                            className="position-absolute text-primary"
+                            style={{
+                              bottom: isAdmin ? "4rem" : "1rem",
+                              left: "1rem",
+                              right: "1rem",
+                              fontSize: "1.1rem",
+                            }}
+                          >
                             최대 월 {p.monthlyPrice.toLocaleString()}원 
                           </div>
-                        </Card.Text>
                         
                         {isAdmin && (
-                          <div className="d-flex gap-2 mt-2">
+                          <div
+                            className="d-flex gap-2 p-2 border-top bg-white position-absolute"
+                            style={{
+                              bottom: "0.5rem",
+                              left: "1rem",
+                              right: "1rem",
+                              borderRadius: "0.5rem",
+                            }}
+                          >
                             <Button 
                               size="sm" 
                               variant="outline-primary" 
@@ -290,38 +357,10 @@ export default function ProductList({ user }) {
                         )}
                       </Card.Body>
                     </Card>
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        background: 'rgba(225, 210, 0, 0.75)',
-                        color: '#fff',
-                        padding: '4px 8px',
-                        borderRadius: 12,
-                        fontSize: 12,
-                        zIndex: 3,
-                      }}
-                    >
-                      인기상품
-                    </div>
-                    {!isAvailable && (
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: 8,
-                          left: 8,
-                          background: 'rgba(255, 0, 0, 0.75)',
-                          color: '#fff',
-                          padding: '4px 8px',
-                          borderRadius: 12,
-                          fontSize: 12,
-                          zIndex: 3,
-                        }}
-                      >
-                        재고소진
-                      </div>
-                    )}
+
+                    <PopularBadge />
+                    {!isAvailable && (<NotAvailableBadge />)}
+                    {wished && (<WishListBadge />)}
                   </div>
                 </Col>
               );
@@ -334,6 +373,7 @@ export default function ProductList({ user }) {
       {products.map((product, idx) => {
         const availableStock = getAvailableStock(product);
         const isAvailable = availableStock > 0;
+        const wished = !!wishproduct[product.id];
         return (
           <div
             key={product.id}
@@ -353,10 +393,11 @@ export default function ProductList({ user }) {
               alt={product.name}
               style={{
                 width: 120,
-                height: 120,
+                height: 110,
                 objectFit: "contain",
                 borderRadius: 8,
-                marginRight: 16,
+                marginRight: 20,
+                marginLeft: 10,
               }}
             />
       
@@ -368,7 +409,7 @@ export default function ProductList({ user }) {
                   ⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})
                 </p>
               </div>
-              <div className="text-end" style={{ marginRight: '20px' }}>
+              <div className="text-end" style={{ marginRight: 50 }}>
                 <div style={{ fontSize: '1.2rem' }} className="text-primary">
                   최대 월 {product.monthlyPrice.toLocaleString()}원
                 </div>
@@ -395,24 +436,9 @@ export default function ProductList({ user }) {
                 </Button>
               </div>
             )}
-      
-            {!isAvailable && (
-              <div
-                style={{
-                  position: "absolute",
-                  top: 8,
-                  left: 8,
-                  background: "rgba(255,0,0,0.75)",
-                  color: "#fff",
-                  padding: "4px 8px",
-                  borderRadius: 12,
-                  fontSize: 12,
-                  zIndex: 3,
-                }}
-              >
-                재고소진
-              </div>
-            )}
+
+            {!isAvailable && (<NotAvailableBadge />)}
+            {wished && (<WishListBadge />)}
           </div>
         );
       })}

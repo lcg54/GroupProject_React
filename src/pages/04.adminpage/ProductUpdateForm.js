@@ -8,11 +8,8 @@ import { prettyLabel } from "../../util/replace"
 
 // 상품 수정 페이지
 export default function ProductUpdateForm({ user }) {
-  const navigate = useNavigate();
   const { id } = useParams();
-  const warned = useRef(false);
 
-  // 화면 상태
   const [form, setForm] = useState({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
   
   const [existingImages, setExistingImages] = useState([]);
@@ -25,38 +22,22 @@ export default function ProductUpdateForm({ user }) {
   const [deleting, setDeleting] = useState(false);
   const fileInputRef = useRef(null);
 
-  // 숫자 형태의 id인지 간단 검증
-  const validId = /^\d+$/.test(id || "");
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const isAdmin = user && user.role === "ADMIN";
-    const isBlocked = !isAdmin;
-
-    if(user === undefined) return;
-    if (isBlocked && !warned.current){
-    if (user === null) {
-      const timeoutId = setTimeout(() => {
-        warned.current = true;
-        alert("접근 권한이 없습니다.");
-        navigate("/", { replace: true });
-      },100);
-      return () => clearTimeout(timeoutId);
+    const storedUser = JSON.parse(sessionStorage.getItem("user"));
+    const userRole = user?.role || storedUser?.role;
+    if (userRole !== "ADMIN") {
+      alert("관리자만 접근 가능한 페이지입니다.");
+      navigate(`/member/login`);
     }
-      warned.current = true;
-      alert("접근 권한이 없습니다.");
-      navigate("/",{ replace: true});
-  }
-  }, [user, navigate]);
+  }, [user]);
 
   // 상품 로드
   useEffect(() => {
-    if (user === undefined) return;
+    if (!user) return;
     const isBlocked = !(user && user.role && String(user.role).toUpperCase() === "ADMIN");
     if (isBlocked) return;
-    if(!validId){
-      setLoading(false);
-      return;
-    }
     (async () => {
       try {
         const { data } = await axios.get(`${API_BASE_URL}/product/${id}`, { withCredentials: true });
@@ -137,7 +118,7 @@ export default function ProductUpdateForm({ user }) {
 
     setSaving(true);
     try {
-      await axios.put(`${API_BASE_URL}/product/${id}`, buildFormData(), { withCredentials: true });
+      await axios.put(`${API_BASE_URL}/product/${id}/${user.id}`, buildFormData(), { withCredentials: true });
       alert(`${form.name} (${id}) 을(를) 수정 완료 했습니다.`);
       navigate("/product/list");
     } finally {
@@ -150,7 +131,7 @@ export default function ProductUpdateForm({ user }) {
     if (!window.confirm(`정말 ${form.name} (${id}) 을(를) 삭제하시겠습니까?`)) return;
     setDeleting(true);
     try {
-      const {data} = await axios.delete(`${API_BASE_URL}/product/${id}`, { withCredentials: true });
+      await axios.delete(`${API_BASE_URL}/product/${id}/${user.id}`, { withCredentials: true });
       // 성공 
     alert(`${form.name} (${id})이 삭제되었습니다.`);
     navigate("/product/list");
@@ -179,7 +160,7 @@ export default function ProductUpdateForm({ user }) {
 
   return (
     <Container style={{ maxWidth: 720 }} className="py-4">
-      <Card className="shadow-sm border-0">
+      <Card className="shadow-lg border-0">
         <Card.Header className="text-center fw-bold bg-light">상품 수정</Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit}>
@@ -276,9 +257,10 @@ export default function ProductUpdateForm({ user }) {
 
               {/* 버튼들 */}
             <div className="d-flex justify-content-center gap-2 mt-3">
+              <Button variant="secondary" onClick={() => navigate("/product/list")}>목록으로</Button>
+              <Button variant="outline-dark" onClick={handleOpenLogs}>수정/삭제 내역</Button>
               <Button type="submit" variant="outline-primary" disabled={saving || deleting}>수정</Button>
               <Button variant="outline-danger" disabled={saving || deleting} onClick={handleDelete}>삭제</Button>
-              <Button variant="outline-info" onClick={handleOpenLogs}>수정/삭제 내역</Button>
             </div>
           </Form>
         </Card.Body>

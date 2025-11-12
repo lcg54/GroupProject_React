@@ -77,12 +77,20 @@ const HeroSection = () => {
             </Carousel.Item>
           ))}
         </Carousel>
-        <p style={{ fontSize: '1rem', marginBottom: '0.3rem' }}>
-          당신의 삶의 질을 높히기 위해
-        </p>
-        <p style={{ fontSize: '1rem' }}>
-          저희는 편안함을 대여해 드립니다.
-        </p>
+        <div className="mt-4" style={{ lineHeight: 1.6 }}>
+          <p
+            style={{
+              fontSize: '1.05rem',
+              fontStyle: 'italic',          // 약간 기울임
+              fontFamily: '"Georgia", "Times New Roman", serif', // 세리프 계열
+              color: '#333',                // 진하지만 부드러운 색
+              letterSpacing: '0.7px',       // 글자 간격 약간 넓힘
+            }}
+          >
+            당신의 삶의 질을 높히기 위해<br />
+            저희는 편안함을 대여해 드립니다.
+          </p>
+        </div>
       </div>
 
       {/* 카테고리 영역 */}

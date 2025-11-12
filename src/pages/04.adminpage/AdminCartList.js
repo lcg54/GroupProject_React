@@ -19,7 +19,7 @@ export default function AdminCartList({ user }) {
       alert("관리자만 접근 가능한 페이지입니다.");
       navigate(`/member/login`);
     }
-  }, [user, navigate]);
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -47,14 +47,6 @@ export default function AdminCartList({ user }) {
       setLoading(false);
     }
   };
-
-  if (!user) {
-    return (
-      <Container className="mt-4 text-center">
-        <h4>로그인이 필요합니다.</h4>
-      </Container>
-    );
-  }
 
   if (loading) {
     return (

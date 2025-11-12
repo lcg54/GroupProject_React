@@ -21,17 +21,17 @@ export default function AdminRentalListPage({ user }) {
   useEffect(() => {
     const storedUser = JSON.parse(sessionStorage.getItem("user"));
     const userRole = user?.role || storedUser?.role;
-
     if (userRole !== "ADMIN") {
       alert("관리자만 접근 가능한 페이지입니다.");
       navigate(`/member/login`);
     }
-  }, [user, navigate]);
+  }, [user]);
 
   useEffect(() => {
+    if (!user) return;
     fetchTotalItems();
     fetchRentals(activeTab, currentPage[activeTab] || 1);
-  }, [user, activeTab, currentPage]);
+  }, [activeTab, currentPage]);
 
   // 탭/페이지별 조회
   const fetchRentals = async (status, page) => {

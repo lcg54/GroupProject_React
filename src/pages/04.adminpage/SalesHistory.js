@@ -33,12 +33,11 @@ export default function SalesPage({ user }) {
   useEffect(() => {
     const storedUser = JSON.parse(sessionStorage.getItem("user"));
     const userRole = user?.role || storedUser?.role;
-
     if (userRole !== "ADMIN") {
       alert("관리자만 접근 가능한 페이지입니다.");
       navigate(`/member/login`);
     }
-  }, [user, navigate]);
+  }, [user]);
 
   useEffect(() => {
     fetchAllMonthsData();

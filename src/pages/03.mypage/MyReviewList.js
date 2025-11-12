@@ -23,11 +23,15 @@ export default function MyReviewList() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user) {
+      alert("로그인 후 이용해주세요.");
+      navigate(`/member/login`);
+    }
     fetchReviews();
   }, [currentPage, sortOrder, user]);
 
   const fetchReviews = async () => {
+    if (!user) return;
     setLoading(true);
     try {
       const res = await axios.get(`${API_BASE_URL}/review/member`, {

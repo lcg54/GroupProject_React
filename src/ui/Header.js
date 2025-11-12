@@ -143,12 +143,20 @@ export default function Header({ user, onLogout }) {
                 └ 장바구니
               </Button>
               <Button variant="light" style={{ textAlign: 'left' }}
+                onClick={() => { navigate('/mypage/wishlist'); setMenuOpen(false); }}>
+                └ 찜한 상품
+              </Button>
+              <Button variant="light" style={{ textAlign: 'left' }}
+                onClick={() => { navigate('/mypage/calendar'); setMenuOpen(false); }}>
+                └ 서비스 일람
+              </Button>
+              <Button variant="light" style={{ textAlign: 'left' }}
                 onClick={() => { navigate('/mypage/review/list'); setMenuOpen(false); }}>
                 └ 리뷰 내역
               </Button>
               <Button variant="light" style={{ textAlign: 'left' }}
                 onClick={() => { navigate('/mypage/inquiry/list'); setMenuOpen(false); }}>
-                └ 문의 내역
+                └ 상품문의
               </Button>
             </div>
           </>
@@ -178,7 +186,7 @@ export default function Header({ user, onLogout }) {
             <div style={{ padding: '0.5rem', backgroundColor: '#e9ecef', borderRadius: '5px', textAlign: 'center', marginBottom: '0.5rem' }}>
               <strong>{user.name}</strong>님
             </div>
-            <Button variant="light" onClick={() => { navigate('mypage/member/edit'); setMenuOpen(false); }}>
+            <Button variant="light" onClick={() => { navigate('/member/edit'); setMenuOpen(false); }}>
               내정보 수정
             </Button>
             <Button variant="outline-secondary" onClick={() => { handleLogoutClick(); setMenuOpen(false); }}>

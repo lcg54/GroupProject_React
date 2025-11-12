@@ -7,7 +7,6 @@ import { FaBrain, FaCamera, FaComment, FaLightbulb, FaRegCommentDots, FaStar } f
 import { MdNote, MdNoteAlt, MdOutlineStickyNote2, MdRateReview } from "react-icons/md";
 
 export default function ReviewWrite({ user }) {
-
   const [purchases, setPurchases] = useState([]);
 
   const [loading, setLoading] = useState(false);
@@ -29,11 +28,7 @@ export default function ReviewWrite({ user }) {
   const location = useLocation();
 
   useEffect(() => {
-    if (!user) {
-      alert("로그인이 필요한 페이지입니다.");
-      navigate("/member/login");
-      return;
-    }
+    if (!user) return;
 
     const editingReviewId = Number(location.state?.reviewId); // 마이페이지(리뷰내역)에서 리뷰 수정 버튼으로 넘어온 리뷰ID
     const productId = Number(location.state?.productId); // 마이페이지(주문내역) 또는 상품페이지에서 리뷰 작성 버튼으로 넘어온 상품ID 
@@ -132,7 +127,6 @@ export default function ReviewWrite({ user }) {
             return;
           }
         }
-
         setPurchases(items);
 
       } catch (err) {
@@ -183,6 +177,7 @@ export default function ReviewWrite({ user }) {
 
     return () => filePreviews.forEach(f => URL.revokeObjectURL(f.url));
   }, [file, existingImages]);
+
   const validateForm = () => {
     if (!selectedProduct) return "제품을 선택하세요.";
     if (!rating) return "평점을 선택하세요.";

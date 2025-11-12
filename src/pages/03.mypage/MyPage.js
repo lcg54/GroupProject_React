@@ -2,8 +2,6 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate, Outlet } from "react-router-dom";
 import { Container, Row, Col, Button } from "react-bootstrap";
 import { API_BASE_URL } from '../../config/url';
-import MyCalendar from "./calendar/MyRentalCalender";
-import EditPage from "../01.user/EditPage";
 import '../../css/MyPage.css';
 
 export default function MyPage({ user, setUser }) {
@@ -17,10 +15,10 @@ export default function MyPage({ user, setUser }) {
     { icon: "📅", text: "서비스 알림", path: "calendar" },
     { icon: "⭐", text: "리뷰 내역", path: "review/list" },
     { icon: "📢", text: "문의 내역", path: "inquiry/list" },
-    { icon: "✏️", text: "내 정보 수정", path: "edit" },
+    { icon: "✏️", text: "내 정보 수정", path: "member/edit" },
   ];
 
-  // URL에 따라 현재 활성 탭 설정
+  // URL에 따라 활성 탭 갱신
   useEffect(() => {
     const matchedButton = buttons.find(btn => location.pathname.includes(btn.path));
     setActiveTab(matchedButton?.path || "");
@@ -41,16 +39,14 @@ export default function MyPage({ user, setUser }) {
     );
   }
 
-  // 버튼 클릭 시 해당 경로로 이동
+  // 버튼 클릭 시 네비게이션 이동
   const handleClick = (path) => {
-    if (path === "calendar") return setActiveTab("calendar"); // 얘네도 나중에
-    if (path === "edit") return setActiveTab("edit");         // 네비게이션으로 변경하면 좋을듯
     navigate(`/mypage/${path}`);
   };
 
   return (
     <Container className="mt-4" style={{ maxWidth: "750px" }}>
-      {/* 인사말 영역 */}
+      {/* 상단 인사말 */}
       <div
         className="mb-4 d-flex justify-content-between align-items-center"
         style={{
@@ -73,10 +69,6 @@ export default function MyPage({ user, setUser }) {
           />
           <h3 className="m-0 text-white">{user.name}님</h3>
         </div>
-
-        {/* <span className="badge bg-warning text-dark" style={{ fontSize: "1rem" }}>
-          {user.grade} 등급
-        </span> */}
       </div>
 
       {/* 버튼 영역 */}
@@ -94,14 +86,10 @@ export default function MyPage({ user, setUser }) {
         ))}
       </Row>
 
-      {/* Outlet 또는 직접 렌더링 */}
+      {/* Outlet (모든 하위 페이지 출력) */}
       <div className="mt-3">
-        {activeTab === "calendar" && <MyCalendar />}
-        {activeTab === "edit" && <EditPage user={user} setUser={setUser} isFromMyPage={true} />}
-        {activeTab !== "calendar" && activeTab !== "edit" && (
-          <Outlet context={{ user, setUser }} />
-        )}
+        <Outlet context={{ user, setUser }} />
       </div>
     </Container>
   );
-};
+}

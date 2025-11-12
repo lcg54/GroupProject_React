@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useOutletContext } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import "./EditPage.css";
 
-export default function EditPage({ user, setUser, isFromMyPage = false }) {
+export default function EditPage() {
+  const { user, setUser } = useOutletContext();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -190,12 +191,11 @@ export default function EditPage({ user, setUser, isFromMyPage = false }) {
   }
 
   return (
-    <div className={`edit-page ${isFromMyPage ? "fromMyPage" : ""}`}>
-      <div className={`wrapper ${isFromMyPage ? "full" : ""}`}>
-        <div className={`container ${isFromMyPage ? "full" : ""}`}>
+    <div className="edit-page">
+      <div className="wrapper">
+        <div className="container">
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             <h1>내 정보 수정</h1>
-
             <span>수정할 정보를 입력하세요</span>
 
             <input
@@ -261,7 +261,17 @@ export default function EditPage({ user, setUser, isFromMyPage = false }) {
             {profilePreview && (
               <div style={{ marginTop: 12, marginBottom: 8 }}>
                 <div style={{ fontSize: 12, marginBottom: 4, color: "#666" }}>현재 프로필:</div>
-                <img src={profilePreview} alt="등록된 프로필 없음" style={{ width: 120, height: 120, objectFit: "cover", borderRadius: 8, border: "2px solid #e0e0e0" }} />
+                <img
+                  src={profilePreview}
+                  alt="등록된 프로필 없음"
+                  style={{
+                    width: 120,
+                    height: 120,
+                    objectFit: "cover",
+                    borderRadius: 8,
+                    border: "2px solid #e0e0e0",
+                  }}
+                />
               </div>
             )}
 
@@ -276,7 +286,7 @@ export default function EditPage({ user, setUser, isFromMyPage = false }) {
               <button
                 className="form_btn btn-secondary"
                 type="button"
-                onClick={() => navigate("/")}
+                onClick={() => navigate("/mypage")}
                 disabled={loading}
               >
                 취소

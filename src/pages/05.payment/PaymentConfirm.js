@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 
-export default function PaymentSuccess() {
+export default function PaymentConfirm() {
   const location = useLocation();
   const query = new URLSearchParams(location.search);
 

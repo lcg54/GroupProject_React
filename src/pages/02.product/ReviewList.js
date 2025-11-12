@@ -136,7 +136,7 @@ export default function ReviewList() {
             <Dropdown.Item onClick={() => { setSortOrder("high"); setCurrentPage(1) }}>평점높은순</Dropdown.Item>
             <Dropdown.Item onClick={() => { setSortOrder("low"); setCurrentPage(1) }}>평점낮은순</Dropdown.Item>
           </DropdownButton>
-          <Button variant="secondary" size="sm" onClick={() => navigate(`/review/write`, { state: { productId: id } })}>리뷰 작성</Button>
+          <Button variant="secondary" size="sm" onClick={() => navigate(`/product/review/write`, { state: { productId: id } })}>리뷰 작성</Button>
         </div>
       </div>
 

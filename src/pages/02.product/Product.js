@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useParams, Outlet } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import axios from "axios";
 import calcMonthlyPrice from "../../util/calcMonthlyPrice";
-import Purchased from "../05.payment/Purchased";
+import Purchased from "./RentalCreated";
 import ProductCarousel from "./ProductCarousel";
 import MyWishList from "../03.mypage/MyWishList";
 

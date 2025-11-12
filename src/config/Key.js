@@ -4,4 +4,4 @@
 // 클라이언트 키 (프론트)
 export const CLIENT_KEY = "test_ck_5OWRapdA8db9nZDZRZeXVo1zEqZK"
 
-// 시크릿 키는 백엔드에 properties에 있음 (유출금지)
+// 시크릿 키는 백엔드에 properties에 있음

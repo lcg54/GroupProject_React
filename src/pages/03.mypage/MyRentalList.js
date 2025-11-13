@@ -10,7 +10,7 @@ import axios from "axios";
 import { FaBoxOpen, FaCreditCard } from "react-icons/fa";
 import { MdCancel, MdRateReview, MdUndo } from "react-icons/md";
 
-export default function Receipt() {
+export default function MyRentalList() {
   const { user } = useOutletContext();
   
   const [rentals, setRentals] = useState([]);

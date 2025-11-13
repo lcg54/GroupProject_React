@@ -92,7 +92,7 @@ export default function SubscriptionModal({ user, item, onClose }) {
           <Col>
             {item.mainImage ? (
               <Image
-                src={`${API_BASE_URL}/images/${item.mainImage}`}
+                src={item.mainImage && `${API_BASE_URL}/images${item.mainImage.replace(/.*images/, '')}`}
                 style={{ width: 300, height: 300, objectFit: "contain" }}
                 thumbnail
                 fluid
@@ -120,7 +120,7 @@ export default function SubscriptionModal({ user, item, onClose }) {
               max={formatDate(maxDate)}
               disabled={!!subscriptionId} // 이미 구독중이면 수정 불가
             />
-            <span style={{ fontSize: "0.9rem", color: "#6c757d"}}>&nbsp;부터 매 월 자동납부</span>
+            <span style={{ fontSize: "0.9rem", color: "#6c757d" }}>&nbsp;부터 매 월 자동납부</span>
           </Col>
           {!subscriptionId && (
             <p className="mt-2" style={{ fontSize: "0.8rem", color: "#6c757d", margin: 0 }}>

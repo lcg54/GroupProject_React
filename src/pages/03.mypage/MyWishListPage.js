@@ -98,7 +98,7 @@ export default function MyWishListPage() {
               onClick={() => navigate(`/product/${product.id}`)}
             >
               <img
-                src={`${API_BASE_URL}/images/${product.mainImage}`}
+                src={product.mainImage ? `${API_BASE_URL}/images${product.mainImage.replace(/^.*[\\/](category.*)/, '/$1')}` : ""}
                 alt={product.name}
                 style={{
                   width: 100,

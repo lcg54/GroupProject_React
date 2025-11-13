@@ -3,7 +3,7 @@ import { Container, Card, Row, Col, Form, Button, ListGroup } from "react-bootst
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import axios from "axios";
-import { CLIENT_KEY, CUSTOMER_KEY } from "../../config/key";
+import { CLIENT_KEY, CUSTOMER_KEY } from "../../config/keys";
 import { API_BASE_URL } from '../../config/url';
 import { PencilSquare } from "react-bootstrap-icons";
 import { FaCreditCard } from "react-icons/fa";

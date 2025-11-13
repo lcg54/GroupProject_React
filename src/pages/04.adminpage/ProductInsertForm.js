@@ -10,7 +10,11 @@ import { prettyLabel } from "../../util/replace"
 export default function ProductInsertForm({ user }) {
   const [form, setForm] = useState({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
 
-  const [images, setImages] = useState([]);
+  const [mainImages, setMainImages] = useState([]); // 대표+서브 이미지
+  const [mainPreviews, setMainPreviews] = useState([]);
+  const [detailImages, setDetailImages] = useState([]);
+  const [detailPreviews, setDetailPreviews] = useState([]);
+
   const [previews, setPreviews] = useState([]);
   const [logs, setLogs] = useState([]);
   const [showLogs, setShowLogs] = useState(false);
@@ -30,38 +34,56 @@ export default function ProductInsertForm({ user }) {
 
   // 공통 onChange: 특정 키만 교체
   const onChange = (key, value) => setForm({ ...form, [key]: value });
-  
-  // 이미지 추가
-  const handleImages = (event) => {
+
+  // 대표/서브 이미지 선택
+  const handleMainImages = (event) => {
+    const files = Array.from(event.target.files || []).slice(0, 5);
+    setMainImages(files);
+    setMainPreviews(files.map((file) => URL.createObjectURL(file)));
+  };
+
+  // 상세 이미지 선택
+  const handleDetailImages = (event) => {
     const files = Array.from(event.target.files || []);
-    setImages(files);
-    setPreviews(files.map((file) => URL.createObjectURL(file)));
+    setDetailImages(files);
+    setDetailPreviews(files.map((file) => URL.createObjectURL(file)));
   };
 
   // 상품 등록
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const {name, category, brand, price, totalStock } = form;
-    if (!name || !category || !brand || !price || !totalStock || images.length === 0) {
+    const { name, category, brand, price, totalStock } = form;
+
+    if (!name || !category || !brand || !price || !totalStock || mainImages.length === 0) {
       alert("모든 항목을 입력해주세요.");
       return;
     }
 
     if (!window.confirm(`${brand} ${name} (${totalStock}) 을(를) 등록하시겠습니까?`)) return;
 
-    // 입력한 상품 정보와 이미지 묶기
     const formDataToSend = new FormData();
     Object.entries(form).forEach(([key, value]) => formDataToSend.append(key, value));
-    images.forEach((file) => formDataToSend.append("images", file));
+
+    // 대표/서브 이미지 전송
+    mainImages.forEach((file, i) => {
+      const fieldName = i === 0 ? "main_image" : `sub_image_${i}`;
+      formDataToSend.append(fieldName, file);
+    });
+
+    // 상세 이미지 전송
+    detailImages.forEach((file, i) => {
+      formDataToSend.append(`detail_image_${i + 1}`, file);
+    });
 
     setLoading(true);
     try {
       await axios.post(`${API_BASE_URL}/product/register/${user.id}`, formDataToSend, { withCredentials: true });
       alert(`${brand} ${name} (${totalStock}) 을(를) 등록했습니다.`);
-      // 폼 초기화
       setForm({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
-      setImages([]);
-      setPreviews([]);
+      setMainImages([]);
+      setMainPreviews([]);
+      setDetailImages([]);
+      setDetailPreviews([]);
     } catch (err) {
       alert("등록 실패: " + err.message);
     } finally {
@@ -82,7 +104,7 @@ export default function ProductInsertForm({ user }) {
   };
 
   // user 정보가 없거나 등록 요청 중이면 화면 렌더링 안 함
-  if(loading || !user) return null ;
+  if (loading || !user) return null;
 
   return (
     <Container style={{ maxWidth: 700 }} className="py-4">
@@ -139,11 +161,26 @@ export default function ProductInsertForm({ user }) {
 
             {/* 상품 이미지 업로드 + 미리보기 */}
             <Form.Group className="mt-3">
-              <Form.Label>상품 이미지</Form.Label>
-              <Form.Control type="file" multiple accept="image/*" onChange={handleImages} />
-              {previews.length > 0 && (
+              <Form.Label>대표 및 서브 이미지 (최대 5장)</Form.Label>
+              <Form.Control type="file" multiple accept="image/*" onChange={handleMainImages} />
+              {mainPreviews.length > 0 && (
                 <Row className="mt-2">
-                  {previews.map((p, i) => (
+                  {mainPreviews.map((p, i) => (
+                    <Col key={i} xs={6} md={4} className="mb-2">
+                      <img src={p} alt="" style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: 8 }} />
+                    </Col>
+                  ))}
+                </Row>
+              )}
+            </Form.Group>
+
+            {/* 상세 이미지 */}
+            <Form.Group className="mt-3">
+              <Form.Label>상세 이미지</Form.Label>
+              <Form.Control type="file" multiple accept="image/*" onChange={handleDetailImages} />
+              {detailPreviews.length > 0 && (
+                <Row className="mt-2">
+                  {detailPreviews.map((p, i) => (
                     <Col key={i} xs={6} md={4} className="mb-2">
                       <img src={p} alt="" style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: 8 }} />
                     </Col>

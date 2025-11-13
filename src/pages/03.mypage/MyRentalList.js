@@ -12,7 +12,7 @@ import { MdCancel, MdRateReview, MdUndo } from "react-icons/md";
 
 export default function MyRentalList() {
   const { user } = useOutletContext();
-  
+
   const [rentals, setRentals] = useState([]);
   const [filteredRentals, setFilteredRentals] = useState([]);
   const [sortOption, setSortOption] = useState("recent");
@@ -23,7 +23,7 @@ export default function MyRentalList() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -194,18 +194,18 @@ export default function MyRentalList() {
                           <div className="d-flex align-items-start">
                             <div style={{ width: "120px", height: "120px", flexShrink: 0 }}>
                               <img
-                                src={`${API_BASE_URL}/images/${item.mainImage}`}
+                                src={item.mainImage && `${API_BASE_URL}/images${item.mainImage.replace(/.*images/, '')}`}
                                 alt={item.productName}
                                 className="rounded"
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  objectFit: "contain",
+                                  objectFit: "cover",
                                   border: "1px solid #ddd",
                                 }}
                               />
                             </div>
-                              
+
                             <div className="flex-grow-1 ms-3">
                               <div className="d-flex align-items-center gap-3 mb-3">
                                 <Card.Title className="h7 mb-0">{item.productName}</Card.Title>
@@ -232,7 +232,7 @@ export default function MyRentalList() {
                                 <strong> {calcRemainingDays(item)}</strong>
                               </Card.Text>
                             </div>
-                              
+
                             <div className="text-end ms-3 d-flex flex-column align-items-end gap-2">
                               {(item.status === "RESERVED" || item.status === "RENTED") && (
                                 <Button

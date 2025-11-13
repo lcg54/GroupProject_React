@@ -91,7 +91,7 @@ export default function ReviewWrite({ user }) {
             const res = await axios.get(`${API_BASE_URL}/review/member/${user.id}/product/${productId}`);
             if (res.data) {
               if (window.confirm("이미 리뷰가 존재합니다. 수정하시겠습니까?")) { // 리뷰가 있다면 수정으로 이동 가능
-                navigate("/review/write", { state: { reviewId: res.data.id } });
+                navigate("/product/review/write", { state: { reviewId: res.data.id } });
               } else {
                 navigate("/mypage/review/list");
               }
@@ -285,7 +285,7 @@ export default function ReviewWrite({ user }) {
                     }}
                   >
                     <img
-                      src={`${API_BASE_URL}/images/${p.mainImage}`}
+                      src={`${API_BASE_URL}/images${p.mainImage.replace(/.*images/, '')}`}
                       alt={p.productName}
                       style={{
                         width: "100%",

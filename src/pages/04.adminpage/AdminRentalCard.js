@@ -46,7 +46,7 @@ export default function AdminRentalCard({ item, onStatusChange, onSelect, select
 
           <div className="d-flex align-items-center">
             <img
-              src={`${API_BASE_URL}/images/${item.mainImage}`}
+              src={`${API_BASE_URL}/images${item.mainImage.replace(/.*images/, '')}`}
               alt={item.productName}
               className="rounded me-3"
               style={{

@@ -2,13 +2,15 @@ import { useState, useEffect } from "react";
 import { Alert, Card, Col, Container, Row, Spinner, Form, InputGroup, Button } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import { statusLabel } from "../../util/orderStatus";
+import { RentalStatusLabel } from "../../util/status";
 import { formatDate, formatPrice } from "../../util/form";
 import calcRemainingDays from "../../util/calcRemainingDays";
 import SubscriptionModal from "../05.payment/SubscriptionModal";
 import axios from "axios";
+import { FaBoxOpen, FaCreditCard } from "react-icons/fa";
+import { MdCancel, MdRateReview, MdUndo } from "react-icons/md";
 
-export default function Receipt() {
+export default function MyRentalList() {
   const { user } = useOutletContext();
   
   const [rentals, setRentals] = useState([]);
@@ -215,7 +217,7 @@ export default function Receipt() {
                                     opacity: 1,
                                   }}
                                 >
-                                  {statusLabel(item.status)}
+                                  {RentalStatusLabel(item.status)}
                                 </Button>
                               </div>
                               <Card.Text className="text-muted mb-1" style={{ fontSize: "0.9rem" }}>
@@ -241,7 +243,7 @@ export default function Receipt() {
                                     setShowSubscriptionModal(true);
                                   }}
                                 >
-                                  💳 결제 정보
+                                  <FaCreditCard /> 결제 정보
                                 </Button>
                               )}
 
@@ -251,7 +253,7 @@ export default function Receipt() {
                                   size="sm"
                                   onClick={() => handleCancelItem(item.itemId)}
                                 >
-                                  ❌ 예약 취소
+                                  <MdCancel /> 예약 취소
                                 </Button>
                               )}
 
@@ -261,7 +263,7 @@ export default function Receipt() {
                                   size="sm"
                                   onClick={() => handleCancelReturnRequest(item.itemId)}
                                 >
-                                  🔙 반납 요청 취소
+                                  <MdUndo /> 반납 요청 취소
                                 </Button>
                               )}
 
@@ -271,7 +273,7 @@ export default function Receipt() {
                                   size="sm"
                                   onClick={() => handleReturnRequest(item.itemId)}
                                 >
-                                  📦 반납
+                                  <FaBoxOpen /> 반납
                                 </Button>
                               )}
 
@@ -283,7 +285,7 @@ export default function Receipt() {
                                     navigate(`/product/review/write`, { state: { productId: item.productId } })
                                   }
                                 >
-                                  ✍️ 리뷰 작성
+                                  <MdRateReview /> 리뷰 작성
                                 </Button>
                               )}
                             </div>

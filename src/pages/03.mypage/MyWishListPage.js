@@ -8,13 +8,14 @@ import calcMonthlyPrice from "../../util/calcMonthlyPrice";
 export default function MyWishListPage() {
   const { user } = useOutletContext();
   const [wishedProducts, setWishedProducts] = useState([]);
+
   const [isLoading, setIsLoading] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      loadMyWishlist();
-    }
+    if (!user) return;
+    loadMyWishlist();
   }, [user]);
 
   // 내 찜 상품 불러오기

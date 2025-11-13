@@ -15,7 +15,7 @@ import InquiryWrite from '../pages/02.product/InquiryWrite';
 
 import MyPage from "../pages/03.mypage/MyPage";
 import MyInfoPage from "../pages/03.mypage/MyInfoPage";
-import Receipt from "../pages/03.mypage/Receipt";
+import MyRentalList from "../pages/03.mypage/MyRentalList";
 import MyCartList from "../pages/03.mypage/MyCartList";
 import MyCalendar from "../pages/03.mypage/calendar/MyRentalCalender"
 import MyReviewList from "../pages/03.mypage/MyReviewList";
@@ -58,7 +58,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/mypage" element={<MyPage user={user} setUser={setUser} />}>
         <Route path="info" element={<MyInfoPage />} />
         <Route index element={<Navigate to="receipt" replace />} />{/* 기본 탭 지정*/}
-        <Route path="receipt" element={<Receipt />} />
+        <Route path="receipt" element={<MyRentalList />} />
         <Route path="cart" element={<MyCartList />} />
         <Route path="wishlist" element={<MyWishListPage />} />
         <Route path="calendar" element={<MyCalendar />} />

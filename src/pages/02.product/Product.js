@@ -28,8 +28,24 @@ export default function Product({ user }) {
 
   const fetchProduct = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/product/${id}`);
-      setProduct(res.data);
+      const res = await axios.get(`${API_BASE_URL}/product/category/${id}`);
+      const { product, images } = res.data;
+
+      const normalizePaths = (arr = []) =>
+        arr.map((img) => {
+          if (img.startsWith("/") || img.includes("C:/")) {
+            return img.includes("C:/") ? img.split("C:/shop")[1].replace(/\\/g, "/") : img;
+          }
+          return `/images/category/${product.category}/${product.name}_${product.id}/${img}`;
+        });
+
+      const normalizedImages = {
+        main: normalizePaths(images?.main),
+        sub: normalizePaths(images?.sub),
+        detail: normalizePaths(images?.detail),
+      };
+
+      setProduct({ ...product, images: normalizedImages });
     } catch (err) {
       console.error(err);
       alert("상품 정보를 불러오는 중 오류가 발생했습니다.");
@@ -260,9 +276,33 @@ export default function Product({ user }) {
       </Nav>
 
       {activeKey === "detail" ? (
-        <div className="p-3 border rounded">
+        <>
           <p className="mt-3">{product.description}</p>
-        </div>
+          {product.images?.detail?.length > 0 && (
+            <>
+              <h5 className="fw-bold mb-3">상품 상세 이미지</h5>
+              {product.images.detail.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={`${API_BASE_URL}${img}`}
+                  alt={`상세 이미지 ${idx + 1}`}
+                  style={{
+                    width: "100%",
+                    maxWidth: "650px",
+                    height: "auto",
+                    border: "none",
+                    borderRadius: 0,
+                    objectFit: "contain",
+                    display: "block",
+                    margin: 0,
+                    padding: 0,
+                    lineHeight: 0,
+                  }}
+                />
+              ))}
+            </>
+          )}
+        </>
       ) : (
         <div className="p-3 border rounded">
           <Outlet context={{ user }} />

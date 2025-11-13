@@ -82,10 +82,24 @@ export default function ProductList({ user }) {
   const fetchPopularProducts = async () => {
     try {
       const res = await axios.get(`${API_BASE_URL}/product/popular`);
-      const pop = res.data.map(p => ({
-        ...p, monthlyPrice: calcMonthlyPrice(6, p.price),
-      }));
-      setPopularProducts(pop);
+      const popWithImages = await Promise.all(
+        res.data.map(async (p) => {
+          try {
+            // 이미지 통합 조회 API 호출
+            const imgResp = await axios.get(`${API_BASE_URL}/product/category/${p.id}`);
+            const mainImgUrl = imgResp.data.images?.main?.[0] || null;
+            return {
+              ...p,
+              mainImage: mainImgUrl ? `${API_BASE_URL}${mainImgUrl}` : null,
+              monthlyPrice: calcMonthlyPrice(6, p.price),
+            };
+          } catch (err) {
+            console.warn(`이미지 로드 실패: ${p.name}`, err);
+            return { ...p, mainImage: null, monthlyPrice: calcMonthlyPrice(6, p.price) };
+          }
+        })
+      );
+      setPopularProducts(popWithImages);
     } catch (err) {
       console.error("인기상품 불러오기 실패", err);
     }
@@ -95,30 +109,39 @@ export default function ProductList({ user }) {
     setLoading(true);
     try {
       const sp = new URLSearchParams();
-          sp.set("page", reset ? 1 : page);
-          sp.set("size", 10);
-          if (category.length) category.forEach( c => sp.append("category", c));
-          if (brand.length) brand.forEach( b => sp.append("brand", b));
-          if (available !== null) sp.set("available", String(available));
-          if (sortBy) sp.set("sortBy", sortBy);
-          if (keyword.trim()) sp.set("keyword", keyword.trim());
-        
-      const res= await axios.get(`${API_BASE_URL}/product/list`, {params: sp});
+      sp.set("page", reset ? 1 : page);
+      sp.set("size", 10);
+      if (category.length) category.forEach(c => sp.append("category", c));
+      if (brand.length) brand.forEach(b => sp.append("brand", b));
+      if (available !== null) sp.set("available", String(available));
+      if (sortBy) sp.set("sortBy", sortBy);
+      if (keyword.trim()) sp.set("keyword", keyword.trim());
 
-      const newProducts = res.data.products.map(p => ({
-        ...p, monthlyPrice: calcMonthlyPrice(6, p.price),
-      }));
+      const res = await axios.get(`${API_BASE_URL}/product/list`, { params: sp });
+      const productsWithImages = await Promise.all(
+        res.data.products.map(async (p) => {
+          try {
+            const imgResp = await axios.get(`${API_BASE_URL}/product/category/${p.id}`);
+            const mainImgUrl = imgResp.data.images?.main?.[0] || null;
+            return {
+              ...p,
+              mainImage: mainImgUrl ? `${API_BASE_URL}${mainImgUrl}` : null,
+              monthlyPrice: calcMonthlyPrice(6, p.price),
+            };
+          } catch {
+            return { ...p, mainImage: null, monthlyPrice: calcMonthlyPrice(6, p.price) };
+          }
+        })
+      );
 
       if (reset) {
-        setProducts(newProducts);
+        setProducts(productsWithImages);
         setPage(1);
-        setHasMore(newProducts.length > 0);
+        setHasMore(productsWithImages.length > 0);
       } else {
-        setProducts(prev => [...prev, ...newProducts]);
-        if (newProducts.length === 0) {
-        setHasMore(false);
+        setProducts(prev => [...prev, ...productsWithImages]);
+        if (productsWithImages.length === 0) setHasMore(false);
       }
-    }
     } catch (err) {
       alert("상품 목록을 불러오는 중 오류가 발생했습니다.");
     } finally {
@@ -294,7 +317,7 @@ export default function ProductList({ user }) {
                     <Card
                       className="rounded d-flex flex-column position-relative"
                       style={{
-                        height: isAdmin ? "400px" : "350px",
+                        height: isAdmin ? "400px" : "330px",
                         cursor: "pointer",
                         opacity: isAvailable ? 1 : 0.55,
                         filter: isAvailable ? 'none' : 'grayscale(40%)',
@@ -305,9 +328,9 @@ export default function ProductList({ user }) {
                     >
                       <Card.Img
                         variant="top"
-                        src={`${API_BASE_URL}/images/${p.mainImage}`}
+                        src={p.mainImage || "/fallback.jpg"}
                         alt={p.name}
-                        style={{ width: '100%', height: "200px", objectFit: "contain" }}
+                        style={{ width: '100%', height: "200px", objectFit: "cover" }}
                       />
                       <Card.Body>
                         <Card.Title className="mb-1">{p.name}</Card.Title>
@@ -389,12 +412,12 @@ export default function ProductList({ user }) {
             onClick={() => navigate(`/product/${product.id}`)}
           >
             <img
-              src={`${API_BASE_URL}/images/${product.mainImage}`}
+              src={product.mainImage || "/fallback.jpg"}
               alt={product.name}
               style={{
                 width: 120,
                 height: 110,
-                objectFit: "contain",
+                objectFit: "cover",
                 borderRadius: 8,
                 marginRight: 20,
                 marginLeft: 10,

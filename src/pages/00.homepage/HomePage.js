@@ -64,7 +64,7 @@ const HeroSection = () => {
               onClick={() => navigate(`/product/${p.id}`)}
             >
               <Image
-                src={p.id === 'example' ? p.mainImage : `${API_BASE_URL}/images/${p.mainImage}`}
+                src={`${API_BASE_URL}/images${p.mainImage.replace(/.*images/, '')}`}
                 alt={p.name}
                 fluid
                 style={{

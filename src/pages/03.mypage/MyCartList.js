@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
 import { Container, Row, Col, Button, Form, Card, Spinner } from 'react-bootstrap';
 import { API_BASE_URL } from '../../config/url';
 import Purchased from "../02.product/RentalCreated";
@@ -7,7 +7,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 
 export default function MyCartList() {
   const { user } = useOutletContext();
-  
+
   const [products, setProducts] = useState([]);
   const [cartId, setCartId] = useState(null);
 
@@ -37,7 +37,7 @@ export default function MyCartList() {
         id: item.productId,
         name: item.productName,
         brand: item.brand,
-        imageUrl: item.mainImage,
+        imageUrl: item.mainImage && `${API_BASE_URL}/images${item.mainImage.replace(/.*images/, '')}`,
         quantity: item.quantity,
         rentalPeriod: item.periodYears,
         rentalStart: item.rentalStart || "",
@@ -164,7 +164,7 @@ export default function MyCartList() {
                   <Row>
                     <Col xs={4}>
                       <img
-                        src={`${API_BASE_URL}/images/${product.imageUrl}`}
+                        src={product.imageUrl}
                         alt={product.name}
                         style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '4px' }}
                       />

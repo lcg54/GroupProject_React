@@ -285,7 +285,7 @@ export default function ReviewWrite({ user }) {
                     }}
                   >
                     <img
-                      src={`${API_BASE_URL}/images/${p.mainImage}`}
+                      src={`${API_BASE_URL}/images${p.mainImage.replace(/.*images/, '')}`}
                       alt={p.productName}
                       style={{
                         width: "100%",

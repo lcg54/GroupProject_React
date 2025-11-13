@@ -69,7 +69,7 @@ export default function AdminCartList({ user }) {
               <Row className="align-items-center">
                 <Col xs={3}>
                   <img
-                    src={`${API_BASE_URL}/images/${product.imageUrl}`}
+                    src={`${API_BASE_URL}/images${product.imageUrl.replace(/.*images/, '')}`}
                     alt={product.name}
                     style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '4px' }}
                   />

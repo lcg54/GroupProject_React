@@ -3,7 +3,10 @@ import { Carousel, Row, Col } from "react-bootstrap";
 import { API_BASE_URL } from "../../config/url";
 
 export default function ProductCarousel({ product }) {
-  const images = [product.mainImage, ...(product.images || [])];
+  const mainImages = product.images?.main || [];
+  const subImages = product.images?.sub || [];
+  const allImages = [...mainImages, ...subImages];
+
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
@@ -29,20 +32,12 @@ export default function ProductCarousel({ product }) {
         indicators={true}
         variant="dark"
       >
-        {images.map((src, i) => (
+        {allImages.map((src, i) => (
           <Carousel.Item key={i} className="bg-white rounded-4 overflow-hidden">
-            <div
-              style={{
-                backgroundColor: "white",
-                borderRadius: "1rem",
-                overflow: "hidden",
-              }}
-            >
+            <div style={{ backgroundColor: "white", borderRadius: "1rem" }}>
               <img
                 className="d-block w-100"
-                src={`${API_BASE_URL}/images/${
-                  typeof src === "string" ? src : src.url || src
-                }`}
+                src={`${API_BASE_URL}${src}`}
                 alt={`상품 이미지 ${i + 1}`}
                 style={{
                   height: "400px",
@@ -57,7 +52,7 @@ export default function ProductCarousel({ product }) {
       </Carousel>
 
       <Row className="mt-3 gx-2">
-        {images.map((src, i) => (
+        {allImages.map((src, i) => (
           <Col xs={3} key={i}>
             <div
               className="mb-2"
@@ -71,7 +66,7 @@ export default function ProductCarousel({ product }) {
               }}
             >
               <img
-                src={`${API_BASE_URL}/images/${typeof src === "string" ? src : src.url || src}`}
+                src={`${API_BASE_URL}${src}`}
                 alt={`썸네일 ${i + 1}`}
                 style={{
                   width: "100%",

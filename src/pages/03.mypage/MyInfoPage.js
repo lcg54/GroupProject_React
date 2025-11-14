@@ -32,8 +32,8 @@ export default function MyInfoPage() {
       const tossPayments = await loadTossPayments(CLIENT_KEY);
       await tossPayments.requestBillingAuth("CARD", {
         customerKey: CUSTOMER_KEY(user.id),
-        successUrl: "http://localhost:3000/payment/success",
-        failUrl: "http://localhost:3000/payment/fail",
+        successUrl: "https://prolabor-hellishly-matilde.ngrok-free.dev/payment/success",
+        failUrl: "https://prolabor-hellishly-matilde.ngrok-free.dev/payment/fail",
       });
     } catch (error) {
       console.error("카드 등록 실패:", error);

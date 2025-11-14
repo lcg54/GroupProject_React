@@ -27,6 +27,7 @@ import ProductUpdateForm from "../pages/04.adminpage/ProductUpdateForm";
 import AdminCartList from "../pages/04.adminpage/AdminCartList";
 import AdminRentalListPage from "../pages/04.adminpage/AdminRentalList";
 import SalesHistory from '../pages/04.adminpage/SalesHistory';
+import AdminInquiryList from "../pages/04.adminpage/AdminInquiryList";
 
 import PaymentPage from "../pages/05.payment/PaymentPage";
 import PaymentConfirm from "../pages/05.payment/PaymentConfirm";
@@ -47,12 +48,12 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
 
       {/* /product - 상품페이지 */}
       <Route path="/product/list" element={<ProductList user={user} />} />
-      <Route path="/product/:id" element={<Product user={user} />}>  
+      <Route path="/product/:id" element={<Product user={user} />}>
         <Route path="review/list" element={<ReviewList />} />
         <Route path="inquiry/list" element={<InquiryList />} />
       </Route>
       <Route path="/product/review/write" element={<ReviewWrite user={user} />} />
-      <Route path="/product/:id/inquiry/write" element={<InquiryWrite user={user}/>} />
+      <Route path="/product/:id/inquiry/write" element={<InquiryWrite user={user} />} />
 
       {/* /mypage - 마이페이지 */}
       <Route path="/mypage" element={<MyPage user={user} setUser={setUser} />}>
@@ -72,6 +73,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/admin/cart" element={<AdminCartList user={user} />} />
       <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
       <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />
+      <Route path="/admin/inquiry" element={<AdminInquiryList user={user} />} />
 
 
       {/* /payment - 결제페이지 */}

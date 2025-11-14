@@ -1,9 +1,9 @@
 import { Button, Card, Col, Dropdown, Form } from "react-bootstrap";
 import { API_BASE_URL } from "../../config/url";
-import { RentalStatus, RentalStatusLabel } from "../../util/status";
-import { formatDate, formatPrice } from "../../util/form";
-import calcRemainingDays from "../../util/calcRemainingDays";
-import { PaymentStatusLabel } from "../../util/status";
+import { RentalStatus, RentalStatusLabel } from "../../constant/rentalStatus";
+import { PaymentStatusLabel } from "../../constant/paymentStatus";
+import { formatDate, formatPrice } from "../../formatter/formats";
+import calcRemainingDays from "../../formatter/calcRemainingDays";
 
 export default function AdminRentalCard({ item, onStatusChange, onSelect, selected }) {
   return (

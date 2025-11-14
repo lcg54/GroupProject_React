@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Button, Container } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import calcMonthlyPrice from "../../util/calcMonthlyPrice";
+import calcMonthlyPrice from "../../formatter/calcMonthlyPrice";
 
 export default function MyWishListPage() {
   const { user } = useOutletContext();
@@ -106,14 +106,21 @@ export default function MyWishListPage() {
                   objectFit: "contain",
                   borderRadius: 8,
                   marginRight: 16,
+                  marginLeft: 16,
                 }}
               />
               <div className="flex-grow-1">
-                <div className="fw-bold" style={{ marginBottom: 4 }}>{product.name}</div>
-                <div className="text-muted" style={{ marginBottom: 2 }}>{product.brand}</div>
-                <div className="text-muted">⭐ {Number(product.averageRating).toFixed(1)} ({product.reviewCount})</div>
+                <div className="fw-bold" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "350px", marginBottom: 4 }}>
+                  {product.name}
+                </div>
+                <div className="text-muted" style={{ marginBottom: 2 }}>
+                  {product.brand}
+                </div>
+                <div className="text-muted">
+                  ⭐ {Number(product.averageRating).toFixed(1)} ({product.reviewCount})
+                </div>
               </div>
-              <div className="text-end" style={{ minWidth: 150 }}>
+              <div className="text-end" style={{ minWidth: 150, marginRight:"30px" }}>
                 <div className="text-primary" style={{ fontSize: "1.05rem" }}>
                   최대 월 {((product.monthlyPrice ?? calcMonthlyPrice(6, Number(product.price) || 0))).toLocaleString()}원
                 </div>

@@ -6,7 +6,7 @@ import { API_BASE_URL } from "../../config/url";
 import { SelectedFilter, BrandDropdown, AvailabilityDropdown, SortDropdown } from "./ProductListFilter";
 import { PopularBadge, NotAvailableBadge, WishListBadge } from "./ProductListBadge";
 import CategoryGrid from "./CategoryGrid";
-import calcMonthlyPrice from "../../util/calcMonthlyPrice";
+import calcMonthlyPrice from "../../formatter/calcMonthlyPrice";
 import axios from "axios";
 
 export default function ProductList({ user }) {
@@ -317,7 +317,7 @@ export default function ProductList({ user }) {
                     <Card
                       className="rounded d-flex flex-column position-relative"
                       style={{
-                        height: isAdmin ? "400px" : "330px",
+                        height: isAdmin ? "370px" : "330px",
                         cursor: "pointer",
                         opacity: isAvailable ? 1 : 0.55,
                         filter: isAvailable ? 'none' : 'grayscale(40%)',
@@ -330,10 +330,12 @@ export default function ProductList({ user }) {
                         variant="top"
                         src={p.mainImage || "/fallback.jpg"}
                         alt={p.name}
-                        style={{ width: '100%', height: "200px", objectFit: "cover" }}
+                        style={{ width: '100%', height: "200px", objectFit: "contain" }}
                       />
                       <Card.Body>
-                        <Card.Title className="mb-1">{p.name}</Card.Title>
+                        <Card.Title className="mb-1" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                          {p.name}
+                        </Card.Title>
                         <p className="mb-1 text-muted">⭐ {p.averageRating.toFixed(1)} ({p.reviewCount})</p>
                           <div
                             className="position-absolute text-primary"
@@ -417,7 +419,7 @@ export default function ProductList({ user }) {
               style={{
                 width: 120,
                 height: 110,
-                objectFit: "cover",
+                objectFit: "contain",
                 borderRadius: 8,
                 marginRight: 20,
                 marginLeft: 10,
@@ -426,7 +428,12 @@ export default function ProductList({ user }) {
       
             <div className="d-flex flex-grow-1 justify-content-between align-items-center">
               <div>
-                <h5 className="mb-1">{product.name}</h5>
+                <h5
+                  className="mb-1"
+                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "380px" }}
+                >
+                  {product.name}
+                </h5>
                 <p className="mb-1">{product.brand}</p>
                 <p className="mb-1 text-muted">
                   ⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})

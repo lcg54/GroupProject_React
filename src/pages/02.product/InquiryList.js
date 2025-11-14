@@ -3,7 +3,7 @@ import { useNavigate, useOutletContext, useParams } from 'react-router-dom';
 import { Container, Row, Accordion, Card, Pagination, Dropdown, Form, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { API_BASE_URL } from '../../config/url';
-import { maskName } from '../../util/form';
+import { maskName } from '../../formatter/formats';
 
 export default function InquiryList() {
   const { user } = useOutletContext();

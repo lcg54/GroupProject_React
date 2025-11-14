@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Alert, Card, Col, Container, Row, Spinner, Form, InputGroup, Button } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import { RentalStatusLabel } from "../../util/status";
-import { formatDate, formatPrice } from "../../util/form";
-import calcRemainingDays from "../../util/calcRemainingDays";
+import { RentalStatusLabel } from "../../constant/rentalStatus";
+import { formatDate, formatPrice } from "../../formatter/formats";
+import calcRemainingDays from "../../formatter/calcRemainingDays";
 import SubscriptionModal from "../05.payment/SubscriptionModal";
 import axios from "axios";
 import { FaBoxOpen, FaCreditCard } from "react-icons/fa";
@@ -200,7 +200,7 @@ export default function MyRentalList() {
                                 style={{
                                   width: "100%",
                                   height: "100%",
-                                  objectFit: "cover",
+                                  objectFit: "contain",
                                   border: "1px solid #ddd",
                                 }}
                               />
@@ -208,7 +208,9 @@ export default function MyRentalList() {
 
                             <div className="flex-grow-1 ms-3">
                               <div className="d-flex align-items-center gap-3 mb-3">
-                                <Card.Title className="h7 mb-0">{item.productName}</Card.Title>
+                                <Card.Title className="h7 mb-0" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "330px" }}>
+                                  {item.productName}
+                                </Card.Title>
                                 <Button
                                   variant="outline-secondary"
                                   size="sm"

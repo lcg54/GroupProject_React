@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Container, Row, Col, Spinner, Dropdown, Badge, Pagination, Form, Nav } from "react-bootstrap";
 import { API_BASE_URL } from "../../config/url";
-import { RentalStatus, RentalStatusLabel } from "../../util/status";
+import { RentalStatus, RentalStatusLabel } from "../../constant/rentalStatus";
 import AdminRentalCard from "./AdminRentalCard";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";

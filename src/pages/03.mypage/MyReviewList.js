@@ -3,7 +3,7 @@ import { useNavigate, useOutletContext } from "react-router-dom";
 import { Container, Card, Spinner, Button, Dropdown, DropdownButton } from "react-bootstrap";
 import { Bag, PencilSquare, Trash } from "react-bootstrap-icons";
 import { API_BASE_URL } from "../../config/url";
-import { renderStars } from "../../util/form.js";
+import { renderStars } from "../../formatter/formats.js";
 import RenderPagination from "../RenderPagination.js";
 import axios from "axios";
 

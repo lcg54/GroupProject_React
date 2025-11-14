@@ -17,8 +17,8 @@ export default function SubscriptionModal({ user, item, onClose }) {
 
   // 결제일 제한
   const today = new Date();
-  const minDate = new Date(Math.max(today, rentalStartDate.getTime() - 14 * 24 * 60 * 60 * 1000));
-  const maxDate = new Date(rentalStartDate.getTime() + 14 * 24 * 60 * 60 * 1000);
+  const minDate = new Date(Math.max(today, rentalStartDate.getTime() - 21 * 24 * 60 * 60 * 1000));
+  const maxDate = new Date(rentalStartDate.getTime());
 
   // 기존 구독 정보 불러오기
   useEffect(() => {
@@ -124,7 +124,7 @@ export default function SubscriptionModal({ user, item, onClose }) {
           </Col>
           {!subscriptionId && (
             <p className="mt-2" style={{ fontSize: "0.8rem", color: "#6c757d", margin: 0 }}>
-              대여 시작일로부터 2주 이내로 정기 결제일을 지정할 수 있습니다.
+              대여 시작일로부터 3주 이내로 정기 결제일을 지정할 수 있습니다.
             </p>
           )}
         </Row>

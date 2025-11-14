@@ -21,7 +21,7 @@ export default function Purchased({ products, onClose }) {
             <Row className="mb-2">
               <Col>
                 {p.imageUrl ? (
-                  <Image src={`${API_BASE_URL}/images/${p.imageUrl}`}
+                  <Image src={p.imageUrl ? `${API_BASE_URL}/images${p.imageUrl.replace(/^.*[\\/](category.*)/, '/$1')}` : ""}
                     style={{ width: 300, height: 300, objectFit: "contain" }}
                     thumbnail
                     fluid

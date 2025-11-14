@@ -47,7 +47,7 @@ export default function ProductInsertForm({ user }) {
       return;
     }
 
-    if (!window.confirm(`${brand} ${name} (${totalStock}) 을(를) 등록하시겠습니까?`)) return;
+    if (!window.confirm(`${name} (${totalStock}) 을(를) 등록하시겠습니까?`)) return;
 
     // 입력한 상품 정보와 이미지 묶기
     const formDataToSend = new FormData();
@@ -57,7 +57,7 @@ export default function ProductInsertForm({ user }) {
     setLoading(true);
     try {
       await axios.post(`${API_BASE_URL}/product/register/${user.id}`, formDataToSend, { withCredentials: true });
-      alert(`${brand} ${name} (${totalStock}) 을(를) 등록했습니다.`);
+      alert(`${name} (${totalStock}) 을(를) 등록했습니다.`);
       // 폼 초기화
       setForm({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
       setImages([]);

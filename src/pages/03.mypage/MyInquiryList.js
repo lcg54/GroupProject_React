@@ -3,7 +3,7 @@ import { Container, Row, Accordion, Card, Button } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
-import { maskName } from "../../util/form";
+import { maskName } from "../../formatter/formats";
 import RenderPagination from "../RenderPagination";
 import { Bag } from "react-bootstrap-icons";
 

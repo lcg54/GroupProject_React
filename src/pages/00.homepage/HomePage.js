@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Container, Image, Carousel } from 'react-bootstrap';
 import { API_BASE_URL } from '../../config/url';
 import axios from 'axios';
-import calcMonthlyPrice from '../../util/calcMonthlyPrice';
+import calcMonthlyPrice from '../../formatter/calcMonthlyPrice';
 import CategoryGrid from "../02.product/CategoryGrid";
 
 const HeroSection = () => {
@@ -44,43 +44,75 @@ const HeroSection = () => {
         <h3 style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>
           quality of life
         </h3>
-
       </div>
 
       {/* 캐러셀 영역 */}
-      <div style={{ textAlign: 'center' }}>
+      <div style={{ maxWidth: '650px', margin: '0 auto', textAlign: 'center' }}>
         <Carousel
-          // fade
-          interval={3000}
+          interval={2500}
           indicators={true}
           controls={true}
-          nextIcon={<span className="carousel-control-next-icon" aria-hidden="true" />}
-          prevIcon={<span className="carousel-control-prev-icon" aria-hidden="true" />}
+          nextIcon={
+            <span
+              className="carousel-control-next-icon"
+              aria-hidden="true"
+              style={{
+                filter: 'invert(0.2)', // 어두운 톤으로
+                backgroundColor: 'rgba(0,0,0,0.3)', // 반투명 검은 배경
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+              }}
+            />
+          }
+          prevIcon={
+            <span
+              className="carousel-control-prev-icon"
+              aria-hidden="true"
+              style={{
+                filter: 'invert(0.2)',
+                backgroundColor: 'rgba(0,0,0,0.3)',
+                borderRadius: '50%',
+                width: '40px',
+                height: '40px',
+              }}
+            />
+          }
         >
           {popularProducts.map((p) => (
             <Carousel.Item
               key={p.id}
-              style={{ cursor: 'pointer' }}
+              style={{ cursor: 'pointer', padding: '1rem' }} // 여백 추가
               onClick={() => navigate(`/product/${p.id}`)}
             >
-              <Image
-                src={`${API_BASE_URL}/images${p.mainImage.replace(/.*images/, '')}`}
-                alt={p.name}
-                fluid
+              <div
                 style={{
-                  width: '100%',
-                  height: '400px',
-                  objectFit: 'contain',
-                  borderRadius: '10px',
+                  borderRadius: '20px',
+                  overflow: 'hidden', // 이미지 잘림 방지
+                  boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
+                  backgroundColor: '#fff',
+                  padding: '5px',
                 }}
-              />
+              >
+                <Image
+                  src={`${API_BASE_URL}/images${p.mainImage.replace(/.*images/, '')}`}
+                  alt={p.name}
+                  fluid
+                  style={{
+                    width: '100%',
+                    height: '400px',
+                    objectFit: 'contain',
+                    borderRadius: '15px',
+                  }}
+                />
+              </div>
             </Carousel.Item>
           ))}
         </Carousel>
-        <div className="mt-4" style={{ lineHeight: 1.6 }}>
+        <div className="mt-5" style={{ lineHeight: 1.6 }}>
           <p
             style={{
-              fontSize: '1.05rem',
+              fontSize: '1.1rem',
               fontStyle: 'italic',          // 약간 기울임
               fontFamily: '"Georgia", "Times New Roman", serif', // 세리프 계열
               color: '#333',                // 진하지만 부드러운 색

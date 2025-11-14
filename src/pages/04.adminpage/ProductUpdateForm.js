@@ -3,8 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import { Container, Form, Button, Card, Row, Col, Modal } from "react-bootstrap";
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
-import { FILTER_OPTIONS } from "../02.product/ProductListFilter";
-import { prettyLabel } from "../../util/replace"
+import { CATEGORIES } from "../../constant/categories";
+import { BRANDS } from "../../constant/brands";
 
 // 상품 수정 페이지
 export default function ProductUpdateForm({ user }) {
@@ -177,18 +177,14 @@ export default function ProductUpdateForm({ user }) {
                 <Form.Label>카테고리</Form.Label>
                 <Form.Select value={form.category} onChange={(event) => handleChangeField("category", event.target.value)}>
                   <option value="">선택</option>
-                  {FILTER_OPTIONS.category
-                    .filter((c) => c.label !== "전체")
-                    .map((c) => <option key={c.value} value={c.value}>{prettyLabel(c.label)}</option>)}
+                  {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
                 </Form.Select>
               </Col>
               <Col md={6}>
                 <Form.Label>브랜드</Form.Label>
                 <Form.Select value={form.brand} onChange={(event) => handleChangeField("brand", event.target.value)}>
                   <option value="">선택</option>
-                  {FILTER_OPTIONS.brand
-                    .filter((b) => b.label !== "전체")
-                    .map((b) => <option key={b.value} value={b.value}>{prettyLabel(b.label)}</option>)}
+                  {BRANDS.map((b) => <option key={b.value} value={b.value}>{b.label}</option>)}
                 </Form.Select>
               </Col>
             </Row>

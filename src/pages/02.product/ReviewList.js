@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router-dom";
 import { Container, Card, Spinner, ProgressBar, Dropdown, DropdownButton, Button } from "react-bootstrap";
 import { API_BASE_URL } from "../../config/url.js";
-import { maskName } from "../../util/form.js"
-import { renderStars } from "../../util/form.js";
+import { maskName } from "../../formatter/formats.js"
+import { renderStars } from "../../formatter/formats.js";
 import RenderPagination from "../RenderPagination.js";
 import axios from "axios";
 

@@ -3,7 +3,7 @@ import { Button, Col, Container, Row, Nav, Spinner, Form } from "react-bootstrap
 import { useLocation, useNavigate, useParams, Outlet } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import axios from "axios";
-import calcMonthlyPrice from "../../util/calcMonthlyPrice";
+import calcMonthlyPrice from "../../formatter/calcMonthlyPrice";
 import Purchased from "./RentalCreated";
 import ProductCarousel from "./ProductCarousel";
 import MyWishListButton from "../03.mypage/MyWishListButton";
@@ -246,7 +246,7 @@ export default function Product({ user }) {
           </div>
 
           <div className="d-flex gap-2">
-            <MyWishListButton productId={Number(id)} user={user} />
+            <MyWishListButton productId={Number(id)} user={user} disabled={user?.role === "ADMIN"}/>
             <Button variant="outline-primary" size="sm" onClick={handleCart} disabled={product.availableStock === 0 || user?.role === "ADMIN"}>
               🛒 장바구니
             </Button>
@@ -280,7 +280,6 @@ export default function Product({ user }) {
           <p className="mt-3">{product.description}</p>
           {product.images?.detail?.length > 0 && (
             <>
-              <h5 className="fw-bold mb-3">상품 상세 이미지</h5>
               {product.images.detail.map((img, idx) => (
                 <img
                   key={idx}

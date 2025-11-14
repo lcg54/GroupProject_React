@@ -1,25 +1,13 @@
 import { Button, Dropdown } from "react-bootstrap";
+import { CATEGORIES } from "../../constant/categories";
+import { BRANDS } from "../../constant/brands";
 
 export const FILTER_OPTIONS = {
   category: [
-    { value: null, label: "전체" },
-    { value: "REFRIGERATOR", label: "냉장고" },
-    { value: "WASHER", label: "세탁기" },
-    { value: "DRYER", label: "건조기" },
-    { value: "AIRCON", label: "에어컨" },
-    { value: "TV", label: "티비" },
-    { value: "OVEN", label: "오븐" },
-    { value: "MICROWAVE", label: "전자레인지" },
-    { value: "OTHER", label: "기타" },
+    { value: null, label: "전체" }, ...CATEGORIES
   ],
   brand: [
-    { value: null, label: "전체" },
-    { value: "SAMSUNG", label: "삼성" },
-    { value: "LG", label: "LG" },
-    { value: "DAEWOO", label: "대우" },
-    { value: "WINIA", label: "위니아" },
-    { value: "CUCKOO", label: "쿠쿠" },
-    { value: "SK_MAGIC", label: "SK MAGIC" },
+    { value: null, label: "전체" }, ...BRANDS
   ],
   available: [
     { value: null, label: "전체" },

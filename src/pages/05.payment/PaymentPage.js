@@ -1,7 +1,7 @@
 import axios from "axios";
 import { loadTossPayments } from "@tosspayments/payment-sdk";
 import { API_BASE_URL } from "../../config/url";
-import { CLIENT_KEY } from "../../config/keys"
+import { CLIENT_KEY } from "../../constant/keys"
 import { useNavigate } from "react-router-dom";
 
 export default function PaymentPage({ user }) {

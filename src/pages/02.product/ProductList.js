@@ -399,76 +399,95 @@ export default function ProductList({ user }) {
         const availableStock = getAvailableStock(product);
         const isAvailable = availableStock > 0;
         const wished = !!wishproduct[product.id];
+
         return (
+          
           <div
             key={product.id}
             ref={idx === products.length - 1 ? lastProductRef : null}
-            className="d-flex align-items-center mb-3 p-2 border rounded"
-            style={{
-              position: "relative",
-              backgroundColor: isAvailable ? "#fff" : "#f8f8f8",
-              opacity: isAvailable ? 1 : 0.55,
-              cursor: "pointer",
-              transition: "all 0.15s ease",
-            }}
-            onClick={() => navigate(`/product/${product.id}`)}
+            style={{ position: "relative" }}
           >
-            <img
-              src={product.mainImage || "/fallback.jpg"}
-              alt={product.name}
-              style={{
-                width: 120,
-                height: 110,
-                objectFit: "contain",
-                borderRadius: 8,
-                marginRight: 20,
-                marginLeft: 10,
-              }}
-            />
-      
-            <div className="d-flex flex-grow-1 justify-content-between align-items-center">
-              <div>
-                <h5
-                  className="mb-1"
-                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "380px" }}
-                >
-                  {product.name}
-                </h5>
-                <p className="mb-1">{product.brand}</p>
-                <p className="mb-1 text-muted">
-                  ⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})
-                </p>
-              </div>
-              <div className="text-end" style={{ marginRight: 50 }}>
-                <div style={{ fontSize: '1.2rem' }} className="text-primary">
-                  최대 월 {product.monthlyPrice.toLocaleString()}원
-                </div>
-                <div style={{ fontSize: '0.9rem' }} className="mt-1">× 6년 (72개월)</div>
-              </div>
-            </div>
             
-            {isAdmin && (
-              <div className="d-flex flex-column gap-2 ms-3" style={{ marginRight: 12 }}>
-                <Button 
-                  size="sm" 
-                  variant="outline-primary" 
-                  onClick={(e) => { handleUpdate(e, product.id); }}
-                >
-                  <PencilSquare size={14} className="me-1" /> 수정
-                </Button>
-                <Button 
-                  type="button"
-                  size="sm" 
-                  variant="outline-danger" 
-                  onClick={(e) => handleDelete(e, product)}
-                >
-                  <Trash size={14} className="me-1" /> 삭제
-                </Button>
-              </div>
-            )}
+            <div
+              className="d-flex align-items-center mb-3 p-2 border rounded"
+              style={{
+                backgroundColor: isAvailable ? "#fff" : "#f8f8f8",
+                opacity: isAvailable ? 1 : 0.55,
+                cursor: "pointer",
+                transition: "all 0.15s ease",
+              }}
+              onClick={() => navigate(`/product/${product.id}`)}
+            >
+              <img
+                src={product.mainImage || "/fallback.jpg"}
+                alt={product.name}
+                style={{
+                  width: 120,
+                  height: 110,
+                  objectFit: "contain",
+                  borderRadius: 8,
+                  marginRight: 20,
+                  marginLeft: 10,
+                }}
+              />
 
-            {!isAvailable && (<NotAvailableBadge />)}
-            {wished && (<WishListBadge />)}
+              <div className="d-flex flex-grow-1 justify-content-between align-items-center">
+                <div>
+                  <h5
+                    className="mb-1"
+                    style={{
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      maxWidth: "380px",
+                    }}
+                  >
+                    {product.name}
+                  </h5>
+                  <p className="mb-1">{product.brand}</p>
+                  <p className="mb-1 text-muted">
+                    ⭐ {product.averageRating.toFixed(1)} ({product.reviewCount})
+                  </p>
+                </div>
+
+                <div className="text-end" style={{ marginRight: 50 }}>
+                  <div style={{ fontSize: "1.2rem" }} className="text-primary">
+                    최대 월 {product.monthlyPrice.toLocaleString()}원
+                  </div>
+                  <div style={{ fontSize: "0.9rem" }} className="mt-1">
+                    × 6년 (72개월)
+                  </div>
+                </div>
+              </div>
+
+              {isAdmin && (
+                <div
+                  className="d-flex flex-column gap-2 ms-3"
+                  style={{ marginRight: 12 }}
+                >
+                  <Button
+                    size="sm"
+                    variant="outline-primary"
+                    onClick={(e) => {
+                      handleUpdate(e, product.id);
+                    }}
+                  >
+                    <PencilSquare size={14} className="me-1" /> 수정
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline-danger"
+                    onClick={(e) => handleDelete(e, product)}
+                  >
+                    <Trash size={14} className="me-1" /> 삭제
+                  </Button>
+                </div>
+              )}
+            </div>
+
+            {!isAvailable && <NotAvailableBadge />}
+            {wished && <WishListBadge />}
           </div>
         );
       })}

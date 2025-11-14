@@ -31,7 +31,7 @@ export default function AdminInquiryList({ user }) {
             return;
         }
         fetchInquiries();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [paging.pageNumber, sortOrder, filterAnswered]);
 
     const fetchInquiries = async () => {

@@ -25,7 +25,7 @@ import MyWishListPage from "../pages/03.mypage/MyWishListPage";
 import ProductInsertForm from "../pages/04.adminpage/ProductInsertForm";
 import ProductUpdateForm from "../pages/04.adminpage/ProductUpdateForm";
 import AdminCartList from "../pages/04.adminpage/AdminCartList";
-import AdminRentalListPage from "../pages/04.adminpage/AdminRentalList";
+import AdminRentalListPage from "../pages/04.adminpage/AdminRentalListPage";
 import SalesHistory from '../pages/04.adminpage/SalesHistory';
 
 import PaymentPage from "../pages/05.payment/PaymentPage";

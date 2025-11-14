@@ -211,7 +211,7 @@ export default function MyCartList() {
             disabled={selectedProducts.length === 0}
             onClick={handleRental}
           >
-            구매하기 ({selectedProducts.length})
+            신청하기 ({selectedProducts.length})
           </Button>
         </Card>
       )}

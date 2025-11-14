@@ -247,7 +247,7 @@ export default function Product({ user }) {
 
           <div className="d-flex gap-2">
             <MyWishListButton productId={Number(id)} user={user} disabled={user?.role === "ADMIN"}/>
-            <Button variant="outline-primary" size="sm" onClick={handleCart} disabled={product.availableStock === 0 || user?.role === "ADMIN"}>
+            <Button variant="outline-primary" size="sm" onClick={handleCart} disabled={user?.role === "ADMIN"}>
               🛒 장바구니
             </Button>
             <Button variant="outline-danger" size="sm" onClick={handleRental} disabled={product.availableStock === 0  || user?.role === "ADMIN"}>

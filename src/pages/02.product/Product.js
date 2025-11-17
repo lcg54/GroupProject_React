@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"; 
+import { useEffect, useState } from "react";
 import { Button, Col, Container, Row, Nav, Spinner, Form } from "react-bootstrap";
 import { useLocation, useNavigate, useParams, Outlet } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
@@ -89,8 +89,8 @@ export default function Product({ user }) {
               rentalStart: rentalStart,
             },
           ],
-        }, 
-        { headers: {'Content-Type': 'application/json'} }
+        },
+        { headers: { 'Content-Type': 'application/json' } }
       );
       setShowModal(true);
 
@@ -191,7 +191,7 @@ export default function Product({ user }) {
               type="date"
               value={rentalStart}
               min={tomorrowStr}
-              onChange={(e) => { setRentalStart(e.target.value)}}
+              onChange={(e) => { setRentalStart(e.target.value) }}
             />
           </div>
 
@@ -250,7 +250,7 @@ export default function Product({ user }) {
             <Button variant="outline-primary" size="sm" onClick={handleCart} disabled={product.availableStock === 0 || user?.role === "ADMIN"}>
               🛒 장바구니
             </Button>
-            <Button variant="outline-danger" size="sm" onClick={handleRental} disabled={product.availableStock === 0  || user?.role === "ADMIN"}>
+            <Button variant="outline-danger" size="sm" onClick={handleRental} disabled={product.availableStock === 0 || user?.role === "ADMIN"}>
               📦 신청하기
             </Button>
           </div>

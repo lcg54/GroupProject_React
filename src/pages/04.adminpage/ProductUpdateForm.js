@@ -11,7 +11,7 @@ export default function ProductUpdateForm({ user }) {
   const { id } = useParams();
 
   const [form, setForm] = useState({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
-  
+
   const [existingImages, setExistingImages] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
@@ -101,7 +101,7 @@ export default function ProductUpdateForm({ user }) {
       return idx >= 0 ? url.substring(idx + 8) : url;
     });
     formdata.append("existingImages", JSON.stringify(existingFileNames));
-    
+
     // 새로 업로드한 파일 추가
     newFiles.forEach((file) => formdata.append("images", file));
     return formdata;
@@ -133,14 +133,14 @@ export default function ProductUpdateForm({ user }) {
     try {
       await axios.delete(`${API_BASE_URL}/product/${id}/${user.id}`, { withCredentials: true });
       // 성공 
-    alert(`${form.name} (${id})이 삭제되었습니다.`);
-    navigate("/product/list");
+      alert(`${form.name} (${id})이 삭제되었습니다.`);
+      navigate("/product/list");
     } catch (error) {
       console.error("상품 삭제 실패", error);
-      if(error.response?.status === 400){
+      if (error.response?.status === 400) {
         alert("주문이 들어온 상품은 삭제 할 수 없습니다.");
       }
-      else{
+      else {
         alert("상품 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
       }
     } finally {
@@ -164,7 +164,7 @@ export default function ProductUpdateForm({ user }) {
         <Card.Header className="text-center fw-bold bg-light">상품 수정</Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit}>
-            
+
             {/* 상품명 */}
             <Form.Group className="mb-3">
               <Form.Label>상품명</Form.Label>
@@ -211,11 +211,11 @@ export default function ProductUpdateForm({ user }) {
               </Col>
             </Row>
 
-             {/* 이미지 영역 (기존 + 새 이미지) */}       
+            {/* 이미지 영역 (기존 + 새 이미지) */}
             <Form.Group className="mt-3">
               <Form.Label>상품 이미지</Form.Label>
 
-               {/* 기존 이미지 목록 */}     
+              {/* 기존 이미지 목록 */}
               {existingImages.length > 0 && (
                 <Row className="g-2 mb-2">
                   {existingImages.map((url, i) => (
@@ -255,7 +255,7 @@ export default function ProductUpdateForm({ user }) {
               )}
             </Form.Group>
 
-              {/* 버튼들 */}
+            {/* 버튼들 */}
             <div className="d-flex justify-content-center gap-2 mt-3">
               <Button variant="secondary" onClick={() => navigate("/product/list")}>목록으로</Button>
               <Button variant="outline-dark" onClick={handleOpenLogs}>수정/삭제 내역</Button>

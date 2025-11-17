@@ -10,7 +10,8 @@ import { prettyLabel } from "../../util/replace"
 export default function ProductInsertForm({ user }) {
   const [form, setForm] = useState({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
 
-  const [mainImages, setMainImages] = useState([]); // 대표+서브 이미지
+  const [mainImages, setMainImages] = useState([]);
+  const [mainIndex, setMainIndex] = useState(0); // 대표 이미지
   const [mainPreviews, setMainPreviews] = useState([]);
   const [detailImages, setDetailImages] = useState([]);
   const [detailPreviews, setDetailPreviews] = useState([]);
@@ -37,17 +38,58 @@ export default function ProductInsertForm({ user }) {
 
   // 대표/서브 이미지 선택
   const handleMainImages = (event) => {
-    const files = Array.from(event.target.files || []).slice(0, 5);
-    setMainImages(files);
-    setMainPreviews(files.map((file) => URL.createObjectURL(file)));
+    const newFiles = Array.from(event.target.files || []);
+    const combined = [...mainImages, ...newFiles];
+
+    if (combined.length > 5) {
+      alert("대표 및 서브 이미지는 최대 5장까지 가능합니다.");
+      return;
+    }
+
+    setMainImages(combined);
+    setMainIndex(0);
+    setMainPreviews(combined.map((file) => URL.createObjectURL(file)));
   };
+
+  // 대표/서브 이미지 삭제
+  const handleRemoveMainImage = (idx) => {
+    setMainImages((prev) => {
+      const updated = prev.filter((_, i) => i !== idx);
+      if (idx === mainIndex) {
+        setMainIndex(0);
+      } else if (idx < mainIndex) {
+        setMainIndex(mainIndex - 1);
+      }
+      return updated;
+    });
+
+    setMainPreviews((prev) => prev.filter((_, i) => i !== idx));
+
+  };
+
+
 
   // 상세 이미지 선택
   const handleDetailImages = (event) => {
-    const files = Array.from(event.target.files || []);
-    setDetailImages(files);
-    setDetailPreviews(files.map((file) => URL.createObjectURL(file)));
+    const newFiles = Array.from(event.target.files || []);
+    const combined = [...detailImages, ...newFiles];
+
+    if (combined.length > 100) {
+      alert("상세 이미지는 최대 100장까지 가능합니다.");
+      return;
+    }
+
+    setDetailImages(combined);
+    setDetailPreviews(combined.map((file) => URL.createObjectURL(file)));
   };
+
+  // 상세 이미지 삭제
+  const handleRemoveDetailImage = (idx) => {
+    setDetailImages((prev) => prev.filter((_, i) => i !== idx));
+    setDetailPreviews((prev) => prev.filter((_, i) => i !== idx));
+  };
+
+
 
   // 상품 등록
   const handleSubmit = async (event) => {
@@ -65,15 +107,19 @@ export default function ProductInsertForm({ user }) {
     Object.entries(form).forEach(([key, value]) => formDataToSend.append(key, value));
 
     // 대표/서브 이미지 전송
-    mainImages.forEach((file, i) => {
-      const fieldName = i === 0 ? "main_image" : `sub_image_${i}`;
-      formDataToSend.append(fieldName, file);
+    // 대표 이미지
+    formDataToSend.append("mainImage", mainImages[0]);
+
+    // 서브 이미지
+    mainImages.slice(1).forEach((file) => {
+      formDataToSend.append("subImages", file);
     });
 
     // 상세 이미지 전송
-    detailImages.forEach((file, i) => {
-      formDataToSend.append(`detail_image_${i + 1}`, file);
+    detailImages.forEach((file) => {
+      formDataToSend.append("detailImages", file);
     });
+
 
     setLoading(true);
     try {
@@ -164,14 +210,81 @@ export default function ProductInsertForm({ user }) {
               <Form.Label>대표 및 서브 이미지 (최대 5장)</Form.Label>
               <Form.Control type="file" multiple accept="image/*" onChange={handleMainImages} />
               {mainPreviews.length > 0 && (
-                <Row className="mt-2">
-                  {mainPreviews.map((p, i) => (
-                    <Col key={i} xs={6} md={4} className="mb-2">
-                      <img src={p} alt="" style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: 8 }} />
-                    </Col>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "10px" }}>
+                  {mainPreviews.map((img, idx) => (
+                    <div
+                      key={idx}
+                      onClick={() => setMainIndex(idx)}
+                      style={{
+                        position: "relative",
+                        width: "100px",
+                        height: "100px",
+                        cursor: "pointer"
+                      }}
+                    >
+                      <img
+                        src={img}
+                        alt={`대표+서브 이미지 ${idx + 1}`}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                          border: idx === mainIndex ? "3px solid #007bff" : "1px solid #ccc",
+                        }}
+                      />
+
+                      {/* 대표 배지 (파랑 / 회색) */}
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "4px",
+                          left: "4px",
+                          backgroundColor: idx === mainIndex ? "#007bff" : "#888",
+                          color: "white",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          fontSize: "12px",
+                          fontWeight: "bold",
+                          zIndex: 10,
+                        }}
+                      >
+                        대표
+                      </div>
+
+                      {/* 삭제 버튼 */}
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation(); // 이미지 클릭과 삭제 버튼 클릭 충돌 방지
+                          handleRemoveMainImage(idx);
+                        }}
+                        style={{
+                          position: "absolute",
+                          top: "4px",
+                          right: "4px",
+                          backgroundColor: "rgba(0,0,0,0.6)",
+                          color: "white",
+                          borderRadius: "50%",
+                          width: "20px",
+                          height: "20px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "14px",
+                          zIndex: 9999,
+                        }}
+                      >
+                        ✕
+                      </div>
+                    </div>
+
                   ))}
-                </Row>
+
+                </div>
               )}
+
             </Form.Group>
 
             {/* 상세 이미지 */}
@@ -179,14 +292,43 @@ export default function ProductInsertForm({ user }) {
               <Form.Label>상세 이미지</Form.Label>
               <Form.Control type="file" multiple accept="image/*" onChange={handleDetailImages} />
               {detailPreviews.length > 0 && (
-                <Row className="mt-2">
-                  {detailPreviews.map((p, i) => (
-                    <Col key={i} xs={6} md={4} className="mb-2">
-                      <img src={p} alt="" style={{ width: "100%", height: 120, objectFit: "cover", borderRadius: 8 }} />
-                    </Col>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "10px" }}>
+                  {detailPreviews.map((img, idx) => (
+                    <div key={idx} style={{ position: "relative", width: "100px", height: "100px" }}>
+                      <img
+                        src={img}
+                        alt={`상세 이미지 ${idx + 1}`}
+                        style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }}
+                      />
+
+                      {/* 삭제 버튼 */}
+                      <div
+                        onClick={() => handleRemoveDetailImage(idx)}
+                        style={{
+                          position: "absolute",
+                          top: "4px",
+                          right: "4px",
+                          backgroundColor: "rgba(0,0,0,0.6)",
+                          color: "white",
+                          borderRadius: "50%",
+                          width: "20px",
+                          height: "20px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          cursor: "pointer",
+                          fontWeight: "bold",
+                          fontSize: "14px",
+                          zIndex: 9999,
+                        }}
+                      >
+                        ✕
+                      </div>
+                    </div>
                   ))}
-                </Row>
+                </div>
               )}
+
             </Form.Group>
 
             {/* 버튼 */}

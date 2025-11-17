@@ -176,6 +176,9 @@ export default function Header({ user, onLogout }) {
             <Button variant="light" onClick={() => { navigate('/admin/cart'); setMenuOpen(false); }}>
               장바구니 조회
             </Button>
+            <Button variant="light" onClick={() => { navigate('/admin/inquiry'); setMenuOpen(false); }}>
+              상품문의 관리
+            </Button>
           </>
         )}
 

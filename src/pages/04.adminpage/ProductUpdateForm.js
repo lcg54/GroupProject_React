@@ -4,26 +4,35 @@ import { Container, Form, Button, Card, Row, Col, Modal } from "react-bootstrap"
 import { useNavigate, useParams } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import { FILTER_OPTIONS } from "../02.product/ProductListFilter";
-import { prettyLabel } from "../../util/replace"
+import { prettyLabel } from "../../util/replace";
 
-// 상품 수정 페이지
+// 상품 수정 페이지 (디자인 변경)
 export default function ProductUpdateForm({ user }) {
   const { id } = useParams();
-
   const [form, setForm] = useState({ name: "", category: "", brand: "", description: "", price: "", totalStock: "" });
 
-  const [existingImages, setExistingImages] = useState([]);
-  const [newFiles, setNewFiles] = useState([]);
-  const [previewUrls, setPreviewUrls] = useState([]);
+  // 이미지 상태
+  const [mainImages, setMainImages] = useState([]);
+  const [mainIndex, setMainIndex] = useState(0); // 대표 이미지
+  const [mainPreviews, setMainPreviews] = useState([]);
+  const [subImages, setSubImages] = useState([]);
+  const [subPreviews, setSubPreviews] = useState([]);
+  const [detailImages, setDetailImages] = useState([]);
+  const [detailPreviews, setDetailPreviews] = useState([]);
+
   const [logs, setLogs] = useState([]);
   const [showLogs, setShowLogs] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const fileInputRef = useRef(null);
 
   const navigate = useNavigate();
+  const allPreviews = [...mainPreviews, ...subPreviews];
 
+  const deleteMainSub = [];
+  const deleteDetail = [];
+
+  // 관리자 체크
   useEffect(() => {
     const storedUser = JSON.parse(sessionStorage.getItem("user"));
     const userRole = user?.role || storedUser?.role;
@@ -36,159 +45,219 @@ export default function ProductUpdateForm({ user }) {
   // 상품 로드
   useEffect(() => {
     if (!user) return;
-    const isBlocked = !(user && user.role && String(user.role).toUpperCase() === "ADMIN");
-    if (isBlocked) return;
     (async () => {
       try {
-        const { data } = await axios.get(`${API_BASE_URL}/product/${id}`, { withCredentials: true });
+        const { data } = await axios.get(`${API_BASE_URL}/product/category/${id}`, { withCredentials: true });
+        console.log("서브 이미지 배열: ", data.images);
         setForm({
-          name: data.name || "",
-          category: data.category || "",
-          brand: data.brand || "",
-          description: data.description || "",
-          price: String(data.price ?? ""),
-          totalStock: String(data.totalStock ?? "")
+          name: data.product.name || "",
+          category: data.product.category || "",
+          brand: data.product.brand || "",
+          description: data.product.description || "",
+          price: String(data.product.price ?? ""),
+          totalStock: String(data.product.totalStock ?? "")
         });
+        const mainList = [];
+        const subList = [];
+        const detailList = [];
 
-        // 기존 이미지 URL 세팅
-        let urls = [];
-        if (Array.isArray(data.images) && data.images.length) {
-          urls = data.images.map((fn) => (String(fn).startsWith("http") ? fn : `${API_BASE_URL}/images/${fn}`));
-        } else if (data.mainImage) {
-          urls = [data.mainImage.startsWith("http") ? data.mainImage : `${API_BASE_URL}/images/${data.mainImage}`];
+        if (Array.isArray(data.images.main)) {
+          data.images.main.forEach(f => mainList.push(f.startsWith("http") ? f : `${API_BASE_URL}${f}`));
         }
-        setExistingImages(urls);
+
+        if (Array.isArray(data.images.sub)) {
+          data.images.sub.forEach(f => subList.push(f.startsWith("http") ? f : `${API_BASE_URL}${f}`));
+        }
+
+        if (Array.isArray(data.images.detail)) {
+          data.images.detail.forEach(f => detailList.push(f.startsWith("http") ? f : `${API_BASE_URL}${f}`));
+        }
+
+        setMainImages(mainList);
+        setMainPreviews(mainList);
+        setSubImages(subList);
+        setSubPreviews(subList);
+        setDetailImages(detailList);
+        setDetailPreviews(detailList);
+
       } finally {
         setLoading(false);
       }
     })();
   }, [user, id]);
 
-  const handleChangeField = (key, value) => setForm((prev) => ({ ...prev, [key]: value }));
+  // 공통 onChange: 특정 키만 교체
+  const onChange = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
 
-  // 파일 선택(새 이미지 업로드)
-  const handlePickFiles = (event) => {
-    const files = Array.from(event.target.files || []);
-    setNewFiles(files);
-    setPreviewUrls(files.map((file) => URL.createObjectURL(file)));
-  };
+  // 대표 및 서브 이미지 선택 및 추가
+  const handleMainImages = (event) => {
+    const newFiles = Array.from(event.target.files || []);
+    const combined = [...mainImages, ...newFiles];
 
-  // 기존 이미지 하나 제거
-  const handleRemoveExistingImage = (url) => setExistingImages((arr) => arr.filter((u) => u !== url));
-  const handleRemoveNewImageAt = (index) => {
-    setNewFiles((prev) => prev.filter((_, idx) => idx !== index));
-    setPreviewUrls((prev) => {
-      const copy = [...prev];
-      URL.revokeObjectURL(copy[index]); // 메모리 누수 방지
-      copy.splice(index, 1);
-      return copy;
-    });
-  };
-
-  // 서버에 보낼 FormData 생성
-  const buildFormData = () => {
-    const formdata = new FormData();
-    formdata.append("name", form.name);
-    formdata.append("category", form.category);
-    formdata.append("brand", form.brand);
-    if (form.description) formdata.append("description", form.description);
-    formdata.append("price", form.price || "0");
-    formdata.append("totalStock", form.totalStock || "0");
-
-    // 기존 이미지는 파일명이 아니라 URL 형태라서, /images/ 뒤의 실제 파일명만 추출
-    const existingFileNames = existingImages.map((url) => {
-      const idx = url.lastIndexOf("/images/");
-      return idx >= 0 ? url.substring(idx + 8) : url;
-    });
-    formdata.append("existingImages", JSON.stringify(existingFileNames));
-
-    // 새로 업로드한 파일 추가
-    newFiles.forEach((file) => formdata.append("images", file));
-    return formdata;
-  };
-
-  // 상품 수정 요청
-  const handleSubmit = async (event) => {
-    event.preventDefault();
-    if (!form.name || !form.category || !form.brand || form.price === "" || form.totalStock === "") {
-      alert("필수 항목을 입력하세요.");
+    if (combined.length > 5) {
+      alert("대표 및 서브 이미지는 최대 5장까지 가능합니다.");
       return;
     }
-    if (!window.confirm(`${form.name} (${id}) 을(를) 수정하시겠습니까?`)) return;
 
-    setSaving(true);
-    try {
-      await axios.put(`${API_BASE_URL}/product/${id}/${user.id}`, buildFormData(), { withCredentials: true });
-      alert(`${form.name} (${id}) 을(를) 수정 완료 했습니다.`);
-      navigate("/product/list");
-    } finally {
-      setSaving(false);
+    setMainImages(combined);  // 대표 및 서브 이미지 배열로 설정
+    setMainPreviews(combined.map((file) => URL.createObjectURL(file)));  // 미리보기 업데이트
+  };
+
+  // 서브 이미지 선택
+  const handleSubImages = (event) => {
+    const newFiles = Array.from(event.target.files || []);
+    const combined = [...subImages, ...newFiles];
+
+    if (combined.length > 5) {
+      alert("서브 이미지는 최대 5장까지 가능합니다.");
+      return;
+    }
+
+    setSubImages(combined);
+    setSubPreviews(combined.map((file) => URL.createObjectURL(file)));
+  };
+
+  // 대표 이미지 변경 로직 (배지 클릭 시)
+  const handleSetMainImage = (idx) => {
+    // 대표 이미지로 변경
+    const updatedImages = [...mainImages];
+    const selectedImage = updatedImages.splice(idx, 1); // 선택한 이미지를 제거
+    updatedImages.unshift(selectedImage[0]); // 맨 앞으로 추가
+
+    setMainImages(updatedImages);  // 이미지 배열 업데이트
+    setMainPreviews(updatedImages.map((file) => URL.createObjectURL(file)));  // 미리보기 업데이트
+    setMainIndex(0);  // 대표 이미지를 첫 번째로 설정
+  };
+
+  // 이미지 삭제 핸들러 수정
+  const handleRemoveImage = (idx, isMain) => {
+    if (isMain) {
+      setMainImages(prev => prev.filter((_, i) => i !== idx));
+      setMainPreviews(prev => prev.filter((_, i) => i !== idx));
+      if (mainIndex === idx) setMainIndex(0); // 대표 이미지 삭제 시 첫 번째로 변경
+    } else {
+      const targetIdx = idx;
+      setSubImages(prev => prev.filter((_, i) => i !== targetIdx));
+      setSubPreviews(prev => prev.filter((_, i) => i !== targetIdx));
     }
   };
 
-  // 상품 삭제 요청
+
+  // 상세 이미지 추가
+  const handleDetailImages = (event) => {
+    const newFiles = Array.from(event.target.files || []);
+    const combined = [...detailImages, ...newFiles];
+
+    if (combined.length > 100) {
+      alert("상세 이미지는 최대 100장까지 가능합니다.");
+      return;
+    }
+
+    setDetailImages(combined);  // 상세 이미지 배열 설정
+    setDetailPreviews(combined.map(f => f instanceof File ? URL.createObjectURL(f) : f));  // 상세 이미지 미리보기 업데이트
+  };
+
+  // 상세 이미지 삭제
+  const handleRemoveDetailImage = (idx) => {
+    setDetailImages(prev => prev.filter((_, i) => i !== idx));
+    setDetailPreviews(prev => prev.filter((_, i) => i !== idx));
+  };
+
+  // FormData 생성
+  const buildFormData = () => {
+    const formData = new FormData();
+
+    // 기존 폼 데이터 추가
+    Object.entries(form).forEach(([key, value]) => {
+      formData.append(key, value);
+    });
+
+    // deleteMainSub와 deleteDetail을 배열로 추가
+    formData.append("deleteMainSub", JSON.stringify(deleteMainSub || []));  // 기본값 빈 배열 추가
+    formData.append("deleteDetail", JSON.stringify(deleteDetail || []));
+
+    return formData;
+  };
+
+
+  // 상품 수정 요청
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const formData = buildFormData();
+    console.log("FormData", formData);
+
+    // deleteMainSub와 deleteDetail을 올바른 형태로 처리하여 FormData에 추가
+    formData.append('deleteMainSub', JSON.stringify(deleteMainSub));
+    formData.append('deleteDetail', JSON.stringify(deleteDetail));
+
+    try {
+      await axios.put(`${API_BASE_URL}/product/${id}/${user.id}`, formData, { withCredentials: true });
+      alert("수정 완료!");
+    } catch (error) {
+      console.error(error);
+      alert("수정 실패!");
+    }
+  };
+
+  // 상품 삭제
   const handleDelete = async () => {
     if (!window.confirm(`정말 ${form.name} (${id}) 을(를) 삭제하시겠습니까?`)) return;
     setDeleting(true);
     try {
       await axios.delete(`${API_BASE_URL}/product/${id}/${user.id}`, { withCredentials: true });
-      // 성공 
       alert(`${form.name} (${id})이 삭제되었습니다.`);
       navigate("/product/list");
-    } catch (error) {
-      console.error("상품 삭제 실패", error);
-      if (error.response?.status === 400) {
-        alert("주문이 들어온 상품은 삭제 할 수 없습니다.");
-      }
-      else {
-        alert("상품 삭제 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-      }
+    } catch (err) {
+      alert("삭제 실패: " + err.message);
     } finally {
       setDeleting(false);
     }
   };
 
-  // 수정/삭제 내역 모달 열기
-  const handleOpenLogs = async () => {
-    const { data } = await axios.get(`${API_BASE_URL}/product/logs/changes`, { withCredentials: true });
-    setLogs(Array.isArray(data) ? data : []);
-    setShowLogs(true);
+  // 수정 내역 보기
+  const openLogs = async () => {
+    try {
+      const { data } = await axios.get(`${API_BASE_URL}/product/logs/changes`, { withCredentials: true });
+      setLogs(Array.isArray(data) ? data : []);
+      setShowLogs(true);
+    } catch {
+      setLogs([]);
+      setShowLogs(true);
+    }
   };
 
-  // 로딩 중이거나 user 정보가 아직 없으면 렌더링하지 않음
   if (loading || !user) return null;
-
   return (
-    <Container style={{ maxWidth: 720 }} className="py-4">
+    <Container style={{ maxWidth: 700 }} className="py-4">
       <Card className="shadow-lg border-0">
         <Card.Header className="text-center fw-bold bg-light">상품 수정</Card.Header>
         <Card.Body>
           <Form onSubmit={handleSubmit}>
-
             {/* 상품명 */}
             <Form.Group className="mb-3">
               <Form.Label>상품명</Form.Label>
-              <Form.Control value={form.name} onChange={(event) => handleChangeField("name", event.target.value)} />
+              <Form.Control type="text" value={form.name} onChange={(e) => onChange("name", e.target.value)} />
             </Form.Group>
 
-            {/* 카테고리/ 브랜드 */}
-            <Row className="g-3">
+            {/* 카테고리/브랜드 */}
+            <Row>
               <Col md={6}>
                 <Form.Label>카테고리</Form.Label>
-                <Form.Select value={form.category} onChange={(event) => handleChangeField("category", event.target.value)}>
+                <Form.Select value={form.category} onChange={(e) => onChange("category", e.target.value)}>
                   <option value="">선택</option>
-                  {FILTER_OPTIONS.category
-                    .filter((c) => c.label !== "전체")
-                    .map((c) => <option key={c.value} value={c.value}>{prettyLabel(c.label)}</option>)}
+                  {FILTER_OPTIONS.category.filter(c => c.label !== "전체").map(c => (
+                    <option key={c.value} value={c.value}>{prettyLabel(c.label)}</option>
+                  ))}
                 </Form.Select>
               </Col>
               <Col md={6}>
                 <Form.Label>브랜드</Form.Label>
-                <Form.Select value={form.brand} onChange={(event) => handleChangeField("brand", event.target.value)}>
+                <Form.Select value={form.brand} onChange={(e) => onChange("brand", e.target.value)}>
                   <option value="">선택</option>
-                  {FILTER_OPTIONS.brand
-                    .filter((b) => b.label !== "전체")
-                    .map((b) => <option key={b.value} value={b.value}>{prettyLabel(b.label)}</option>)}
+                  {FILTER_OPTIONS.brand.filter(b => b.label !== "전체").map(b => (
+                    <option key={b.value} value={b.value}>{prettyLabel(b.label)}</option>
+                  ))}
                 </Form.Select>
               </Col>
             </Row>
@@ -196,70 +265,126 @@ export default function ProductUpdateForm({ user }) {
             {/* 상세 설명 */}
             <Form.Group className="mt-3">
               <Form.Label>상세설명</Form.Label>
-              <Form.Control as="textarea" rows={2} value={form.description} onChange={(event) => handleChangeField("description", event.target.value)} />
+              <Form.Control as="textarea" rows={2} value={form.description} onChange={(e) => onChange("description", e.target.value)} />
             </Form.Group>
 
-            {/* 가격 / 총 보유 수량 */}
-            <Row className="mt-3 g-3">
+            {/* 가격/수량 */}
+            <Row className="mt-3">
               <Col md={6}>
                 <Form.Label>가격</Form.Label>
-                <Form.Control type="text" placeholder="예) 329000" value={form.price} onChange={(event) => handleChangeField("price", event.target.value)} />
+                <Form.Control type="text" value={form.price} onChange={(e) => onChange("price", e.target.value)} />
               </Col>
               <Col md={6}>
-                <Form.Label>총 보유 수량</Form.Label>
-                <Form.Control type="text" placeholder="예) 120" value={form.totalStock} onChange={(event) => handleChangeField("totalStock", event.target.value)} />
+                <Form.Label>총 수량</Form.Label>
+                <Form.Control type="text" value={form.totalStock} onChange={(e) => onChange("totalStock", e.target.value)} />
               </Col>
             </Row>
 
-            {/* 이미지 영역 (기존 + 새 이미지) */}
+            {/* 대표 및 서브 이미지 */}
             <Form.Group className="mt-3">
-              <Form.Label>상품 이미지</Form.Label>
-
-              {/* 기존 이미지 목록 */}
-              {existingImages.length > 0 && (
-                <Row className="g-2 mb-2">
-                  {existingImages.map((url, i) => (
-                    <Col key={i} xs={6} md={3}>
-                      <Card className="border-0 shadow-sm position-relative">
-                        <Card.Img src={url} style={{ height: 120, objectFit: "cover" }} />
-                        <Button
-                          variant="light" size="sm"
-                          className="position-absolute top-0 end-0 m-1 rounded-circle"
-                          onClick={() => handleRemoveExistingImage(url)}
-                        >✕</Button>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
-              )}
-
-              {/* 새로 업로드할 이미지 선택 */}
-              <Form.Control type="file" multiple accept="image/*" ref={fileInputRef} onChange={handlePickFiles} />
-
-              {/* 새로 업로드할 이미지 미리보기 */}
-              {previewUrls.length > 0 && (
-                <Row className="g-2 mt-2">
-                  {previewUrls.map((p, i) => (
-                    <Col key={i} xs={6} md={3}>
-                      <Card className="border-0 shadow-sm position-relative">
-                        <Card.Img src={p} style={{ height: 120, objectFit: "cover" }} />
-                        <Button
-                          variant="light" size="sm"
-                          className="position-absolute top-0 end-0 m-1 rounded-circle"
-                          onClick={() => handleRemoveNewImageAt(i)}
-                        >✕</Button>
-                      </Card>
-                    </Col>
-                  ))}
-                </Row>
+              <Form.Label>대표 및 서브 이미지 (최대 5장)</Form.Label>
+              <Form.Control type="file" multiple accept="image/*" onChange={handleMainImages} />
+              {allPreviews.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "10px" }}>
+                  {allPreviews.map((img, idx) => {
+                    const isMainImage = idx < mainPreviews.length; // 대표 이미지 여부 확인
+                    const isSelectedMain = idx === mainIndex; // 현재 대표 이미지로 선택된 이미지 여부
+                    return (
+                      <div
+                        key={idx}
+                        onClick={() => {
+                          setMainIndex(idx); // 클릭한 이미지를 대표 이미지로 설정
+                        }}
+                        style={{
+                          position: "relative",
+                          width: "100px",
+                          height: "100px",
+                          cursor: "pointer",
+                          border: isSelectedMain ? "3px solid #007bff" : "1px solid #ccc", // 대표 이미지 선택 시 강조
+                        }}
+                      >
+                        <img
+                          src={img}
+                          alt={`이미지 ${idx + 1}`}
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            objectFit: "cover",
+                            borderRadius: "8px",
+                          }}
+                        />
+                        {/* '대표' 배지 표시 */}
+                        <div
+                          style={{
+                            position: "absolute",
+                            top: "4px",
+                            left: "4px",
+                            backgroundColor: isSelectedMain ? "#007bff" : "#888",
+                            color: "white",
+                            padding: "2px 6px",
+                            borderRadius: "4px",
+                            fontSize: "12px",
+                            fontWeight: "bold",
+                            zIndex: 10,
+                          }}
+                        >
+                          대표
+                        </div>
+                        {/* 삭제 버튼 */}
+                        <div
+                          onClick={(e) => {
+                            e.stopPropagation(); // 이미지 클릭과 삭제 버튼 클릭 충돌 방지
+                            handleRemoveImage(idx, isMainImage); // 삭제 핸들러에 추가
+                          }}
+                          style={{
+                            position: "absolute",
+                            top: "4px",
+                            right: "4px",
+                            backgroundColor: "rgba(0,0,0,0.6)",
+                            color: "white",
+                            borderRadius: "50%",
+                            width: "20px",
+                            height: "20px",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            cursor: "pointer",
+                            fontWeight: "bold",
+                            fontSize: "14px",
+                            zIndex: 9999,
+                          }}
+                        >
+                          ✕
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               )}
             </Form.Group>
 
-            {/* 버튼들 */}
+
+            {/* 상세 이미지 */}
+            <Form.Group className="mt-3">
+              <Form.Label>상세 이미지</Form.Label>
+              <Form.Control type="file" multiple accept="image/*" onChange={handleDetailImages} />
+              {detailPreviews.length > 0 && (
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "10px" }}>
+                  {detailPreviews.map((img, idx) => (
+                    <div key={idx} style={{ position: "relative", width: "100px", height: "100px" }}>
+                      <img src={img} alt={`상세 이미지 ${idx + 1}`} style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "8px" }} />
+                      <div onClick={() => handleRemoveDetailImage(idx)} style={{ position: "absolute", top: "4px", right: "4px", backgroundColor: "rgba(0,0,0,0.6)", color: "white", borderRadius: "50%", width: "20px", height: "20px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", fontWeight: "bold", fontSize: "14px", zIndex: 9999 }}>✕</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </Form.Group>
+
+            {/* 버튼 */}
             <div className="d-flex justify-content-center gap-2 mt-3">
               <Button variant="secondary" onClick={() => navigate("/product/list")}>목록으로</Button>
-              <Button variant="outline-dark" onClick={handleOpenLogs}>수정/삭제 내역</Button>
-              <Button type="submit" variant="outline-primary" disabled={saving || deleting}>수정</Button>
+              <Button variant="outline-dark" onClick={openLogs}>수정/삭제 내역</Button>
+              <Button type="submit" variant="outline-primary" disabled={saving || deleting}>{saving ? "수정 중..." : "수정"}</Button>
               <Button variant="outline-danger" disabled={saving || deleting} onClick={handleDelete}>삭제</Button>
             </div>
           </Form>
@@ -269,15 +394,13 @@ export default function ProductUpdateForm({ user }) {
       {/* 수정/삭제 내역 모달 */}
       <Modal show={showLogs} onHide={() => setShowLogs(false)} centered>
         <Modal.Header closeButton><Modal.Title>수정/삭제 내역</Modal.Title></Modal.Header>
-        <Modal.Body className="py-3">
-          {logs.length ? (
+        <Modal.Body>
+          {logs.length > 0 ? (
             <ul className="list-unstyled mb-0">
               {logs.map((log, i) => (
                 <li key={i} className="mb-2">
-                  <div className="fw-semibold">{log.productName}</div>
-                  <small className="text-muted">
-                    {new Date(log.createdAt).toLocaleString("ko-KR")} · {log.event}
-                  </small>
+                  {log.productName} <small className="text-muted">({new Date(log.createdAt).toLocaleString("ko-KR")})</small>
+                  <span> - {log.adminName}</span>
                 </li>
               ))}
             </ul>

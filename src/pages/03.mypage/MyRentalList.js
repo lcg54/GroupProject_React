@@ -208,7 +208,9 @@ export default function MyRentalList() {
 
                             <div className="flex-grow-1 ms-3">
                               <div className="d-flex align-items-center gap-3 mb-3">
-                                <Card.Title className="h7 mb-0" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "325px" }}>
+                                <Card.Title className="h7 mb-0" 
+                                  style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "325px" }}
+                                >
                                   {item.productName}
                                 </Card.Title>
                                 <Button

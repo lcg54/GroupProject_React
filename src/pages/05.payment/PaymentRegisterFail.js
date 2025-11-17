@@ -1,7 +1,7 @@
 import { Button } from "react-bootstrap";
 import { useLocation, useNavigate } from "react-router-dom";
 
-export default function PaymentRegisterFail() {
+export default function PaymentRegisterFail({ user }) {
   const navigate = useNavigate();
 
   const { search } = useLocation();

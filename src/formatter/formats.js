@@ -1,4 +1,5 @@
 import { StarFill, StarHalf, Star } from "react-bootstrap-icons";
+import { FaCreditCard } from "react-icons/fa";
 
 export const formatDate = (dateString) => {
   if (!dateString) return "정보 없음";
@@ -35,4 +36,10 @@ export const renderStars = (rating) => {
     }
   }
   return <span>{stars}</span>;
+};
+
+export const maskCardNumber = (cardNum) => {
+  if (!cardNum) return "";
+  const visible = cardNum.slice(-4);
+  return '****-****-****-' + visible;
 };

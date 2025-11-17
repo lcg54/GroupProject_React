@@ -1,0 +1,201 @@
+/* BACKDROP */
+.tb-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1060;
+}
+
+/* MAIN MODAL */
+.tb-modal {
+  width: 730px;
+  height: 540px;
+  background: #ffffff;
+  border-radius: 22px;
+  display: flex;
+  overflow: hidden;
+  font-family: 'Pretendard', 'Spoqa Han Sans Neo', sans-serif;
+}
+
+/* LEFT PANEL */
+.tb-left {
+  width: 240px;
+  background: #f9fafb;
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.tb-left-header {
+}
+
+.tb-logo {
+  width: 110px;
+  margin-bottom: 30px;
+}
+
+.tb-title {
+  font-size: 25px;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 8px;
+}
+
+.tb-merchant {
+  margin-top: 15px;
+  font-size: 14px;
+  color: #6b7684;
+}
+
+.tb-test-badge {
+  background: #ffca28;
+  color: black;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 20px;
+  width: fit-content;
+}
+
+/* RIGHT PANEL */
+.tb-right {
+  flex: 1;
+  padding: 32px 36px;
+  position: relative;
+}
+
+/* CLOSE BUTTON */
+.tb-close {
+  position: absolute;
+  top: 22px;
+  right: 28px;
+  border: none;
+  background: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: #505b66;
+}
+
+/* TABS */
+.tb-tabs {
+  width: 240px;
+  display: flex;
+  background: #f1f3f5;
+  border-radius: 12px;
+  margin-bottom: 22px;
+  padding: 3px;
+}
+
+.tb-tab {
+  flex: 1;
+  text-align: center;
+  padding: 8px 0;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+  color: #6b7684;
+  font-weight: 500;
+}
+
+.tb-tab.active {
+  background: #ffffff;
+  color: #1b1e23;
+  font-weight: 600;
+}
+
+/* LABEL */
+.tb-label {
+  font-size: 13px;
+  color: #8b95a1;
+  margin-bottom: 6px;
+  margin-top: 16px;
+}
+
+/* CARD NUMBER */
+.tb-card-row {
+  display: flex;
+  gap: 10px;
+}
+
+.tb-card-row input {
+  width: 90px;
+  padding: 14px 10px;
+  font-size: 16px;
+  border: 1px solid #d1d6db;
+  border-radius: 12px;
+}
+
+/* EXPIRY */
+.tb-expiry {
+  width: 390px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid #d1d6db;
+  font-size: 16px;
+}
+
+/* RRN */
+.tb-rrn-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tb-rrn-row input {
+  padding: 14px 10px;
+  font-size: 16px;
+  border: 1px solid #d1d6db;
+  border-radius: 12px;
+  width: 150px;
+}
+
+.tb-rrn-row input:last-of-type {
+  width: 60px;
+}
+
+.tb-hidden-dots {
+  font-size: 15px;
+  color: #b0b8c1;
+  letter-spacing: 3px;
+}
+
+.tb-dash {
+  font-size: 20px;
+  color: #6b7684;
+}
+
+/* AGREEMENT */
+.tb-agree {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 45px;
+  font-size: 13px;
+  color: #6b7684;
+}
+
+.tb-agree input {
+  width: 16px;
+  height: 16px;
+}
+
+/* BUTTON */
+.tb-submit-btn {
+  margin-top: 22px;
+  width: 100%;
+  padding: 15px 0;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 600;
+  background: #3182f6;
+  color: white;
+  cursor: pointer;
+}
+
+.tb-submit-btn:active {
+  background: #2275ea;
+}

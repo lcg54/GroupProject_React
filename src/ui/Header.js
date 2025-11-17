@@ -173,6 +173,9 @@ export default function Header({ user, onLogout }) {
             <Button variant="light" onClick={() => { navigate('/admin/saleshistory'); setMenuOpen(false); }}>
               판매실적 조회
             </Button>
+            <Button variant="light" onClick={() => { navigate('/admin/calendar'); setMenuOpen(false); }}>
+              서비스 일정 조회
+            </Button>
             <Button variant="light" onClick={() => { navigate('/admin/cart'); setMenuOpen(false); }}>
               장바구니 조회
             </Button>

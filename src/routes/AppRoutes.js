@@ -28,6 +28,7 @@ import AdminCartList from "../pages/04.adminpage/AdminCartList";
 import AdminRentalListPage from "../pages/04.adminpage/AdminRentalListPage";
 import SalesHistory from '../pages/04.adminpage/SalesHistory';
 import AdminInquiryList from "../pages/04.adminpage/AdminInquiryList";
+import AdminServiceCalendar from "../pages/04.adminpage/calendar/AdminServiceCalendar";
 
 import PaymentConfirm from "../pages/05.payment/PaymentConfirm";
 import PaymentRegisterSuccess from "../pages/05.payment/PaymentRegisterSuccess";
@@ -73,6 +74,7 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
       <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />
       <Route path="/admin/inquiry" element={<AdminInquiryList user={user} />} />
+      <Route path="/admin/calendar" element={<AdminServiceCalendar user={user} />} />
 
       {/* /payment - 결제페이지 */}
 

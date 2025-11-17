@@ -19,7 +19,7 @@ export default function AdminInquiryList({ user }) {
     const [filterAnswered, setFilterAnswered] = useState(null); // null: 전체, true: 답변완료, false: 답변대기
     const [loading, setLoading] = useState(false);
 
-    // 답변 수정 상태: { [inquiryId]: '수정중인 텍스트' }
+    // 답변 수정 상태
     const [editingComments, setEditingComments] = useState({});
 
     const navigate = useNavigate();
@@ -31,7 +31,6 @@ export default function AdminInquiryList({ user }) {
             return;
         }
         fetchInquiries();
-
     }, [paging.pageNumber, sortOrder, filterAnswered]);
 
     const fetchInquiries = async () => {
@@ -84,19 +83,12 @@ export default function AdminInquiryList({ user }) {
         }
     };
 
-    // 답변 수정 모드 토글 (키 존재 여부로 토글)
+    // 답변 수정 모드 토글
     const toggleEditComment = (inquiryId, currentComment) => {
-        setEditingComments(prev => {
-            if (Object.prototype.hasOwnProperty.call(prev, inquiryId)) {
-                // 이미 수정모드면 키 삭제해서 종료
-                const copy = { ...prev };
-                delete copy[inquiryId];
-                return copy;
-            } else {
-                // 수정모드로 진입, 현재 코멘트를 초기값으로 넣음
-                return { ...prev, [inquiryId]: currentComment ?? '' };
-            }
-        });
+        setEditingComments(prev => ({
+            ...prev,
+            [inquiryId]: prev[inquiryId] ? null : currentComment,
+        }));
     };
 
     // 답변 수정 제출
@@ -113,12 +105,7 @@ export default function AdminInquiryList({ user }) {
                 { comment: newComment }
             );
             alert('답변이 수정되었습니다.');
-            // 수정 성공하면 해당 키 제거해서 수정모드 종료
-            setEditingComments(prev => {
-                const copy = { ...prev };
-                delete copy[inquiry.id];
-                return copy;
-            });
+            setEditingComments(prev => ({ ...prev, [inquiry.id]: null }));
             fetchInquiries();
         } catch (err) {
             console.error('❌ 답변 수정 실패:', err);
@@ -239,7 +226,7 @@ export default function AdminInquiryList({ user }) {
                                     <div className="d-flex justify-content-between align-items-center mb-3 p-2 bg-light rounded">
                                         <div className="d-flex align-items-center gap-2">
                                             <Box size={18} />
-                                            <span className="fw-bold">상품 ID: {inquiry.productId}</span>
+                                            <span className="fw-bold">{inquiry.productName}</span>
                                         </div>
                                         <Button
                                             variant="outline-primary"
@@ -287,13 +274,13 @@ export default function AdminInquiryList({ user }) {
                                                 <span>{new Date(inquiry.adminComment.createdAt).toLocaleString()}</span>
                                             </div>
 
-                                            {Object.prototype.hasOwnProperty.call(editingComments, inquiry.id) ? (
+                                            {editingComments[inquiry.id] !== undefined ? (
                                                 // 수정 모드
                                                 <>
                                                     <Form.Control
                                                         as="textarea"
                                                         rows={3}
-                                                        value={editingComments[inquiry.id] || ''}
+                                                        value={editingComments[inquiry.id]}
                                                         onChange={(e) =>
                                                             setEditingComments(prev => ({
                                                                 ...prev,

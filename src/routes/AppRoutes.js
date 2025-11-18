@@ -25,10 +25,11 @@ import MyWishListPage from "../pages/03.mypage/MyWishListPage";
 import ProductInsertForm from "../pages/04.adminpage/ProductInsertForm";
 import ProductUpdateForm from "../pages/04.adminpage/ProductUpdateForm";
 import AdminCartList from "../pages/04.adminpage/AdminCartList";
-import AdminRentalListPage from "../pages/04.adminpage/AdminRentalList";
+import AdminRentalListPage from "../pages/04.adminpage/AdminRentalListPage";
 import SalesHistory from '../pages/04.adminpage/SalesHistory';
+import AdminInquiryList from "../pages/04.adminpage/AdminInquiryList";
+import AdminServiceCalendar from "../pages/04.adminpage/calendar/AdminServiceCalendar";
 
-import PaymentPage from "../pages/05.payment/PaymentPage";
 import PaymentConfirm from "../pages/05.payment/PaymentConfirm";
 import PaymentRegisterSuccess from "../pages/05.payment/PaymentRegisterSuccess";
 import PaymentRegisterFail from "../pages/05.payment/PaymentRegisterFail";
@@ -72,17 +73,17 @@ export default function AppRoutes({ user, setUser, handleLogout }) {
       <Route path="/admin/cart" element={<AdminCartList user={user} />} />
       <Route path="/admin/rental" element={<AdminRentalListPage user={user} />} />
       <Route path="/admin/saleshistory" element={<SalesHistory user={user} />} />
-
+      <Route path="/admin/inquiry" element={<AdminInquiryList user={user} />} />
+      <Route path="/admin/calendar" element={<AdminServiceCalendar user={user} />} />
 
       {/* /payment - 결제페이지 */}
 
-      {/* 인스턴트 결제 (결제 실패 페이지는 따로 안 만들었음) */}
-      <Route path="/payment" element={<PaymentPage />} />
+      {/* 인스턴트 결제 */}
       <Route path="/payment/confirm" element={<PaymentConfirm />} />
 
-      {/* 정기 결제 수단 등록 (등록은 마이페이지-내정보에서) */}
-      <Route path="/payment/success" element={<PaymentRegisterSuccess />} />
-      <Route path="/payment/fail" element={<PaymentRegisterFail />} />
+      {/* 정기 결제 수단 등록 */}
+      <Route path="/payment/success" element={<PaymentRegisterSuccess user={user} />} />
+      <Route path="/payment/fail" element={<PaymentRegisterFail user={user} />} />
 
       {/* 정기 결제 */}
       <Route path="/payment/subscription" element={<SubscriptionMadal user={user} />} />

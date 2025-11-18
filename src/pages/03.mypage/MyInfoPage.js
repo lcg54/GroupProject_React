@@ -1,42 +1,45 @@
 import { useEffect, useState } from "react";
-import { Container, Card, Row, Col, Form, Button, ListGroup } from "react-bootstrap";
+import { Container, Card, Row, Col, Form, Button, InputGroup } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
-import { loadTossPayments } from "@tosspayments/payment-sdk";
 import axios from "axios";
 import { CLIENT_KEY, CUSTOMER_KEY } from "../../constant/keys";
 import { API_BASE_URL } from '../../config/url';
 import { PencilSquare } from "react-bootstrap-icons";
-import { FaCreditCard } from "react-icons/fa";
+import { FaCreditCard, FaTimes } from "react-icons/fa";
+import TossCardRegisterModal from "../05.payment/TossCardResisterModal";
+import { maskCardNumber } from "../../formatter/formats";
 
 export default function MyInfoPage() {
   const { user } = useOutletContext();
   const [cards, setCards] = useState([]);
+
+  const [showModal, setShowModal] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) return;
-    fetchRegisteredCards(CUSTOMER_KEY(user.id));
+    fetchCards();
   }, [user]);
 
-  const fetchRegisteredCards = async (key) => {
+  const fetchCards = async () => {
     try {
-      const res = await axios.get(`${API_BASE_URL}/payment/cards/${key}`);
-      setCards(res.data.data);
+      const res = await axios.get(`${API_BASE_URL}/fake/payments/cards/${user.id}`);
+      setCards(res.data);
     } catch (err) {
-      console.error("카드 조회 실패:", err);
+      console.error(err);
     }
   };
 
-  const handleRegisterCard = async () => {
+  const handleDeleteCard = async (cardId) => {
+    if (!window.confirm("정말 이 카드를 삭제하시겠습니까?")) return;
     try {
-      const tossPayments = await loadTossPayments(CLIENT_KEY);
-      await tossPayments.requestBillingAuth("CARD", {
-        customerKey: CUSTOMER_KEY(user.id),
-        successUrl: "http://localhost:3000/payment/success",
-        failUrl: "http://localhost:3000/payment/fail",
-      });
-    } catch (error) {
-      console.error("카드 등록 실패:", error);
+      await axios.delete(`${API_BASE_URL}/fake/payments/card/${cardId}/${user.id}`);
+      setCards(cards.filter(card => card.id !== cardId));
+      alert("등록된 카드가 삭제되었습니다.");
+    } catch (err) {
+      console.error(err);
+      alert("카드 삭제 중 오류가 발생했습니다.");
     }
   };
 
@@ -93,19 +96,30 @@ export default function MyInfoPage() {
               </Col>
             </Row>
             
-            <Row className="p-2">
+            <Row className="mb-2 p-2">
               <Col md={6}>
-                <h6>결제수단</h6>
+                <Form.Label>결제수단</Form.Label>
                 {cards.length > 0 ? (
-                  <ListGroup>
-                    {cards.map((card) => (
-                      <ListGroup.Item key={card.billingKey}>
-                        💳 {card.cardCompany} ****{card.lastFourDigits}  
-                      </ListGroup.Item>
+                  <Form>
+                    {cards.map(card => (
+                      <Form.Group key={card.id} className="mb-2" controlId={`card-${card.id}`}>
+                        <InputGroup>
+                          <InputGroup.Text>
+                            <FaCreditCard />
+                          </InputGroup.Text>
+                          <Form.Control type="text" value={maskCardNumber(card.cardNum)} readOnly />
+                          <Button 
+                            variant="outline-danger" 
+                            onClick={() => handleDeleteCard(card.id)}
+                          >
+                            <FaTimes />
+                          </Button>
+                        </InputGroup>
+                      </Form.Group>
                     ))}
-                  </ListGroup>
+                  </Form>
                 ) : (
-                  <p className="text-muted mt-2">등록된 결제수단이 없습니다.</p>
+                  <p>등록된 결제수단이 없습니다.</p>
                 )}
               </Col>
             </Row>
@@ -114,11 +128,15 @@ export default function MyInfoPage() {
         
         <Card.Footer>
           <div className="p-2 d-flex justify-content-end gap-3">
-            <Button variant="outline-primary" onClick={handleRegisterCard}><FaCreditCard /> 결제 수단 등록</Button>
+            <Button variant="outline-primary" onClick={() => setShowModal(true)}><FaCreditCard /> 결제 수단 등록</Button>
             <Button variant="outline-dark" onClick={() => navigate('/member/edit')}><PencilSquare /> 내 정보 수정</Button>
           </div>
         </Card.Footer>
       </Card>
+
+      {showModal && (
+        <TossCardRegisterModal user={user} customerKey={CUSTOMER_KEY(user.id)} onClose={() => {setShowModal(false); fetchCards();}} />
+      )}
     </Container>
   );
 }

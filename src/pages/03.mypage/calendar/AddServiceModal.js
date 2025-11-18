@@ -46,15 +46,15 @@ export default function AddServiceModal({ day, selectedRental, onClose }) {
                         weekday: 'long'
                     })}</strong>
                 </p>
-                <p>이 날짜를 서비스 날짜로 선택하시겠습니까?</p>
+                <p>해당 일자로 서비스를 신청하시겠습니까?</p>
             </Modal.Body>
             <Modal.Footer>
-                <Button variant="secondary" onClick={handleCancel}>
-                    취소
-                </Button>
                 <Button variant="primary" onClick={handleConfirm}>
                     확인
                 </Button>
+                <Button variant="danger" onClick={handleCancel}>
+                    취소
+                </Button>   
             </Modal.Footer>
         </Modal>
     );

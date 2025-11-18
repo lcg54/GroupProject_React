@@ -342,7 +342,7 @@ export default function MyCalendar() {
           <Form.Select
             onChange={(e) => handleRentalSelect(Number(e.target.value))}
             value={selectedRental?.productId || ""}
-            style={{ width: "200px" }}
+            style={{ width: "230px" }}
           >
             <option value="">상품을 선택하세요</option>
             {rentals.map((r) => (
@@ -356,7 +356,7 @@ export default function MyCalendar() {
             key={quickMoveKey}
             defaultValue=""
             onChange={(e) => handleQuickMove(e.target.value)}
-            style={{ width: "180px" }}
+            style={{ width: "140px" }}
           >
             <option value="today">빠른 이동</option>
             <option value="today">오늘로 가기</option>
@@ -378,7 +378,7 @@ export default function MyCalendar() {
                   // 상품 변경 시에는 handleRentalSelect에서 초기화됩니다.
                 }
               }}
-              style={{ width: "180px" }}
+              style={{ width: "160px" }}
             >
               <option value="">예약일 보기</option>
               {serviceDates.map((sd, idx) => (
@@ -395,11 +395,18 @@ export default function MyCalendar() {
         </div>
 
         <div className="d-flex justify-content-end gap-2 w-100">
-          <Button variant="outline-secondary" onClick={() => handleMoveYear("prev")}>
-            ⏪ 1년
+          <Button
+            variant="outline-secondary"
+            onClick={() => handleMoveYear("prev")}
+          >
+            ⏪ {currentMonth.getFullYear() - 1}
           </Button>
-          <Button variant="outline-secondary" onClick={() => handleMoveYear("next")}>
-            1년 ⏩
+
+          <Button
+            variant="outline-secondary"
+            onClick={() => handleMoveYear("next")}
+          >
+            {currentMonth.getFullYear() + 1} ⏩
           </Button>
         </div>
       </Form>

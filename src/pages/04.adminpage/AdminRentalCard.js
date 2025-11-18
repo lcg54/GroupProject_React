@@ -18,7 +18,9 @@ export default function AdminRentalCard({ item, onStatusChange, onSelect, select
                 onChange={onSelect}
                 className="me-2"
               />
-              <Card.Title className="mb-0">{item.productName}</Card.Title>
+              <Card.Title className="mb-0" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "330px" }}>
+                {item.productName}
+                </Card.Title>
             </div>
 
             <div className="gap-2 d-flex">

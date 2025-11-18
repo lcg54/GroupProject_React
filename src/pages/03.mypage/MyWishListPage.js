@@ -1,6 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { Button, Container } from "react-bootstrap";
+import { Button, Container, Form } from "react-bootstrap";
 import { useNavigate, useOutletContext } from "react-router-dom";
 import { API_BASE_URL } from "../../config/url";
 import calcMonthlyPrice from "../../formatter/calcMonthlyPrice";
@@ -8,7 +8,6 @@ import calcMonthlyPrice from "../../formatter/calcMonthlyPrice";
 export default function MyWishListPage() {
   const { user } = useOutletContext();
   const [wishedProducts, setWishedProducts] = useState([]);
-
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -35,7 +34,7 @@ export default function MyWishListPage() {
       for (let index = 0; index < wishedProductIdList.length; index++) {
         const productId = wishedProductIdList[index];
         const { data: productDetail } = await axios.get(`${API_BASE_URL}/product/${productId}`);
-        productDetails.push(productDetail);
+        productDetails.push({ ...productDetail, selected: false }); // selected 필드 추가
       }
       setWishedProducts(productDetails);
     } catch (error) {
@@ -46,30 +45,44 @@ export default function MyWishListPage() {
     }
   }
 
-  // 전체 찜 해제 (모든 상품 토글)
-  async function removeAllFromWishlist() {
+  const handleSelectAll = (e) => {
+    const checked = e.target.checked;
+    setWishedProducts(wishedProducts.map(p => ({ ...p, selected: checked })));
+  };
+
+  const handleProductSelect = (id) => {
+    setWishedProducts(wishedProducts.map(p => p.id === id ? { ...p, selected: !p.selected } : p));
+  };
+
+  const handleDeleteSelected = async () => {
     if (!user) {
       alert("로그인이 필요합니다.");
       navigate("/member/login");
       return;
     }
-    if (wishedProducts.length === 0) {
-      alert("찜한 상품이 없습니다.");
+
+    const selectedProducts = wishedProducts.filter(p => p.selected);
+    if (selectedProducts.length === 0) {
+      alert("삭제할 상품을 선택해주세요.");
       return;
     }
-    const isConfirmed = window.confirm(`${wishedProducts.length}개 상품을 모두 해제할까요?`);
+
+    const isConfirmed = window.confirm(`${selectedProducts.length}개 상품을 삭제하시겠습니까?`);
     if (!isConfirmed) return;
 
-    for (let index = 0; index < wishedProducts.length; index++) {
-      const product = wishedProducts[index];
-      await axios.post(`${API_BASE_URL}/wishlist/toggle`, {
+    try {
+      await axios.post(`${API_BASE_URL}/wishlist/delete-selected`, {
         memberId: user.id,
-        productId: product.id,
+        productIds: selectedProducts.map(p => p.id),
       });
+
+      alert("선택한 상품이 삭제되었습니다.");
+      loadMyWishlist();
+    } catch (err) {
+      console.error(err);
+      alert("상품 삭제 중 오류가 발생했습니다.");
     }
-    alert("전체 해제되었습니다.");
-    setWishedProducts([]);
-  }
+  };
 
   if (!user) {
     return <Container className="mt-4">로그인 후 확인할 수 있습니다.</Container>;
@@ -100,9 +113,24 @@ export default function MyWishListPage() {
     <Container className="mt-4" style={{ maxWidth: 720 }}>
       <div className="d-flex justify-content-between align-items-center mb-3">
         <h4 className="mb-0">내가 찜한 상품</h4>
-        <Button variant="outline-danger" size="sm" onClick={removeAllFromWishlist}>
-          전체 해제
-        </Button>
+        <div className="d-flex align-items-center">
+          <Form.Check
+            type="checkbox"
+            id="select-all"
+            label="전체 선택"
+            checked={wishedProducts.length > 0 && wishedProducts.every(p => p.selected)}
+            onChange={handleSelectAll}
+            className="me-2"
+          />
+          <Button
+            variant="outline-danger"
+            size="sm"
+            disabled={wishedProducts.every(p => !p.selected)}
+            onClick={handleDeleteSelected}
+          >
+            선택 삭제
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -115,9 +143,14 @@ export default function MyWishListPage() {
             <li
               key={product.id}
               className="d-flex align-items-center mb-3 p-2 border rounded"
-              style={{ cursor: "pointer", backgroundColor: "#fff" }}
-              onClick={() => navigate(`/product/${product.id}`)}
+              style={{ backgroundColor: "#fff" }}
             >
+              <Form.Check
+                type="checkbox"
+                checked={product.selected}
+                onChange={() => handleProductSelect(product.id)}
+                className="me-2"
+              />
               <img
                 src={product.mainImage ? `${API_BASE_URL}/images${product.mainImage.replace(/^.*[\\/](category.*)/, '/$1')}` : ""}
                 alt={product.name}
@@ -127,11 +160,11 @@ export default function MyWishListPage() {
                   objectFit: "contain",
                   borderRadius: 8,
                   marginRight: 16,
-                  marginLeft: 16,
                 }}
+                onClick={() => navigate(`/product/${product.id}`)}
               />
-              <div className="flex-grow-1">
-                <div className="fw-bold" style={{ whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "350px", marginBottom: 4 }}>
+              <div className="flex-grow-1" onClick={() => navigate(`/product/${product.id}`)}>
+                <div className="fw-bold text-truncate" style={{ maxWidth: "350px", marginBottom: 4 }}>
                   {product.name}
                 </div>
                 <div className="text-muted" style={{ marginBottom: 2 }}>
@@ -141,7 +174,7 @@ export default function MyWishListPage() {
                   ⭐ {Number(product.averageRating).toFixed(1)} ({product.reviewCount})
                 </div>
               </div>
-              <div className="text-end" style={{ minWidth: 150, marginRight:"30px" }}>
+              <div className="text-end" style={{ minWidth: 150, marginRight: "30px" }}>
                 <div className="text-primary" style={{ fontSize: "1.05rem" }}>
                   최대 월 {((product.monthlyPrice ?? calcMonthlyPrice(6, Number(product.price) || 0))).toLocaleString()}원
                 </div>

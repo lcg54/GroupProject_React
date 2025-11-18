@@ -62,11 +62,11 @@ export default function RemoveServiceModal({ day, selectedRental, onClose }) {
         <p>선택을 취소하시겠습니까?</p>
       </Modal.Body>
       <Modal.Footer>
-        <Button variant="secondary" onClick={handleCancel}>
-          취소
-        </Button>
-        <Button variant="danger" onClick={handleConfirm}>
+        <Button variant="primary" onClick={handleConfirm}>
           확인
+        </Button>
+        <Button variant="danger" onClick={handleCancel}>
+          취소
         </Button>
       </Modal.Footer>
     </Modal>

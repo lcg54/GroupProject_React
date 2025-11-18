@@ -84,31 +84,6 @@ export default function MyWishListPage() {
     }
   };
 
-  if (!user) {
-    return <Container className="mt-4">로그인 후 확인할 수 있습니다.</Container>;
-  }
-
-  async function handleRemoveItem(e, productId) {
-  e.stopPropagation(); // 상세페이지로 이동 막기
-
-  const isConfirmed = window.confirm("이 상품을 찜 목록에서 제거할까요?");
-  if (!isConfirmed) return;
-
-  try {
-    await axios.post(`${API_BASE_URL}/wishlist/toggle`, {
-      memberId: user.id,
-      productId: productId,
-    });
-
-    // 성공하면 리스트에서 제거
-    setWishedProducts(prev =>
-      prev.filter((p) => p.id !== productId)
-    );
-  } catch (error) {
-    alert("찜 해제 중 오류가 발생했습니다.");
-  }
-}
-
   return (
     <Container className="mt-4" style={{ maxWidth: 720 }}>
       <div className="d-flex justify-content-between align-items-center mb-3">
@@ -180,22 +155,6 @@ export default function MyWishListPage() {
                 </div>
                 <div className="mt-1" style={{ fontSize: "0.9rem" }}>x 6년 (72개월)</div>
               </div>
-              <button
-                className="btn btn-outline-danger p-0"
-                style={{
-                  width: "20px",
-                  height: "20px",
-                  fontSize: "13px",
-                  borderRadius: "4px",   
-                  marginLeft: "12px",
-                  textAlign: "center",
-                  lineHeight: "18px",    
-                  padding: 0,
-                }}
-                onClick={(e) => handleRemoveItem(e, product.id)}
-              >
-                ✕
-              </button>
             </li>
           ))}
         </ul>

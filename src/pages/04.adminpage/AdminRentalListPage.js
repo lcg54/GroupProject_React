@@ -84,7 +84,6 @@ export default function AdminRentalListPage({ user }) {
       alert("변경할 상품을 선택해주세요.");
       return;
     }
-    if (!window.confirm(`선택한 ${selectedItems.length}개의 상품 상태를 '${RentalStatusLabel(newStatus)}'로 변경하시겠습니까?`)) return;
 
     try {
       await Promise.all(

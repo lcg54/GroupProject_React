@@ -1,16 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  Container,
-  Row,
-  Accordion,
-  Card,
-  Pagination,
-  Dropdown,
-  Form,
-  Button,
-  Badge,
-} from "react-bootstrap";
+import { Container, Row, Accordion, Card, Pagination, Dropdown, Form, Button, Badge } from "react-bootstrap";
 import axios from "axios";
 import { API_BASE_URL } from "../../config/url";
 import { Pencil, Trash, Box } from "react-bootstrap-icons";
@@ -27,19 +17,21 @@ export default function AdminInquiryList({ user }) {
   const [activeKey, setActiveKey] = useState(null);
   const [sortOrder, setSortOrder] = useState("latest");
   const [filterAnswered, setFilterAnswered] = useState(null); // null: 전체, true: 답변완료, false: 답변대기
-  const [loading, setLoading] = useState(false);
+  const [totalWaiting, setTotalWaiting] = useState(0); // 미답변 문의글 수
+  const [editingComments, setEditingComments] = useState({}); // 답변 수정 상태
 
-  // 답변 수정 상태
-  const [editingComments, setEditingComments] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user || user.role !== "ADMIN") {
-      alert("관리자만 접근 가능합니다.");
-      navigate("/");
-      return;
+    const storedUser = JSON.parse(sessionStorage.getItem("user")) || user;
+    if (!storedUser) return;
+    if (storedUser.role !== "ADMIN") {
+      alert("관리자만 접근 가능한 페이지입니다.");
+      navigate(`/member/login`);
     }
+    fetchWaitingCount();
     fetchInquiries();
   }, [paging.pageNumber, sortOrder, filterAnswered]);
 
@@ -67,6 +59,15 @@ export default function AdminInquiryList({ user }) {
       console.error("❌ 문의 불러오기 실패:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchWaitingCount = async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/admin/inquiry/count-waiting`);
+      setTotalWaiting(response.data.waitingCount);
+    } catch (err) {
+      console.error("❌ 답변대기 상태인 문의글 수 불러오기 실패:", err);
     }
   };
 
@@ -165,9 +166,9 @@ export default function AdminInquiryList({ user }) {
       <div className="d-flex justify-content-between align-items-center mb-3">
         <div className="d-flex gap-2 align-items-center">
           <span>전체 {paging.totalElements}건</span>
-          <Badge bg={filterAnswered === false ? "danger" : "secondary"}>
-            답변 대기: {inquiries.filter((i) => !i.adminComment).length}
-          </Badge>
+            <Badge bg={filterAnswered === false ? "danger" : "secondary"}>
+              답변 대기: {totalWaiting}
+            </Badge>
         </div>
 
         <div className="d-flex gap-2">

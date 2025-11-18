@@ -39,7 +39,7 @@ export default function TossCardResisterModal({ user, customerKey, onClose }) {
         <div className="tb-left">
           <div className="tb-left-header">
             <img
-              src="https://static.toss.im/web-general/android-192x192.png"
+              src="https://media-cdn.linkareer.com/activity_manager/logos/490152"
               alt="toss"
               className="tb-logo"
             />
